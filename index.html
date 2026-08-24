@@ -26,7 +26,6 @@
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { display: flex; height: 100vh; height: 100dvh; overflow: hidden; background: var(--bg-app); color: var(--text-dark); }
 
-        /* SIDEBAR DESKTOP */
         aside {
             width: 240px; background: var(--bg-sidebar);
             display: flex; flex-direction: column; justify-content: space-between;
@@ -50,7 +49,6 @@
         .nav-btn:hover { background: var(--bg-sidebar-hover); color: #fff; }
         .nav-btn.active { background: var(--brand-orange); color: #fff; font-weight: 700; }
 
-        /* BARRA INFERIOR MOBILE */
         .mobile-bottom-nav {
             display: none; position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
             background: #ffffff; border-top: 1px solid var(--border);
@@ -65,7 +63,6 @@
         .m-nav-item.active { color: var(--brand-orange); }
         .m-nav-item .icon { font-size: 19px; }
 
-        /* MAIN CONTAINER */
         main { flex: 1; display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; width: 100%; }
         .topbar {
             background: #fff; border-bottom: 1px solid var(--border);
@@ -74,7 +71,6 @@
         .view-content { display: none; padding: 16px; height: calc(100vh - 58px); height: calc(100dvh - 58px); overflow-y: auto; }
         .view-content.active { display: block; }
 
-        /* PDV GRID */
         .pdv-layout { display: grid; grid-template-columns: 1fr 380px; gap: 16px; height: 100%; }
         .catalog-section { display: flex; flex-direction: column; gap: 10px; height: 100%; overflow: hidden; }
 
@@ -365,7 +361,6 @@
             getDocs 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // CREDENCIAIS VINCULADAS AO PROJETO NEXCELL-6515
         const firebaseConfig = {
             apiKey: "AIzaSyBQ9Jw5tCaff3t4wgeAkfFr051s07wdlhg",
             authDomain: "nexcell-6515.firebaseapp.com",
@@ -387,11 +382,14 @@
             document.getElementById('liveClock').innerText = new Date().toLocaleTimeString('pt-BR'); 
         }, 1000);
 
-        // SINCRONIZAÇÃO EM TEMPO REAL COM O BANCO DE DADOS
+        // OUVE ALTERAÇÕES NO BANCO EM TEMPO REAL
         onSnapshot(collection(db, "produtos"), (snapshot) => {
             catalogo = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
             renderizarCatalogo(catalogo);
             renderizarTabelaEstoque(catalogo);
+        }, (error) => {
+            console.error("Erro na leitura do Firestore:", error);
+            alert("Erro ao sincronizar com o Firebase: " + error.message);
         });
 
         function renderizarCatalogo(itens) {
@@ -454,10 +452,14 @@
         document.getElementById('btnConfirmarRepor').onclick = async () => {
             const id = document.getElementById('reporProdId').value;
             const qtd = parseInt(document.getElementById('reporQtdInput').value);
-            await updateDoc(doc(db, "produtos", id), {
-                estoque: increment(qtd)
-            });
-            document.getElementById('modalReporEstoque').style.display = 'none';
+            try {
+                await updateDoc(doc(db, "produtos", id), {
+                    estoque: increment(qtd)
+                });
+                document.getElementById('modalReporEstoque').style.display = 'none';
+            } catch (err) {
+                alert("Erro ao repor estoque: " + err.message);
+            }
         };
 
         document.getElementById('btnAbrirNovoProd').onclick = () => {
@@ -488,28 +490,44 @@
         }
 
         document.getElementById('btnSalvarProd').onclick = async () => {
+            const btn = document.getElementById('btnSalvarProd');
+            btn.disabled = true;
+            btn.innerText = "Salvando...";
+
             const id = document.getElementById('editProdId').value;
             const payload = {
-                codigo: document.getElementById('editCodigo').value,
-                categoria: document.getElementById('editCategoria').value,
-                nome: document.getElementById('editNome').value,
-                marca: document.getElementById('editMarca').value,
-                modelo: document.getElementById('editModelo').value,
+                codigo: document.getElementById('editCodigo').value || '',
+                categoria: document.getElementById('editCategoria').value || 'Geral',
+                nome: document.getElementById('editNome').value || 'Sem Nome',
+                marca: document.getElementById('editMarca').value || 'Outros',
+                modelo: document.getElementById('editModelo').value || 'Geral',
                 preco: parseFloat(document.getElementById('editPreco').value || 0),
                 estoque: parseInt(document.getElementById('editEstoque').value || 0)
             };
 
-            if (id) {
-                await updateDoc(doc(db, "produtos", id), payload);
-            } else {
-                await addDoc(collection(db, "produtos"), payload);
+            try {
+                if (id) {
+                    await updateDoc(doc(db, "produtos", id), payload);
+                } else {
+                    await addDoc(collection(db, "produtos"), payload);
+                }
+                document.getElementById('modalEditarProduto').style.display = 'none';
+            } catch (err) {
+                console.error("Erro ao salvar produto:", err);
+                alert("Erro ao gravar no Firebase: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Salvar no Firestore";
             }
-            document.getElementById('modalEditarProduto').style.display = 'none';
         };
 
         async function excluirProduto(id) {
             if (!confirm('Excluir este produto do Firestore?')) return;
-            await deleteDoc(doc(db, "produtos", id));
+            try {
+                await deleteDoc(doc(db, "produtos", id));
+            } catch (err) {
+                alert("Erro ao excluir: " + err.message);
+            }
         }
 
         function addCarrinho(id) {
@@ -574,22 +592,26 @@
             const isMobile = window.innerWidth <= 850;
             const metodo = isMobile ? document.getElementById('cxMetodoMobile').value : document.getElementById('cxMetodoDesktop').value;
 
-            for (const item of carrinho) {
-                await updateDoc(doc(db, "produtos", item.id), {
-                    estoque: increment(-item.qtd)
+            try {
+                for (const item of carrinho) {
+                    await updateDoc(doc(db, "produtos", item.id), {
+                        estoque: increment(-item.qtd)
+                    });
+                }
+
+                await addDoc(collection(db, "vendas"), {
+                    valor_total: total,
+                    forma_pagamento: metodo,
+                    data_venda: new Date().toISOString()
                 });
+
+                alert(`✔️ Venda confirmada de ${total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}!`);
+                carrinho = [];
+                atualizarCarrinho();
+                document.getElementById('modalCarrinhoMobile').classList.remove('active');
+            } catch (err) {
+                alert("Erro ao registrar venda: " + err.message);
             }
-
-            await addDoc(collection(db, "vendas"), {
-                valor_total: total,
-                forma_pagamento: metodo,
-                data_venda: new Date().toISOString()
-            });
-
-            alert(`✔️ Venda confirmada de ${total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}!`);
-            carrinho = [];
-            atualizarCarrinho();
-            document.getElementById('modalCarrinhoMobile').classList.remove('active');
         }
 
         document.getElementById('btnConcluirDesktop').onclick = finalizarVenda;
@@ -603,7 +625,6 @@
             document.getElementById('modalCarrinhoMobile').classList.remove('active');
         };
 
-        // PESQUISA EM TEMPO REAL
         document.getElementById('barcodeReader').oninput = (e) => {
             const b = e.target.value.toLowerCase();
             const filtrados = catalogo.filter(p => 
@@ -615,38 +636,40 @@
             renderizarCatalogo(filtrados);
         };
 
-        // FECHAMENTO DE CAIXA
         async function carregarFechamento() {
-            const snapshot = await getDocs(collection(db, "vendas"));
-            const stream = document.getElementById('balancoStream');
-            stream.innerHTML = '';
-            let totalGeral = 0;
-            const balanco = {};
+            try {
+                const snapshot = await getDocs(collection(db, "vendas"));
+                const stream = document.getElementById('balancoStream');
+                stream.innerHTML = '';
+                let totalGeral = 0;
+                const balanco = {};
 
-            snapshot.docs.forEach(docSnap => {
-                const v = docSnap.data();
-                balanco[v.forma_pagamento] = (balanco[v.forma_pagamento] || 0) + parseFloat(v.valor_total || 0);
-                totalGeral += parseFloat(v.valor_total || 0);
-            });
+                snapshot.docs.forEach(docSnap => {
+                    const v = docSnap.data();
+                    balanco[v.forma_pagamento] = (balanco[v.forma_pagamento] || 0) + parseFloat(v.valor_total || 0);
+                    totalGeral += parseFloat(v.valor_total || 0);
+                });
 
-            for (const [metodo, valor] of Object.entries(balanco)) {
+                for (const [metodo, valor] of Object.entries(balanco)) {
+                    stream.innerHTML += `
+                        <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid var(--border);">
+                            <span><b>${metodo}</b></span>
+                            <b>R$ ${parseFloat(valor).toFixed(2).replace('.', ',')}</b>
+                        </div>`;
+                }
+
                 stream.innerHTML += `
-                    <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid var(--border);">
-                        <span><b>${metodo}</b></span>
-                        <b>R$ ${parseFloat(valor).toFixed(2).replace('.', ',')}</b>
+                    <div style="display:flex; justify-content:space-between; padding:12px 8px; font-weight:800; font-size:15px;">
+                        <span>TOTAL DIA:</span>
+                        <span style="color:var(--brand-orange);">R$ ${totalGeral.toFixed(2).replace('.', ',')}</span>
                     </div>`;
+            } catch (err) {
+                alert("Erro ao buscar fechamento: " + err.message);
             }
-
-            stream.innerHTML += `
-                <div style="display:flex; justify-content:space-between; padding:12px 8px; font-weight:800; font-size:15px;">
-                    <span>TOTAL DIA:</span>
-                    <span style="color:var(--brand-orange);">R$ ${totalGeral.toFixed(2).replace('.', ',')}</span>
-                </div>`;
         }
 
         document.getElementById('btnAtualizarFechamento').onclick = carregarFechamento;
 
-        // FILTROS POR MARCA
         document.querySelectorAll('#ribbonContainer .ribbon-btn').forEach(btn => {
             btn.onclick = () => {
                 document.querySelectorAll('#ribbonContainer .ribbon-btn').forEach(b => b.classList.remove('active'));
@@ -656,7 +679,6 @@
             };
         });
 
-        // NAVEGAÇÃO
         function mudarAba(aba) {
             document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
             if (aba === 'vender') document.getElementById('viewVender').classList.add('active');
