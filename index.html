@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexCell • Sistema de Gestão & PDV</title>
+    <title>NexCell • PDV & Gestão de Acessórios</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -26,6 +26,7 @@
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; }
         body { display: flex; height: 100vh; overflow: hidden; background: var(--bg-app); color: var(--text-dark); }
 
+        /* SIDEBAR */
         aside { width: 250px; background: var(--bg-sidebar); display: flex; flex-direction: column; justify-content: space-between; border-right: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
         .store-profile { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 12px; margin-bottom: 20px; }
         .store-avatar { width: 36px; height: 36px; border-radius: 8px; background: var(--brand-orange); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; }
@@ -34,21 +35,22 @@
         .nav-btn:hover { background: var(--bg-sidebar-hover); color: #fff; }
         .nav-btn.active { background: var(--brand-orange); color: #fff; font-weight: 700; }
 
+        /* MAIN */
         main { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         .topbar { background: #fff; border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; }
-        .view-content { display: none; padding: 18px 24px; height: calc(100vh - 65px); overflow-y: auto; }
+        .view-content { display: none; padding: 20px 28px; height: calc(100vh - 65px); overflow-y: auto; }
         .view-content.active { display: block; }
 
-        /* PDV */
+        /* PDV GRID */
         .pdv-layout { display: grid; grid-template-columns: 1fr 380px; gap: 20px; height: 100%; }
         .catalog-section { display: flex; flex-direction: column; gap: 14px; height: 100%; overflow: hidden; }
-        .scanner-input-bar { display: flex; align-items: center; gap: 10px; background: #fff; border: 2px solid var(--brand-orange); border-radius: 12px; padding: 6px 14px; box-shadow: 0 4px 12px rgba(255, 122, 0, 0.06); }
+        .scanner-input-bar { display: flex; align-items: center; gap: 10px; background: #fff; border: 2px solid var(--brand-orange); border-radius: 12px; padding: 6px 14px; }
         .scanner-input-bar input { flex: 1; border: none; outline: none; padding: 8px 0; font-size: 14px; font-weight: 600; }
         .filter-ribbon { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
         .ribbon-btn { background: #fff; border: 1px solid var(--border); padding: 7px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; white-space: nowrap; }
         .ribbon-btn.active { background: var(--text-dark); color: #fff; border-color: var(--text-dark); }
-        .products-grid { flex: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); grid-auto-rows: 145px; gap: 12px; overflow-y: auto; padding-right: 4px; }
         
+        .products-grid { flex: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); grid-auto-rows: 145px; gap: 12px; overflow-y: auto; padding-right: 4px; }
         .prod-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; transition: all 0.15s ease; }
         .prod-card:hover { border-color: var(--brand-orange); transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.06); }
         .badge-brand { background: var(--brand-orange-light); color: var(--brand-orange); font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
@@ -64,7 +66,7 @@
         .btn-pay { background: var(--brand-orange); color: #fff; border: none; border-radius: 10px; padding: 14px; font-size: 15px; font-weight: 800; cursor: pointer; width: 100%; transition: background 0.15s; }
         .btn-pay:hover { background: var(--brand-orange-hover); }
 
-        /* TABELAS & CARDS */
+        /* TABELAS */
         .table-box { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; margin-top: 12px; }
         th { padding: 12px; border-bottom: 2px solid var(--border); color: var(--text-muted); font-size: 11px; text-transform: uppercase; }
@@ -77,6 +79,18 @@
         .modal-box { background: #fff; padding: 24px; border-radius: 16px; width: 460px; display: flex; flex-direction: column; gap: 12px; }
         .input-field { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; font-size: 14px; }
         .input-field:focus { border-color: var(--brand-orange); }
+
+        /* CONFIGURAÇÕES */
+        .config-wrapper { max-width: 880px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+        .config-tabs { display: flex; gap: 8px; border-bottom: 2px solid var(--border); padding-bottom: 2px; }
+        .cfg-tab-btn { background: none; border: none; padding: 10px 18px; font-size: 14px; font-weight: 700; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -4px; }
+        .cfg-tab-btn.active { color: var(--brand-orange); border-bottom-color: var(--brand-orange); }
+        .cfg-section-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: none; flex-direction: column; gap: 18px; }
+        .cfg-section-card.active { display: flex; }
+        .cfg-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .cfg-row { display: flex; flex-direction: column; gap: 6px; }
+        .cfg-label { font-size: 12px; font-weight: 700; color: var(--text-dark); }
+        .cfg-desc { font-size: 11px; color: var(--text-muted); }
     </style>
 </head>
 <body>
@@ -85,7 +99,7 @@
     <div id="modalLogin" class="modal-overlay" style="display: flex;">
         <div class="modal-box" style="width: 340px;">
             <h3 style="font-weight:800; font-size:18px;">📱 NexCell PDV</h3>
-            <p style="font-size:12px; color:var(--text-muted);">Acesso dos Operadores</p>
+            <p style="font-size:12px; color:var(--text-muted);">Terminal 100% Web (GitHub Pages)</p>
             <div><label style="font-size:11px; font-weight:700;">E-MAIL</label><input type="email" id="logEmail" class="input-field" value="admin@celular.com"></div>
             <div><label style="font-size:11px; font-weight:700;">SENHA</label><input type="password" id="logSenha" class="input-field" value="123"></div>
             <button class="btn-pay" onclick="efetuarLogin()">Entrar no Terminal</button>
@@ -117,7 +131,7 @@
         </div>
     </div>
 
-    <!-- MODAL REPOSIÇÃO RÁPIDA DE ESTOQUE -->
+    <!-- MODAL REPOSIÇÃO RÁPIDA -->
     <div id="modalReporEstoque" class="modal-overlay">
         <div class="modal-box" style="width:360px;">
             <h3>📦 Repor Entrada de Estoque</h3>
@@ -148,9 +162,9 @@
                     <option value="admin">Administrador (Total)</option>
                 </select>
             </div>
-            <div><label style="font-size:11px; font-weight:700;">SENHA (Deixe em branco para manter)</label><input type="password" id="userSenha" class="input-field"></div>
+            <div><label style="font-size:11px; font-weight:700;">SENHA</label><input type="password" id="userSenha" class="input-field"></div>
             <div style="display:flex; gap:8px; margin-top:8px;">
-                <button class="btn-pay" onclick="salvarUsuarioSQL()">Salvar Usuário</button>
+                <button class="btn-pay" onclick="salvarUsuarioLocal()">Salvar Usuário</button>
                 <button class="btn-sm" style="background:#f1f5f9; width:100px;" onclick="document.getElementById('modalUsuario').style.display='none'">Cancelar</button>
             </div>
         </div>
@@ -271,7 +285,6 @@
                             <th>Nome</th>
                             <th>E-mail</th>
                             <th>Cargo / Nível</th>
-                            <th>Criado Em</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -283,7 +296,7 @@
         <!-- ABA 4: FECHAMENTO DE CAIXA -->
         <div id="viewFechamento" class="view-content">
             <div style="max-width:500px; background:#fff; padding:24px; border-radius:14px; border:1px solid var(--border);">
-                <h3 style="font-size:16px; margin-bottom:14px;">📊 Resumo do Caixa de Hoje</h3>
+                <h3 style="font-size:16px; margin-bottom:14px;">📊 Resumo do Caixa</h3>
                 <div id="balancoStream" style="display:flex; flex-direction:column; gap:8px;"></div>
                 <button class="btn-pay" style="margin-top:14px;" onclick="carregarFechamento()">Atualizar Balanço</button>
                 <button class="btn-sm" style="margin-top:8px; width:100%; color:var(--danger); border-color:var(--danger);" onclick="zerarVendasTeste()">🗑️ Zerar Vendas de Teste</button>
@@ -292,64 +305,99 @@
 
         <!-- ABA 5: CONFIGURAÇÕES -->
         <div id="viewConfig" class="view-content">
-            <div style="max-width:520px; background:#fff; padding:24px; border-radius:14px; border:1px solid var(--border);">
-                <h3 style="font-size:16px; margin-bottom:16px;">⚙️ Configurações Gerais da Loja</h3>
-                <div style="display:flex; flex-direction:column; gap:12px;">
-                    <div><label style="font-size:11px; font-weight:700;">NOME FANTASIA DA LOJA</label><input type="text" id="cfgNomeLoja" class="input-field"></div>
-                    <div><label style="font-size:11px; font-weight:700;">WHATSAPP COMERCIAL (DDI+DDD+NUM)</label><input type="text" id="cfgWhatsApp" class="input-field"></div>
-                    <div><label style="font-size:11px; font-weight:700;">CHAVE PIX DA EMPRESA</label><input type="text" id="cfgChavePix" class="input-field"></div>
-                    <div><label style="font-size:11px; font-weight:700;">MENSAGEM DE GARANTIA NO RECIBO</label><input type="text" id="cfgGarantia" class="input-field"></div>
-                    <button class="btn-pay" onclick="salvarConfigEmpresa()">Salvar Configurações</button>
+            <div class="config-wrapper">
+                <div class="config-tabs">
+                    <button class="cfg-tab-btn active" onclick="mudarSubAbaConfig('loja', this)">🏢 Dados da Loja</button>
+                    <button class="cfg-tab-btn" onclick="mudarSubAbaConfig('pix', this)">⚡ PIX & Pagamentos</button>
                 </div>
+
+                <div id="cfgSubLoja" class="cfg-section-card active">
+                    <div class="cfg-grid-2">
+                        <div class="cfg-row">
+                            <label class="cfg-label">Nome Fantasia da Loja</label>
+                            <input type="text" id="cfgNomeLoja" class="input-field">
+                        </div>
+                        <div class="cfg-row">
+                            <label class="cfg-label">WhatsApp Comercial</label>
+                            <input type="text" id="cfgWhatsApp" class="input-field">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="cfgSubPix" class="cfg-section-card">
+                    <div class="cfg-grid-2">
+                        <div class="cfg-row">
+                            <label class="cfg-label">Chave PIX</label>
+                            <input type="text" id="cfgChavePix" class="input-field">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-pay" onclick="salvarConfigEmpresa()">💾 Salvar Configurações</button>
             </div>
         </div>
     </main>
 
     <script>
-        let catalogo = [];
+        // BANCO DE DADOS LOCALSTORAGE (INICIALIZAÇÃO)
+        const DB_DEFAULT_PRODUTOS = [
+            { id: 1, codigo: '7891001', nome: 'Capinha Silicone Aveludada', categoria: 'Capas', marca: 'Apple', modelo: 'iPhone 13 / 14', preco: 35.00, estoque: 18 },
+            { id: 2, codigo: '7891002', nome: 'Capinha Silicone Aveludada', categoria: 'Capas', marca: 'Samsung', modelo: 'Galaxy S23', preco: 35.00, estoque: 12 },
+            { id: 3, codigo: '7891003', nome: 'Película Vidro 3D Privacidade', categoria: 'Películas', marca: 'Apple', modelo: 'iPhone 11 / XR', preco: 25.00, estoque: 25 },
+            { id: 4, codigo: '7891004', nome: 'Película Vidro 3D Cerâmica', categoria: 'Películas', marca: 'Motorola', modelo: 'Moto G54', preco: 20.00, estoque: 15 },
+            { id: 5, codigo: '7891005', nome: 'Cabo Tipo-C x Tipo-C 60W 1m', categoria: 'Cabos', marca: 'Universal', modelo: 'Geral', preco: 30.00, estoque: 40 },
+            { id: 6, codigo: '7891006', nome: 'Fonte Turbo 20W Power Delivery', categoria: 'Carregadores', marca: 'Apple', modelo: 'iPhone Geral', preco: 59.90, estoque: 10 }
+        ];
+
+        const DB_DEFAULT_USERS = [
+            { id: 1, nome: 'Administrador', email: 'admin@celular.com', senha: '123', cargo: 'admin' }
+        ];
+
+        const DB_DEFAULT_CONFIG = {
+            nome_loja: 'NexCell Smartphone Acessórios',
+            telefone_whatsapp: '5588999999999',
+            chave_pix: 'financeiro@nexcell.com.br'
+        };
+
+        if (!localStorage.getItem('nexcell_produtos')) localStorage.setItem('nexcell_produtos', JSON.stringify(DB_DEFAULT_PRODUTOS));
+        if (!localStorage.getItem('nexcell_usuarios')) localStorage.setItem('nexcell_usuarios', JSON.stringify(DB_DEFAULT_USERS));
+        if (!localStorage.getItem('nexcell_vendas')) localStorage.setItem('nexcell_vendas', JSON.stringify([]));
+        if (!localStorage.getItem('nexcell_config')) localStorage.setItem('nexcell_config', JSON.stringify(DB_DEFAULT_CONFIG));
+
+        let catalogo = JSON.parse(localStorage.getItem('nexcell_produtos'));
+        let usuarios = JSON.parse(localStorage.getItem('nexcell_usuarios'));
+        let vendas = JSON.parse(localStorage.getItem('nexcell_vendas'));
+        let configLoja = JSON.parse(localStorage.getItem('nexcell_config'));
+
         let carrinho = [];
         let usuarioLogado = null;
         let marcaFiltro = 'TODOS';
 
         setInterval(() => { document.getElementById('liveClock').innerText = new Date().toLocaleTimeString('pt-BR'); }, 1000);
 
-        async function checarSessao() {
-            const res = await fetch('api.php?acao=sessao');
-            const data = await res.json();
-            if (data.logado) {
-                usuarioLogado = data.usuario;
+        function efetuarLogin() {
+            const email = document.getElementById('logEmail').value.trim();
+            const senha = document.getElementById('logSenha').value.trim();
+            const user = usuarios.find(u => u.email === email && u.senha === senha);
+
+            if (user) {
+                usuarioLogado = user;
                 document.getElementById('modalLogin').style.display = 'none';
-                document.getElementById('lblUserRole').innerText = `${usuarioLogado.nome} (${usuarioLogado.cargo.toUpperCase()})`;
-                document.getElementById('avatarLetra').innerText = usuarioLogado.nome.substring(0, 2).toUpperCase();
+                document.getElementById('lblUserRole').innerText = `${user.nome} (${user.cargo.toUpperCase()})`;
+                document.getElementById('avatarLetra').innerText = user.nome.substring(0, 2).toUpperCase();
                 carregarCatalogo();
                 carregarConfigEmpresa();
             } else {
-                document.getElementById('modalLogin').style.display = 'flex';
+                alert('E-mail ou senha inválidos!');
             }
         }
 
-        async function efetuarLogin() {
-            const email = document.getElementById('logEmail').value;
-            const senha = document.getElementById('logSenha').value;
-            const res = await fetch('api.php?acao=login', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({email, senha})
-            });
-            const data = await res.json();
-            if (data.status === 'success') checarSessao();
-            else alert(data.msg);
-        }
-
-        async function efetuarLogout() {
-            await fetch('api.php?acao=logout');
+        function efetuarLogout() {
             location.reload();
         }
 
-        async function carregarCatalogo() {
-            const res = await fetch('api.php?acao=listar_produtos');
-            const data = await res.json();
-            catalogo = data.produtos || [];
+        function carregarCatalogo() {
+            catalogo = JSON.parse(localStorage.getItem('nexcell_produtos'));
             renderizarCatalogo(catalogo);
             renderizarTabelaEstoque(catalogo);
         }
@@ -358,6 +406,7 @@
             const grid = document.getElementById('gridProdutos');
             grid.innerHTML = '';
             let filtrados = marcaFiltro === 'TODOS' ? itens : itens.filter(p => p.marca.toLowerCase() === marcaFiltro.toLowerCase());
+
             filtrados.forEach(p => {
                 const isLow = p.estoque <= 3;
                 grid.innerHTML += `
@@ -383,6 +432,7 @@
         function renderizarTabelaEstoque(itens) {
             const tbody = document.getElementById('tabelaCorpoProdutos');
             tbody.innerHTML = '';
+
             itens.forEach(p => {
                 tbody.innerHTML += `
                     <tr>
@@ -407,16 +457,13 @@
             document.getElementById('modalReporEstoque').style.display = 'flex';
         }
 
-        async function confirmarReposicao() {
-            const id = document.getElementById('reporProdId').value;
-            const qtd = document.getElementById('reporQtdInput').value;
-            const res = await fetch('api.php?acao=repor_estoque', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({id, qtd})
-            });
-            const data = await res.json();
-            if (data.status === 'success') {
+        function confirmarReposicao() {
+            const id = parseInt(document.getElementById('reporProdId').value);
+            const qtd = parseInt(document.getElementById('reporQtdInput').value);
+            const p = catalogo.find(i => i.id === id);
+            if (p) {
+                p.estoque += qtd;
+                localStorage.setItem('nexcell_produtos', JSON.stringify(catalogo));
                 document.getElementById('modalReporEstoque').style.display = 'none';
                 carregarCatalogo();
             }
@@ -449,53 +496,51 @@
             document.getElementById('modalEditarProduto').style.display = 'flex';
         }
 
-        async function salvarAlteracaoProduto() {
-            const payload = {
-                id: document.getElementById('editProdId').value || null,
+        function salvarAlteracaoProduto() {
+            const id = document.getElementById('editProdId').value;
+            const novoObj = {
+                id: id ? parseInt(id) : Date.now(),
                 codigo: document.getElementById('editCodigo').value,
                 categoria: document.getElementById('editCategoria').value,
                 nome: document.getElementById('editNome').value,
                 marca: document.getElementById('editMarca').value,
                 modelo: document.getElementById('editModelo').value,
-                preco: parseFloat(document.getElementById('editPreco').value),
-                estoque: parseInt(document.getElementById('editEstoque').value)
+                preco: parseFloat(document.getElementById('editPreco').value || 0),
+                estoque: parseInt(document.getElementById('editEstoque').value || 0)
             };
-            const res = await fetch('api.php?acao=salvar_produto', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-            if (data.status === 'success') {
-                document.getElementById('modalEditarProduto').style.display = 'none';
-                carregarCatalogo();
-            } else alert(data.msg);
+
+            if (id) {
+                const idx = catalogo.findIndex(p => p.id === parseInt(id));
+                catalogo[idx] = novoObj;
+            } else {
+                catalogo.unshift(novoObj);
+            }
+
+            localStorage.setItem('nexcell_produtos', JSON.stringify(catalogo));
+            document.getElementById('modalEditarProduto').style.display = 'none';
+            carregarCatalogo();
         }
 
-        async function excluirProduto(id) {
+        function excluirProduto(id) {
             if (!confirm('Excluir produto permanentemente?')) return;
-            const res = await fetch(`api.php?acao=excluir_produto&id=${id}`);
-            const data = await res.json();
-            if (data.status === 'success') carregarCatalogo();
-            else alert(data.msg);
+            catalogo = catalogo.filter(p => p.id !== id);
+            localStorage.setItem('nexcell_produtos', JSON.stringify(catalogo));
+            carregarCatalogo();
         }
 
-        /* GESTÃO DE USUÁRIOS */
-        async function carregarUsuarios() {
-            const res = await fetch('api.php?acao=listar_usuarios');
-            const data = await res.json();
+        /* USUÁRIOS */
+        function carregarUsuarios() {
+            usuarios = JSON.parse(localStorage.getItem('nexcell_usuarios'));
             const tbody = document.getElementById('tabelaCorpoUsuarios');
             tbody.innerHTML = '';
-            (data.usuarios || []).forEach(u => {
+            usuarios.forEach(u => {
                 tbody.innerHTML += `
                     <tr>
                         <td>#${u.id}</td>
                         <td><b>${u.nome}</b></td>
                         <td>${u.email}</td>
                         <td><span class="badge-brand">${u.cargo.toUpperCase()}</span></td>
-                        <td>${new Date(u.criado_em).toLocaleDateString('pt-BR')}</td>
                         <td>
-                            <button class="btn-sm" onclick="abrirModalEdicaoUsuario(${JSON.stringify(u).replace(/"/g, '&quot;')})">✏️</button>
                             <button class="btn-sm" style="color:var(--danger);" onclick="excluirUsuario(${u.id})">🗑️</button>
                         </td>
                     </tr>`;
@@ -512,77 +557,56 @@
             document.getElementById('modalUsuario').style.display = 'flex';
         }
 
-        function abrirModalEdicaoUsuario(u) {
-            document.getElementById('modalUserTitulo').innerText = "👤 Editar Usuário";
-            document.getElementById('userIdEdit').value = u.id;
-            document.getElementById('userNome').value = u.nome;
-            document.getElementById('userEmail').value = u.email;
-            document.getElementById('userCargo').value = u.cargo;
-            document.getElementById('userSenha').value = "";
-            document.getElementById('modalUsuario').style.display = 'flex';
-        }
-
-        async function salvarUsuarioSQL() {
-            const payload = {
-                id: document.getElementById('userIdEdit').value || null,
+        function salvarUsuarioLocal() {
+            const novo = {
+                id: Date.now(),
                 nome: document.getElementById('userNome').value,
                 email: document.getElementById('userEmail').value,
                 cargo: document.getElementById('userCargo').value,
-                senha: document.getElementById('userSenha').value
+                senha: document.getElementById('userSenha').value || '123'
             };
-            const res = await fetch('api.php?acao=salvar_usuario', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-            if (data.status === 'success') {
-                document.getElementById('modalUsuario').style.display = 'none';
-                carregarUsuarios();
-            } else alert(data.msg);
+            usuarios.push(novo);
+            localStorage.setItem('nexcell_usuarios', JSON.stringify(usuarios));
+            document.getElementById('modalUsuario').style.display = 'none';
+            carregarUsuarios();
         }
 
-        async function excluirUsuario(id) {
-            if (!confirm('Deseja excluir este usuário?')) return;
-            const res = await fetch(`api.php?acao=excluir_usuario&id=${id}`);
-            const data = await res.json();
-            if (data.status === 'success') carregarUsuarios();
-            else alert(data.msg);
+        function excluirUsuario(id) {
+            if (id === usuarioLogado.id) return alert('Você não pode excluir sua própria conta.');
+            usuarios = usuarios.filter(u => u.id !== id);
+            localStorage.setItem('nexcell_usuarios', JSON.stringify(usuarios));
+            carregarUsuarios();
         }
 
-        /* CONFIGURAÇÃO DA LOJA */
-        async function carregarConfigEmpresa() {
-            const res = await fetch('api.php?acao=obter_config');
-            const data = await res.json();
-            if (data.config) {
-                document.getElementById('cfgNomeLoja').value = data.config.nome_loja;
-                document.getElementById('cfgWhatsApp').value = data.config.telefone_whatsapp;
-                document.getElementById('cfgChavePix').value = data.config.chave_pix;
-                document.getElementById('cfgGarantia').value = data.config.msg_garantia;
-                document.getElementById('sideStoreName').innerText = data.config.nome_loja;
-            }
+        /* CONFIGURAÇÕES */
+        function carregarConfigEmpresa() {
+            configLoja = JSON.parse(localStorage.getItem('nexcell_config')) || DB_DEFAULT_CONFIG;
+            document.getElementById('cfgNomeLoja').value = configLoja.nome_loja || '';
+            document.getElementById('cfgWhatsApp').value = configLoja.telefone_whatsapp || '';
+            document.getElementById('cfgChavePix').value = configLoja.chave_pix || '';
+            document.getElementById('sideStoreName').innerText = configLoja.nome_loja || 'NexCell Store';
         }
 
-        async function salvarConfigEmpresa() {
-            const payload = {
+        function salvarConfigEmpresa() {
+            configLoja = {
                 nome_loja: document.getElementById('cfgNomeLoja').value,
                 telefone_whatsapp: document.getElementById('cfgWhatsApp').value,
-                chave_pix: document.getElementById('cfgChavePix').value,
-                msg_garantia: document.getElementById('cfgGarantia').value
+                chave_pix: document.getElementById('cfgChavePix').value
             };
-            const res = await fetch('api.php?acao=salvar_config', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-            if (data.status === 'success') {
-                alert('Configurações da empresa salvas!');
-                carregarConfigEmpresa();
-            } else alert(data.msg);
+            localStorage.setItem('nexcell_config', JSON.stringify(configLoja));
+            alert('Configurações salvas!');
+            carregarConfigEmpresa();
         }
 
-        /* FUNÇÕES DE CARRINHO & PDV */
+        function mudarSubAbaConfig(aba, btn) {
+            document.querySelectorAll('.cfg-section-card').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.cfg-tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (aba === 'loja') document.getElementById('cfgSubLoja').classList.add('active');
+            else if (aba === 'pix') document.getElementById('cfgSubPix').classList.add('active');
+        }
+
+        /* CARRINHO & PDV */
         function biparProduto(event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
@@ -607,7 +631,7 @@
 
         function addCarrinho(id) {
             const prod = catalogo.find(p => p.id == id);
-            if (prod.estoque <= 0) return alert('Sem estoque!');
+            if (prod.estoque <= 0) return alert('Sem estoque disponível!');
             const idx = carrinho.findIndex(i => i.id == id);
             if (idx >= 0) {
                 if (carrinho[idx].qtd + 1 > prod.estoque) return alert('Limite de estoque atingido!');
@@ -654,53 +678,61 @@
             document.getElementById('visorTotal').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
         }
 
-        async function finalizarVenda() {
+        function finalizarVenda() {
             if (carrinho.length === 0) return alert('Carrinho vazio!');
             const total = carrinho.reduce((acc, cur) => acc + (parseFloat(cur.preco) * cur.qtd), 0);
             const metodo = document.getElementById('cxMetodo').value;
-            const res = await fetch('api.php?acao=registrar_venda', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ itens: carrinho, valor_total: total, metodo: metodo })
+
+            // Baixa no estoque
+            carrinho.forEach(item => {
+                const p = catalogo.find(x => x.id === item.id);
+                if (p) p.estoque -= item.qtd;
             });
-            const data = await res.json();
-            if (data.status === 'success') {
-                alert(`✔️ Venda confirmada no valor de ${total.toLocaleString('pt-BR', {style:'currency', currency:'BRL'})}!`);
-                carrinho = [];
-                atualizarCarrinho();
-                carregarCatalogo();
-            } else alert(data.msg);
+            localStorage.setItem('nexcell_produtos', JSON.stringify(catalogo));
+
+            // Registro de venda
+            vendas = JSON.parse(localStorage.getItem('nexcell_vendas')) || [];
+            vendas.push({ id: Date.now(), total: total, metodo: metodo, data: new Date().toISOString() });
+            localStorage.setItem('nexcell_vendas', JSON.stringify(vendas));
+
+            alert(`✔️ Venda confirmada de ${total.toLocaleString('pt-BR', {style:'currency', currency:'BRL'})}!`);
+            carrinho = [];
+            atualizarCarrinho();
+            carregarCatalogo();
         }
 
-        async function carregarFechamento() {
-            const res = await fetch('api.php?acao=fechamento_caixa');
-            const data = await res.json();
+        function carregarFechamento() {
+            vendas = JSON.parse(localStorage.getItem('nexcell_vendas')) || [];
             const stream = document.getElementById('balancoStream');
             stream.innerHTML = '';
             let totalGeral = 0;
-            (data.balanco || []).forEach(b => {
-                totalGeral += parseFloat(b.montante);
+
+            const balanco = {};
+            vendas.forEach(v => {
+                balanco[v.metodo] = (balanco[v.metodo] || 0) + v.total;
+                totalGeral += v.total;
+            });
+
+            for (const [metodo, valor] of Object.entries(balanco)) {
                 stream.innerHTML += `
                     <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid var(--border);">
-                        <span><b>${b.forma_pagamento}</b> (${b.total_vendas} vendas)</span>
-                        <b>R$ ${parseFloat(b.montante).toFixed(2).replace('.', ',')}</b>
+                        <span><b>${metodo}</b></span>
+                        <b>R$ ${parseFloat(valor).toFixed(2).replace('.', ',')}</b>
                     </div>`;
-            });
+            }
+
             stream.innerHTML += `
                 <div style="display:flex; justify-content:space-between; padding:12px 8px; font-weight:800; font-size:16px;">
-                    <span>TOTAL DIA:</span>
+                    <span>TOTAL GERAL:</span>
                     <span style="color:var(--brand-orange);">R$ ${totalGeral.toFixed(2).replace('.', ',')}</span>
                 </div>`;
         }
 
-        async function zerarVendasTeste() {
-            if (!confirm('Deseja realmente apagar todas as vendas registradas de teste?')) return;
-            const res = await fetch('api.php?acao=limpar_vendas_teste');
-            const data = await res.json();
-            if (data.status === 'success') {
-                alert('Caixa zerado!');
-                carregarFechamento();
-            }
+        function zerarVendasTeste() {
+            if (!confirm('Deseja realmente apagar todas as vendas salvas?')) return;
+            localStorage.setItem('nexcell_vendas', JSON.stringify([]));
+            alert('Caixa zerado!');
+            carregarFechamento();
         }
 
         function mudarAba(aba, el) {
@@ -728,8 +760,6 @@
                 carregarConfigEmpresa();
             }
         }
-
-        window.onload = checarSessao;
     </script>
 </body>
 </html>
