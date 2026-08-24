@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NexCell • PDV Mobile</title>
+    <title>NexCell • PDV Firebase</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -26,12 +26,11 @@
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { display: flex; height: 100vh; height: 100dvh; overflow: hidden; background: var(--bg-app); color: var(--text-dark); }
 
-        /* SIDEBAR (DESKTOP ONLY) */
+        /* SIDEBAR DESKTOP */
         aside {
             width: 240px; background: var(--bg-sidebar);
             display: flex; flex-direction: column; justify-content: space-between;
-            border-right: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;
-            padding: 16px;
+            border-right: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; padding: 16px;
         }
         .store-profile {
             display: flex; align-items: center; gap: 10px;
@@ -51,7 +50,7 @@
         .nav-btn:hover { background: var(--bg-sidebar-hover); color: #fff; }
         .nav-btn.active { background: var(--brand-orange); color: #fff; font-weight: 700; }
 
-        /* BOTTOM NAV BAR (MOBILE ONLY) */
+        /* BARRA INFERIOR MOBILE */
         .mobile-bottom-nav {
             display: none; position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
             background: #ffffff; border-top: 1px solid var(--border);
@@ -66,17 +65,16 @@
         .m-nav-item.active { color: var(--brand-orange); }
         .m-nav-item .icon { font-size: 19px; }
 
-        /* MAIN */
+        /* MAIN CONTAINER */
         main { flex: 1; display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; width: 100%; }
         .topbar {
             background: #fff; border-bottom: 1px solid var(--border);
-            padding: 12px 18px; display: flex; justify-content: space-between; align-items: center;
-            flex-shrink: 0;
+            padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
         }
         .view-content { display: none; padding: 16px; height: calc(100vh - 58px); height: calc(100dvh - 58px); overflow-y: auto; }
         .view-content.active { display: block; }
 
-        /* PDV LAYOUT */
+        /* PDV GRID */
         .pdv-layout { display: grid; grid-template-columns: 1fr 380px; gap: 16px; height: 100%; }
         .catalog-section { display: flex; flex-direction: column; gap: 10px; height: 100%; overflow: hidden; }
 
@@ -95,7 +93,6 @@
         }
         .ribbon-btn.active { background: var(--text-dark); color: #fff; border-color: var(--text-dark); }
 
-        /* GRID DE PRODUTOS */
         .products-grid {
             flex: 1; display: grid;
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -115,7 +112,6 @@
         .prod-stock-tag { font-size: 9.5px; font-weight: 800; color: var(--success); background: #ecfdf5; padding: 2px 5px; border-radius: 4px; }
         .prod-stock-tag.low { color: var(--danger); background: #fef2f2; }
 
-        /* CHECKOUT DESKTOP */
         .checkout-card {
             background: #fff; border: 1px solid var(--border); border-radius: 14px;
             padding: 16px; display: flex; flex-direction: column; justify-content: space-between; height: 100%;
@@ -129,7 +125,6 @@
         }
         .btn-pay:active { background: var(--brand-orange-hover); }
 
-        /* FLOATING CART BUTTON (MOBILE) */
         .mobile-floating-cart {
             display: none; position: fixed; bottom: 70px; left: 12px; right: 12px;
             background: var(--brand-orange); color: #fff; border-radius: 14px;
@@ -138,7 +133,6 @@
             font-weight: 800; font-size: 14px;
         }
 
-        /* MODAIS */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85);
             display: none; align-items: center; justify-content: center; z-index: 1000; padding: 14px;
@@ -154,7 +148,6 @@
         td { padding: 8px; border-bottom: 1px solid var(--border); }
         .btn-sm { padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border); background: #fff; font-weight: 700; cursor: pointer; font-size: 11px; }
 
-        /* ================= REGRAS MOBILE (IPHONE / ANDROID) ================= */
         @media screen and (max-width: 850px) {
             aside { display: none !important; }
             .mobile-bottom-nav { display: flex !important; }
@@ -175,23 +168,12 @@
 </head>
 <body>
 
-    <!-- MODAL DE LOGIN -->
-    <div id="modalLogin" class="modal-overlay" style="display: flex;">
-        <div class="modal-box" style="max-width: 320px;">
-            <h3 style="font-weight:800; font-size:17px;">📱 NexCell PDV</h3>
-            <p style="font-size:12px; color:var(--text-muted);">Acesso dos Operadores</p>
-            <div><label style="font-size:11px; font-weight:700;">E-MAIL</label><input type="email" id="logEmail" class="input-field" value="admin@celular.com"></div>
-            <div><label style="font-size:11px; font-weight:700;">SENHA</label><input type="password" id="logSenha" class="input-field" value="123"></div>
-            <button class="btn-pay" onclick="efetuarLogin()">Entrar</button>
-        </div>
-    </div>
-
     <!-- GAVETA DO CARRINHO (MOBILE) -->
     <div id="modalCarrinhoMobile" class="modal-overlay">
         <div class="modal-box">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
                 <span style="font-size:14px; font-weight:800;">🛒 CARRINHO</span>
-                <button onclick="fecharCarrinhoMobile()" style="background:none; border:none; font-size:18px; font-weight:bold; cursor:pointer;">✕</button>
+                <button id="btnFecharCartMobile" style="background:none; border:none; font-size:18px; font-weight:bold; cursor:pointer;">✕</button>
             </div>
             <div id="listaCarrinhoMobile" class="cart-list" style="max-height: 220px;"></div>
             <div>
@@ -205,7 +187,7 @@
                     <option value="Cartão de Débito">💳 Cartão de Débito</option>
                     <option value="Dinheiro">💵 Dinheiro</option>
                 </select>
-                <button class="btn-pay" onclick="finalizarVenda()">✔️ Finalizar Venda</button>
+                <button class="btn-pay" id="btnConcluirMobile">✔️ Finalizar Venda</button>
             </div>
         </div>
     </div>
@@ -229,7 +211,7 @@
                 <div><label style="font-size:11px; font-weight:700;">ESTOQUE</label><input type="number" id="editEstoque" class="input-field"></div>
             </div>
             <div style="display:flex; gap:8px; margin-top:6px;">
-                <button class="btn-pay" onclick="salvarAlteracaoProduto()">Salvar</button>
+                <button class="btn-pay" id="btnSalvarProd">Salvar no Firestore</button>
                 <button class="btn-sm" style="width:90px;" onclick="document.getElementById('modalEditarProduto').style.display='none'">Fechar</button>
             </div>
         </div>
@@ -246,7 +228,7 @@
                 <input type="number" id="reporQtdInput" class="input-field" style="font-size:18px; font-weight:bold;" value="10">
             </div>
             <div style="display:flex; gap:8px; margin-top:6px;">
-                <button class="btn-pay" onclick="confirmarReposicao()">Confirmar</button>
+                <button class="btn-pay" id="btnConfirmarRepor">Confirmar</button>
                 <button class="btn-sm" style="width:80px;" onclick="document.getElementById('modalReporEstoque').style.display='none'">Cancelar</button>
             </div>
         </div>
@@ -256,34 +238,31 @@
     <aside>
         <div>
             <div class="store-profile">
-                <div class="store-avatar" id="avatarLetra">NC</div>
+                <div class="store-avatar">NC</div>
                 <div>
-                    <div style="font-weight:800; color:#fff; font-size:13px;" id="sideStoreName">NexCell Store</div>
-                    <div style="font-size:11px; color:var(--sidebar-text);" id="lblUserRole">Admin</div>
+                    <div style="font-weight:800; color:#fff; font-size:13px;">NexCell Store</div>
+                    <div style="font-size:11px; color:var(--sidebar-text);">Nuvem Firebase</div>
                 </div>
             </div>
             <nav class="nav-list">
-                <div class="nav-btn active" onclick="mudarAba('vender', this)">🛒 Vender (PDV)</div>
-                <div class="nav-btn" onclick="mudarAba('produtos', this)">📦 Estoque & Produtos</div>
-                <div class="nav-btn" onclick="mudarAba('fechamento', this)">📊 Fechamento Caixa</div>
-                <div class="nav-btn" onclick="mudarAba('config', this)">⚙️ Configurações</div>
+                <div class="nav-btn active" id="btnNavVender">🛒 Vender (PDV)</div>
+                <div class="nav-btn" id="btnNavProdutos">📦 Estoque & Produtos</div>
+                <div class="nav-btn" id="btnNavFechamento">📊 Fechamento Caixa</div>
             </nav>
         </div>
-        <div class="nav-btn" style="color:var(--danger);" onclick="efetuarLogout()">🚪 Sair</div>
     </aside>
 
     <!-- BARRA INFERIOR (MOBILE) -->
     <div class="mobile-bottom-nav">
-        <div class="m-nav-item active" onclick="mudarAbaMobile('vender', this)"><span class="icon">🛒</span><span>PDV</span></div>
-        <div class="m-nav-item" onclick="mudarAbaMobile('produtos', this)"><span class="icon">📦</span><span>Estoque</span></div>
-        <div class="m-nav-item" onclick="mudarAbaMobile('fechamento', this)"><span class="icon">📊</span><span>Caixa</span></div>
-        <div class="m-nav-item" onclick="mudarAbaMobile('config', this)"><span class="icon">⚙️</span><span>Ajustes</span></div>
+        <div class="m-nav-item active" id="mNavVender"><span class="icon">🛒</span><span>PDV</span></div>
+        <div class="m-nav-item" id="mNavProdutos"><span class="icon">📦</span><span>Estoque</span></div>
+        <div class="m-nav-item" id="mNavFechamento"><span class="icon">📊</span><span>Caixa</span></div>
     </div>
 
     <!-- MAIN -->
     <main>
         <div class="topbar">
-            <h3 style="font-size:14px; font-weight:800;" id="pageTitle">🛒 Balcão de Vendas</h3>
+            <h3 style="font-size:14px; font-weight:800;" id="pageTitle">🛒 Balcão de Vendas (Firebase)</h3>
             <span style="font-size:11px; font-weight:700; color:var(--text-muted);" id="liveClock"></span>
         </div>
 
@@ -293,15 +272,15 @@
                 <div class="catalog-section">
                     <div class="scanner-input-bar">
                         <span>🔍</span>
-                        <input type="text" id="barcodeReader" placeholder="Buscar modelo, marca ou código..." onkeydown="biparProduto(event)" oninput="filtrarPorTexto(this.value)">
+                        <input type="text" id="barcodeReader" placeholder="Buscar modelo, marca ou código...">
                     </div>
 
-                    <div class="filter-ribbon">
-                        <button class="ribbon-btn active" onclick="filtrarMarca('TODOS', this)">🔥 Todos</button>
-                        <button class="ribbon-btn" onclick="filtrarMarca('Apple', this)">🍏 Apple</button>
-                        <button class="ribbon-btn" onclick="filtrarMarca('Samsung', this)">📱 Samsung</button>
-                        <button class="ribbon-btn" onclick="filtrarMarca('Motorola', this)">Ⓜ️ Motorola</button>
-                        <button class="ribbon-btn" onclick="filtrarMarca('Xiaomi', this)">🟠 Xiaomi</button>
+                    <div class="filter-ribbon" id="ribbonContainer">
+                        <button class="ribbon-btn active" data-marca="TODOS">🔥 Todos</button>
+                        <button class="ribbon-btn" data-marca="Apple">🍏 Apple</button>
+                        <button class="ribbon-btn" data-marca="Samsung">📱 Samsung</button>
+                        <button class="ribbon-btn" data-marca="Motorola">Ⓜ️ Motorola</button>
+                        <button class="ribbon-btn" data-marca="Xiaomi">🟠 Xiaomi</button>
                     </div>
 
                     <div class="products-grid" id="gridProdutos"></div>
@@ -312,7 +291,7 @@
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:8px; border-bottom:1px solid var(--border);">
                             <span style="font-size:13px; font-weight:800;">CARRINHO</span>
-                            <button onclick="limparCarrinho()" style="background:none; border:none; color:var(--danger); font-size:11px; font-weight:700; cursor:pointer;">Limpar</button>
+                            <button id="btnLimparCartDesktop" style="background:none; border:none; color:var(--danger); font-size:11px; font-weight:700; cursor:pointer;">Limpar</button>
                         </div>
                         <div id="listaCarrinhoDesktop" class="cart-list"></div>
                     </div>
@@ -327,13 +306,13 @@
                             <option value="Cartão de Débito">💳 Cartão de Débito</option>
                             <option value="Dinheiro">💵 Dinheiro</option>
                         </select>
-                        <button class="btn-pay" onclick="finalizarVenda()">✔️ Concluir Venda</button>
+                        <button class="btn-pay" id="btnConcluirDesktop">✔️ Concluir Venda</button>
                     </div>
                 </div>
             </div>
 
             <!-- BOTÃO FLUTUANTE CARRINHO (MOBILE) -->
-            <div class="mobile-floating-cart" id="btnCartFloating" onclick="abrirCarrinhoMobile()">
+            <div class="mobile-floating-cart" id="btnCartFloating">
                 <span>🛒 Carrinho (<span id="badgeCartQtd">0</span>)</span>
                 <span id="badgeCartTotal">R$ 0,00</span>
             </div>
@@ -343,8 +322,8 @@
         <div id="viewProdutos" class="view-content">
             <div class="table-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <h3 style="font-size:14px;">📦 Estoque & Variações</h3>
-                    <button class="btn-pay" style="width:auto; padding:6px 12px; font-size:12px;" onclick="abrirModalNovoProduto()">+ Produto</button>
+                    <h3 style="font-size:14px;">📦 Estoque Sincronizado (Firestore)</h3>
+                    <button class="btn-pay" style="width:auto; padding:6px 12px; font-size:12px;" id="btnAbrirNovoProd">+ Produto</button>
                 </div>
                 <table>
                     <thead>
@@ -364,86 +343,81 @@
         <!-- ABA 3: FECHAMENTO -->
         <div id="viewFechamento" class="view-content">
             <div style="max-width:440px; background:#fff; padding:18px; border-radius:14px; border:1px solid var(--border);">
-                <h3 style="font-size:14px; margin-bottom:12px;">📊 Caixa do Dia</h3>
+                <h3 style="font-size:14px; margin-bottom:12px;">📊 Caixa em Nuvem</h3>
                 <div id="balancoStream" style="display:flex; flex-direction:column; gap:8px;"></div>
-                <button class="btn-pay" style="margin-top:12px;" onclick="carregarFechamento()">Atualizar</button>
-                <button class="btn-sm" style="margin-top:6px; width:100%; color:var(--danger);" onclick="zerarVendasTeste()">🗑️ Zerar Vendas</button>
-            </div>
-        </div>
-
-        <!-- ABA 4: CONFIGURAÇÕES -->
-        <div id="viewConfig" class="view-content">
-            <div style="max-width:440px; background:#fff; padding:18px; border-radius:14px; border:1px solid var(--border);">
-                <h3 style="font-size:14px; margin-bottom:12px;">⚙️ Configurações</h3>
-                <div style="display:flex; flex-direction:column; gap:10px;">
-                    <div><label style="font-size:11px; font-weight:700;">NOME DA LOJA</label><input type="text" id="cfgNomeLoja" class="input-field"></div>
-                    <div><label style="font-size:11px; font-weight:700;">WHATSAPP COMERCIAL</label><input type="text" id="cfgWhatsApp" class="input-field"></div>
-                    <div><label style="font-size:11px; font-weight:700;">CHAVE PIX</label><input type="text" id="cfgChavePix" class="input-field"></div>
-                    <button class="btn-pay" onclick="salvarConfigEmpresa()">Salvar Configurações</button>
-                </div>
+                <button class="btn-pay" style="margin-top:12px;" id="btnAtualizarFechamento">Atualizar Balanço</button>
             </div>
         </div>
     </main>
 
-    <script>
-        const DB_DEFAULT_PRODUTOS = [
-            { id: 1, codigo: '7891001', nome: 'Capinha Silicone Aveludada', categoria: 'Capas', marca: 'Apple', modelo: 'iPhone 13 / 14', preco: 35.00, estoque: 18 },
-            { id: 2, codigo: '7891002', nome: 'Capinha Silicone Aveludada', categoria: 'Capas', marca: 'Samsung', modelo: 'Galaxy S23', preco: 35.00, estoque: 12 },
-            { id: 3, codigo: '7891003', nome: 'Película Vidro 3D Privacidade', categoria: 'Películas', marca: 'Apple', modelo: 'iPhone 11 / XR', preco: 25.00, estoque: 25 },
-            { id: 4, codigo: '7891004', nome: 'Película Vidro 3D Cerâmica', categoria: 'Películas', marca: 'Motorola', modelo: 'Moto G54', preco: 20.00, estoque: 15 },
-            { id: 5, codigo: '7891005', nome: 'Cabo Tipo-C x Tipo-C 60W 1m', categoria: 'Cabos', marca: 'Universal', modelo: 'Geral', preco: 30.00, estoque: 40 },
-            { id: 6, codigo: '7891006', nome: 'Fonte Turbo 20W Power Delivery', categoria: 'Carregadores', marca: 'Apple', modelo: 'iPhone Geral', preco: 59.90, estoque: 10 }
-        ];
+    <!-- FIREBASE SDK MODULAR -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            onSnapshot, 
+            doc, 
+            addDoc, 
+            updateDoc, 
+            deleteDoc, 
+            increment, 
+            getDocs 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        if (!localStorage.getItem('nexcell_produtos')) localStorage.setItem('nexcell_produtos', JSON.stringify(DB_DEFAULT_PRODUTOS));
-        if (!localStorage.getItem('nexcell_vendas')) localStorage.setItem('nexcell_vendas', JSON.stringify([]));
-        if (!localStorage.getItem('nexcell_config')) localStorage.setItem('nexcell_config', JSON.stringify({ nome_loja: 'NexCell Store', telefone_whatsapp: '5588999999999', chave_pix: 'pix@nexcell.com' }));
+        // CREDENCIAIS VINCULADAS AO PROJETO NEXCELL-6515
+        const firebaseConfig = {
+            apiKey: "AIzaSyBQ9Jw5tCaff3t4wgeAkfFr051s07wdlhg",
+            authDomain: "nexcell-6515.firebaseapp.com",
+            projectId: "nexcell-6515",
+            storageBucket: "nexcell-6515.firebasestorage.app",
+            messagingSenderId: "374302980620",
+            appId: "1:374302980620:web:e6fae5ca987fce851d4c29",
+            measurementId: "G-3WGPE1NXX6"
+        };
 
-        let catalogo = JSON.parse(localStorage.getItem('nexcell_produtos'));
-        let vendas = JSON.parse(localStorage.getItem('nexcell_vendas'));
-        let configLoja = JSON.parse(localStorage.getItem('nexcell_config'));
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
+        let catalogo = [];
         let carrinho = [];
         let marcaFiltro = 'TODOS';
 
-        setInterval(() => { document.getElementById('liveClock').innerText = new Date().toLocaleTimeString('pt-BR'); }, 1000);
+        setInterval(() => { 
+            document.getElementById('liveClock').innerText = new Date().toLocaleTimeString('pt-BR'); 
+        }, 1000);
 
-        function efetuarLogin() {
-            document.getElementById('modalLogin').style.display = 'none';
-            carregarCatalogo();
-            carregarConfigEmpresa();
-        }
-
-        function efetuarLogout() { location.reload(); }
-
-        function carregarCatalogo() {
-            catalogo = JSON.parse(localStorage.getItem('nexcell_produtos'));
+        // SINCRONIZAÇÃO EM TEMPO REAL COM O BANCO DE DADOS
+        onSnapshot(collection(db, "produtos"), (snapshot) => {
+            catalogo = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
             renderizarCatalogo(catalogo);
             renderizarTabelaEstoque(catalogo);
-        }
+        });
 
         function renderizarCatalogo(itens) {
             const grid = document.getElementById('gridProdutos');
             grid.innerHTML = '';
-            let filtrados = marcaFiltro === 'TODOS' ? itens : itens.filter(p => p.marca.toLowerCase() === marcaFiltro.toLowerCase());
+            let filtrados = marcaFiltro === 'TODOS' ? itens : itens.filter(p => (p.marca || '').toLowerCase() === marcaFiltro.toLowerCase());
 
             filtrados.forEach(p => {
-                const isLow = p.estoque <= 3;
-                grid.innerHTML += `
-                    <div class="prod-card" onclick="addCarrinho(${p.id})">
-                        <div>
-                            <div style="display:flex; justify-content:space-between;">
-                                <span class="badge-brand">${p.marca}</span>
-                                <span style="font-size:9px; color:var(--text-muted); font-weight:700;">${p.categoria}</span>
-                            </div>
-                            <div class="prod-title">${p.nome}</div>
-                            <div class="prod-model">${p.modelo}</div>
+                const isLow = (p.estoque || 0) <= 3;
+                const card = document.createElement('div');
+                card.className = 'prod-card';
+                card.onclick = () => addCarrinho(p.id);
+                card.innerHTML = `
+                    <div>
+                        <div style="display:flex; justify-content:space-between;">
+                            <span class="badge-brand">${p.marca || ''}</span>
+                            <span style="font-size:9px; color:var(--text-muted); font-weight:700;">${p.categoria || ''}</span>
                         </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:4px;">
-                            <span class="prod-price">R$ ${parseFloat(p.preco).toFixed(2).replace('.', ',')}</span>
-                            <span class="prod-stock-tag ${isLow ? 'low' : ''}">${p.estoque} un</span>
-                        </div>
+                        <div class="prod-title">${p.nome || ''}</div>
+                        <div class="prod-model">${p.modelo || ''}</div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:4px;">
+                        <span class="prod-price">R$ ${parseFloat(p.preco || 0).toFixed(2).replace('.', ',')}</span>
+                        <span class="prod-stock-tag ${isLow ? 'low' : ''}">${p.estoque || 0} un</span>
                     </div>`;
+                grid.appendChild(card);
             });
         }
 
@@ -451,41 +425,42 @@
             const tbody = document.getElementById('tabelaCorpoProdutos');
             tbody.innerHTML = '';
             itens.forEach(p => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><b>${p.nome}</b><br><span style="font-size:10.5px; color:var(--text-muted);">${p.modelo}</span></td>
-                        <td>${p.marca}</td>
-                        <td><b>R$ ${parseFloat(p.preco).toFixed(2).replace('.', ',')}</b></td>
-                        <td><b style="color:${p.estoque <= 3 ? 'var(--danger)' : 'var(--text-dark)'};">${p.estoque} un</b></td>
-                        <td>
-                            <button class="btn-sm" style="color:var(--brand-orange);" onclick="abrirModalRepor(${p.id})">+ Repor</button>
-                            <button class="btn-sm" onclick="abrirModalEdicao(${p.id})">✏️</button>
-                            <button class="btn-sm" style="color:var(--danger);" onclick="excluirProduto(${p.id})">🗑️</button>
-                        </td>
-                    </tr>`;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><b>${p.nome}</b><br><span style="font-size:10.5px; color:var(--text-muted);">${p.modelo || ''}</span></td>
+                    <td>${p.marca || ''}</td>
+                    <td><b>R$ ${parseFloat(p.preco || 0).toFixed(2).replace('.', ',')}</b></td>
+                    <td><b style="color:${(p.estoque || 0) <= 3 ? 'var(--danger)' : 'var(--text-dark)'};">${p.estoque || 0} un</b></td>
+                    <td>
+                        <button class="btn-sm btn-repor" style="color:var(--brand-orange);">+ Repor</button>
+                        <button class="btn-sm btn-edit">✏️</button>
+                        <button class="btn-sm btn-del" style="color:var(--danger);">🗑️</button>
+                    </td>`;
+                
+                tr.querySelector('.btn-repor').onclick = () => abrirModalRepor(p.id);
+                tr.querySelector('.btn-edit').onclick = () => abrirModalEdicao(p.id);
+                tr.querySelector('.btn-del').onclick = () => excluirProduto(p.id);
+                tbody.appendChild(tr);
             });
         }
 
         function abrirModalRepor(id) {
-            const p = catalogo.find(i => i.id == id);
+            const p = catalogo.find(i => i.id === id);
             document.getElementById('reporProdId').value = p.id;
-            document.getElementById('reporNomeProd').innerText = `${p.nome} (${p.modelo})`;
+            document.getElementById('reporNomeProd').innerText = `${p.nome} (${p.modelo || ''})`;
             document.getElementById('modalReporEstoque').style.display = 'flex';
         }
 
-        function confirmarReposicao() {
-            const id = parseInt(document.getElementById('reporProdId').value);
+        document.getElementById('btnConfirmarRepor').onclick = async () => {
+            const id = document.getElementById('reporProdId').value;
             const qtd = parseInt(document.getElementById('reporQtdInput').value);
-            const p = catalogo.find(i => i.id === id);
-            if (p) {
-                p.estoque += qtd;
-                localStorage.setItem('nexcell_produtos', JSON.stringify(catalogo));
-                document.getElementById('modalReporEstoque').style.display = 'none';
-                carregarCatalogo();
-            }
-        }
+            await updateDoc(doc(db, "produtos", id), {
+                estoque: increment(qtd)
+            });
+            document.getElementById('modalReporEstoque').style.display = 'none';
+        };
 
-        function abrirModalNovoProduto() {
+        document.getElementById('btnAbrirNovoProd').onclick = () => {
             document.getElementById('modalProdTitulo').innerText = "📦 Novo Produto";
             document.getElementById('editProdId').value = "";
             document.getElementById('editCodigo').value = "";
@@ -496,26 +471,25 @@
             document.getElementById('editPreco').value = "";
             document.getElementById('editEstoque').value = "10";
             document.getElementById('modalEditarProduto').style.display = 'flex';
-        }
+        };
 
         function abrirModalEdicao(id) {
-            const p = catalogo.find(item => item.id == id);
+            const p = catalogo.find(item => item.id === id);
             document.getElementById('modalProdTitulo').innerText = "✏️ Editar Produto";
             document.getElementById('editProdId').value = p.id;
             document.getElementById('editCodigo').value = p.codigo || '';
-            document.getElementById('editCategoria').value = p.categoria;
-            document.getElementById('editNome').value = p.nome;
-            document.getElementById('editMarca').value = p.marca;
-            document.getElementById('editModelo').value = p.modelo;
-            document.getElementById('editPreco').value = p.preco;
-            document.getElementById('editEstoque').value = p.estoque;
+            document.getElementById('editCategoria').value = p.categoria || '';
+            document.getElementById('editNome').value = p.nome || '';
+            document.getElementById('editMarca').value = p.marca || '';
+            document.getElementById('editModelo').value = p.modelo || '';
+            document.getElementById('editPreco').value = p.preco || 0;
+            document.getElementById('editEstoque').value = p.estoque || 0;
             document.getElementById('modalEditarProduto').style.display = 'flex';
         }
 
-        function salvarAlteracaoProduto() {
+        document.getElementById('btnSalvarProd').onclick = async () => {
             const id = document.getElementById('editProdId').value;
-            const novoObj = {
-                id: id ? parseInt(id) : Date.now(),
+            const payload = {
                 codigo: document.getElementById('editCodigo').value,
                 categoria: document.getElementById('editCategoria').value,
                 nome: document.getElementById('editNome').value,
@@ -526,88 +500,39 @@
             };
 
             if (id) {
-                const idx = catalogo.findIndex(p => p.id === parseInt(id));
-                catalogo[idx] = novoObj;
+                await updateDoc(doc(db, "produtos", id), payload);
             } else {
-                catalogo.unshift(novoObj);
+                await addDoc(collection(db, "produtos"), payload);
             }
-
-            localStorage.setItem('nexcell_produtos', JSON.stringify(catalogo));
             document.getElementById('modalEditarProduto').style.display = 'none';
-            carregarCatalogo();
-        }
+        };
 
-        function excluirProduto(id) {
-            if (!confirm('Excluir produto?')) return;
-            catalogo = catalogo.filter(p => p.id !== id);
-            localStorage.setItem('nexcell_produtos', JSON.stringify(catalogo));
-            carregarCatalogo();
-        }
-
-        function carregarConfigEmpresa() {
-            configLoja = JSON.parse(localStorage.getItem('nexcell_config')) || {};
-            document.getElementById('cfgNomeLoja').value = configLoja.nome_loja || '';
-            document.getElementById('cfgWhatsApp').value = configLoja.telefone_whatsapp || '';
-            document.getElementById('cfgChavePix').value = configLoja.chave_pix || '';
-            document.getElementById('sideStoreName').innerText = configLoja.nome_loja || 'NexCell Store';
-        }
-
-        function salvarConfigEmpresa() {
-            configLoja = {
-                nome_loja: document.getElementById('cfgNomeLoja').value,
-                telefone_whatsapp: document.getElementById('cfgWhatsApp').value,
-                chave_pix: document.getElementById('cfgChavePix').value
-            };
-            localStorage.setItem('nexcell_config', JSON.stringify(configLoja));
-            alert('Configurações salvas!');
-            carregarConfigEmpresa();
-        }
-
-        function biparProduto(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                const code = event.target.value.trim();
-                const p = catalogo.find(item => item.codigo === code);
-                if (p) { addCarrinho(p.id); event.target.value = ''; }
-            }
-        }
-
-        function filtrarPorTexto(busca) {
-            const b = busca.toLowerCase();
-            const filtrados = catalogo.filter(p => p.nome.toLowerCase().includes(b) || p.modelo.toLowerCase().includes(b) || p.marca.toLowerCase().includes(b) || (p.codigo && p.codigo.includes(b)));
-            renderizarCatalogo(filtrados);
-        }
-
-        function filtrarMarca(marca, btn) {
-            document.querySelectorAll('.ribbon-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            marcaFiltro = marca;
-            renderizarCatalogo(catalogo);
+        async function excluirProduto(id) {
+            if (!confirm('Excluir este produto do Firestore?')) return;
+            await deleteDoc(doc(db, "produtos", id));
         }
 
         function addCarrinho(id) {
-            const prod = catalogo.find(p => p.id == id);
-            if (prod.estoque <= 0) return alert('Sem estoque!');
-            const idx = carrinho.findIndex(i => i.id == id);
+            const prod = catalogo.find(p => p.id === id);
+            if ((prod.estoque || 0) <= 0) return alert('Sem estoque disponível!');
+            const idx = carrinho.findIndex(i => i.id === id);
             if (idx >= 0) {
                 if (carrinho[idx].qtd + 1 > prod.estoque) return alert('Limite de estoque atingido!');
                 carrinho[idx].qtd += 1;
             } else {
-                carrinho.push({...prod, qtd: 1});
+                carrinho.push({ ...prod, qtd: 1 });
             }
             atualizarCarrinho();
         }
 
         function alterarQtd(idx, delta) {
             const item = carrinho[idx];
-            const prod = catalogo.find(p => p.id == item.id);
+            const prod = catalogo.find(p => p.id === item.id);
             if (item.qtd + delta > prod.estoque) return alert('Estoque insuficiente!');
             item.qtd += delta;
             if (item.qtd <= 0) carrinho.splice(idx, 1);
             atualizarCarrinho();
         }
-
-        function limparCarrinho() { carrinho = []; atualizarCarrinho(); }
 
         function atualizarCarrinho() {
             let total = 0;
@@ -620,12 +545,12 @@
                     <div class="cart-row">
                         <div style="flex:1;">
                             <span style="font-size:12px; font-weight:700;">${item.nome}</span>
-                            <span style="font-size:10px; color:var(--text-muted); display:block;">${item.modelo}</span>
+                            <span style="font-size:10px; color:var(--text-muted); display:block;">${item.modelo || ''}</span>
                         </div>
                         <div style="display:flex; align-items:center; gap:4px; margin:0 6px;">
-                            <button class="qty-btn" onclick="alterarQtd(${idx}, -1)">-</button>
+                            <button class="qty-btn" onclick="window._alterarQtd(${idx}, -1)">-</button>
                             <span style="font-size:12px; font-weight:800; min-width:16px; text-align:center;">${item.qtd}</span>
-                            <button class="qty-btn" onclick="alterarQtd(${idx}, 1)">+</button>
+                            <button class="qty-btn" onclick="window._alterarQtd(${idx}, 1)">+</button>
                         </div>
                         <span style="font-weight:800; font-size:12px;">R$ ${subtotal.toFixed(2).replace('.', ',')}</span>
                     </div>`;
@@ -634,54 +559,74 @@
             const placeholder = `<div style="text-align:center; color:var(--text-muted); font-size:12px; margin:auto 0; padding:20px;">Carrinho vazio</div>`;
             
             document.getElementById('listaCarrinhoDesktop').innerHTML = htmlConteudo || placeholder;
-            document.getElementById('visorTotalDesktop').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-            
+            document.getElementById('visorTotalDesktop').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('listaCarrinhoMobile').innerHTML = htmlConteudo || placeholder;
-            document.getElementById('visorTotalMobile').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('visorTotalMobile').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('badgeCartQtd').innerText = totalItens;
-            document.getElementById('badgeCartTotal').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('badgeCartTotal').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
-        function abrirCarrinhoMobile() {
-            document.getElementById('modalCarrinhoMobile').classList.add('active');
-        }
-        function fecharCarrinhoMobile() {
-            document.getElementById('modalCarrinhoMobile').classList.remove('active');
-        }
+        window._alterarQtd = alterarQtd;
 
-        function finalizarVenda() {
+        async function finalizarVenda() {
             if (carrinho.length === 0) return alert('Carrinho vazio!');
             const total = carrinho.reduce((acc, cur) => acc + (parseFloat(cur.preco) * cur.qtd), 0);
             const isMobile = window.innerWidth <= 850;
             const metodo = isMobile ? document.getElementById('cxMetodoMobile').value : document.getElementById('cxMetodoDesktop').value;
 
-            carrinho.forEach(item => {
-                const p = catalogo.find(x => x.id === item.id);
-                if (p) p.estoque -= item.qtd;
+            for (const item of carrinho) {
+                await updateDoc(doc(db, "produtos", item.id), {
+                    estoque: increment(-item.qtd)
+                });
+            }
+
+            await addDoc(collection(db, "vendas"), {
+                valor_total: total,
+                forma_pagamento: metodo,
+                data_venda: new Date().toISOString()
             });
-            localStorage.setItem('nexcell_produtos', JSON.stringify(catalogo));
 
-            vendas = JSON.parse(localStorage.getItem('nexcell_vendas')) || [];
-            vendas.push({ id: Date.now(), total: total, metodo: metodo, data: new Date().toISOString() });
-            localStorage.setItem('nexcell_vendas', JSON.stringify(vendas));
-
-            alert(`✔️ Venda confirmada de ${total.toLocaleString('pt-BR', {style:'currency', currency:'BRL'})}!`);
+            alert(`✔️ Venda confirmada de ${total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}!`);
             carrinho = [];
             atualizarCarrinho();
-            fecharCarrinhoMobile();
-            carregarCatalogo();
+            document.getElementById('modalCarrinhoMobile').classList.remove('active');
         }
 
-        function carregarFechamento() {
-            vendas = JSON.parse(localStorage.getItem('nexcell_vendas')) || [];
+        document.getElementById('btnConcluirDesktop').onclick = finalizarVenda;
+        document.getElementById('btnConcluirMobile').onclick = finalizarVenda;
+        document.getElementById('btnLimparCartDesktop').onclick = () => { carrinho = []; atualizarCarrinho(); };
+
+        document.getElementById('btnCartFloating').onclick = () => {
+            document.getElementById('modalCarrinhoMobile').classList.add('active');
+        };
+        document.getElementById('btnFecharCartMobile').onclick = () => {
+            document.getElementById('modalCarrinhoMobile').classList.remove('active');
+        };
+
+        // PESQUISA EM TEMPO REAL
+        document.getElementById('barcodeReader').oninput = (e) => {
+            const b = e.target.value.toLowerCase();
+            const filtrados = catalogo.filter(p => 
+                (p.nome || '').toLowerCase().includes(b) || 
+                (p.modelo || '').toLowerCase().includes(b) || 
+                (p.marca || '').toLowerCase().includes(b) || 
+                (p.codigo || '').includes(b)
+            );
+            renderizarCatalogo(filtrados);
+        };
+
+        // FECHAMENTO DE CAIXA
+        async function carregarFechamento() {
+            const snapshot = await getDocs(collection(db, "vendas"));
             const stream = document.getElementById('balancoStream');
             stream.innerHTML = '';
             let totalGeral = 0;
             const balanco = {};
 
-            vendas.forEach(v => {
-                balanco[v.metodo] = (balanco[v.metodo] || 0) + v.total;
-                totalGeral += v.total;
+            snapshot.docs.forEach(docSnap => {
+                const v = docSnap.data();
+                balanco[v.forma_pagamento] = (balanco[v.forma_pagamento] || 0) + parseFloat(v.valor_total || 0);
+                totalGeral += parseFloat(v.valor_total || 0);
             });
 
             for (const [metodo, valor] of Object.entries(balanco)) {
@@ -699,39 +644,44 @@
                 </div>`;
         }
 
-        function zerarVendasTeste() {
-            if (!confirm('Deseja realmente zerar as vendas?')) return;
-            localStorage.setItem('nexcell_vendas', JSON.stringify([]));
-            alert('Caixa zerado!');
-            carregarFechamento();
-        }
+        document.getElementById('btnAtualizarFechamento').onclick = carregarFechamento;
 
-        function mudarAba(aba, el) {
+        // FILTROS POR MARCA
+        document.querySelectorAll('#ribbonContainer .ribbon-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('#ribbonContainer .ribbon-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                marcaFiltro = btn.dataset.marca;
+                renderizarCatalogo(catalogo);
+            };
+        });
+
+        // NAVEGAÇÃO
+        function mudarAba(aba) {
             document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            if (el) el.classList.add('active');
-
-            if (aba === 'vender') {
-                document.getElementById('viewVender').classList.add('active');
-                document.getElementById('pageTitle').innerText = '🛒 Balcão de Vendas';
-            } else if (aba === 'produtos') {
-                document.getElementById('viewProdutos').classList.add('active');
-                document.getElementById('pageTitle').innerText = '📦 Estoque & Variações';
-            } else if (aba === 'fechamento') {
+            if (aba === 'vender') document.getElementById('viewVender').classList.add('active');
+            if (aba === 'produtos') document.getElementById('viewProdutos').classList.add('active');
+            if (aba === 'fechamento') {
                 document.getElementById('viewFechamento').classList.add('active');
-                document.getElementById('pageTitle').innerText = '📊 Fechamento de Caixa';
                 carregarFechamento();
-            } else if (aba === 'config') {
-                document.getElementById('viewConfig').classList.add('active');
-                document.getElementById('pageTitle').innerText = '⚙️ Configurações';
-                carregarConfigEmpresa();
             }
         }
 
-        function mudarAbaMobile(aba, el) {
+        document.getElementById('btnNavVender').onclick = (e) => { ativarNav(e.target); mudarAba('vender'); };
+        document.getElementById('btnNavProdutos').onclick = (e) => { ativarNav(e.target); mudarAba('produtos'); };
+        document.getElementById('btnNavFechamento').onclick = (e) => { ativarNav(e.target); mudarAba('fechamento'); };
+
+        document.getElementById('mNavVender').onclick = (e) => { ativarNavMobile(e.currentTarget); mudarAba('vender'); };
+        document.getElementById('mNavProdutos').onclick = (e) => { ativarNavMobile(e.currentTarget); mudarAba('produtos'); };
+        document.getElementById('mNavFechamento').onclick = (e) => { ativarNavMobile(e.currentTarget); mudarAba('fechamento'); };
+
+        function ativarNav(el) {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+        }
+        function ativarNavMobile(el) {
             document.querySelectorAll('.m-nav-item').forEach(b => b.classList.remove('active'));
             el.classList.add('active');
-            mudarAba(aba, null);
         }
     </script>
 </body>
