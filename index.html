@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexCell • PDV & Gestão de Acessórios</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NexCell • PDV Mobile</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -18,161 +18,246 @@
             --text-muted: #64748b;
             --brand-orange: #ff7a00;
             --brand-orange-hover: #ea6c00;
-            --brand-orange-light: rgba(255, 122, 0, 0.1);
+            --brand-orange-light: rgba(255, 122, 0, 0.12);
             --danger: #ef4444;
             --success: #10b981;
         }
 
-        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; }
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { display: flex; height: 100vh; overflow: hidden; background: var(--bg-app); color: var(--text-dark); }
 
-        /* SIDEBAR */
-        aside { width: 250px; background: var(--bg-sidebar); display: flex; flex-direction: column; justify-content: space-between; border-right: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
-        .store-profile { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 12px; margin-bottom: 20px; }
-        .store-avatar { width: 36px; height: 36px; border-radius: 8px; background: var(--brand-orange); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+        /* SIDEBAR (DESKTOP) */
+        aside {
+            width: 240px; background: var(--bg-sidebar);
+            display: flex; flex-direction: column; justify-content: space-between;
+            border-right: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;
+            padding: 16px;
+        }
+        .store-profile {
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 12px; margin-bottom: 16px;
+        }
+        .store-avatar {
+            width: 36px; height: 36px; border-radius: 8px;
+            background: var(--brand-orange); color: #fff;
+            display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px;
+        }
         .nav-list { display: flex; flex-direction: column; gap: 4px; }
-        .nav-btn { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; color: var(--sidebar-text); font-size: 13.5px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+        .nav-btn {
+            display: flex; align-items: center; gap: 10px; padding: 11px 14px;
+            border-radius: 10px; color: var(--sidebar-text); font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: all 0.15s;
+        }
         .nav-btn:hover { background: var(--bg-sidebar-hover); color: #fff; }
         .nav-btn.active { background: var(--brand-orange); color: #fff; font-weight: 700; }
 
-        /* MAIN */
+        /* BARRA INFERIOR (MOBILE EXCLUSIVE) */
+        .mobile-bottom-nav {
+            display: none; position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
+            background: #fff; border-top: 1px solid var(--border);
+            justify-content: space-around; align-items: center; z-index: 900;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+        }
+        .m-nav-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--text-muted); font-size: 10px; font-weight: 700; gap: 3px; flex: 1; height: 100%; cursor: pointer;
+        }
+        .m-nav-item.active { color: var(--brand-orange); }
+        .m-nav-item span.icon { font-size: 18px; }
+
+        /* MAIN CONTAINER */
         main { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        .topbar { background: #fff; border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; }
-        .view-content { display: none; padding: 20px 28px; height: calc(100vh - 65px); overflow-y: auto; }
+        .topbar {
+            background: #fff; border-bottom: 1px solid var(--border);
+            padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;
+            flex-shrink: 0;
+        }
+        .view-content { display: none; padding: 16px 20px; height: calc(100vh - 58px); overflow-y: auto; }
         .view-content.active { display: block; }
 
         /* PDV GRID */
-        .pdv-layout { display: grid; grid-template-columns: 1fr 380px; gap: 20px; height: 100%; }
-        .catalog-section { display: flex; flex-direction: column; gap: 14px; height: 100%; overflow: hidden; }
-        .scanner-input-bar { display: flex; align-items: center; gap: 10px; background: #fff; border: 2px solid var(--brand-orange); border-radius: 12px; padding: 6px 14px; }
-        .scanner-input-bar input { flex: 1; border: none; outline: none; padding: 8px 0; font-size: 14px; font-weight: 600; }
-        .filter-ribbon { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
-        .ribbon-btn { background: #fff; border: 1px solid var(--border); padding: 7px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; white-space: nowrap; }
+        .pdv-layout { display: grid; grid-template-columns: 1fr 380px; gap: 16px; height: 100%; }
+        .catalog-section { display: flex; flex-direction: column; gap: 12px; height: 100%; overflow: hidden; }
+
+        /* SCANNER & PESQUISA */
+        .scanner-input-bar {
+            display: flex; align-items: center; gap: 8px;
+            background: #fff; border: 2px solid var(--brand-orange);
+            border-radius: 12px; padding: 6px 12px;
+        }
+        .scanner-input-bar input { flex: 1; border: none; outline: none; font-size: 14px; font-weight: 600; color: var(--text-dark); }
+
+        /* FILTROS HORIZONTAIS */
+        .filter-ribbon { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+        .filter-ribbon::-webkit-scrollbar { display: none; }
+        .ribbon-btn {
+            background: #fff; border: 1px solid var(--border); padding: 7px 14px; border-radius: 20px;
+            font-size: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; white-space: nowrap; flex-shrink: 0;
+        }
         .ribbon-btn.active { background: var(--text-dark); color: #fff; border-color: var(--text-dark); }
-        
-        .products-grid { flex: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); grid-auto-rows: 145px; gap: 12px; overflow-y: auto; padding-right: 4px; }
-        .prod-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; transition: all 0.15s ease; }
-        .prod-card:hover { border-color: var(--brand-orange); transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.06); }
-        .badge-brand { background: var(--brand-orange-light); color: var(--brand-orange); font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
-        .prod-title { font-size: 13px; font-weight: 700; color: var(--text-dark); line-height: 1.25; margin-bottom: 2px; }
-        .prod-price { font-size: 15px; font-weight: 800; color: var(--text-dark); }
-        .prod-stock-tag { font-size: 10px; font-weight: 800; color: var(--success); background: #ecfdf5; padding: 2px 6px; border-radius: 4px; }
+
+        /* GRID DE PRODUTOS */
+        .products-grid {
+            flex: 1; display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            grid-auto-rows: 135px;
+            gap: 10px; overflow-y: auto; padding-bottom: 10px;
+        }
+        .prod-card {
+            background: #fff; border: 1px solid var(--border); border-radius: 12px;
+            padding: 10px; display: flex; flex-direction: column; justify-content: space-between;
+            cursor: pointer; transition: all 0.12s ease;
+        }
+        .prod-card:active { transform: scale(0.97); border-color: var(--brand-orange); }
+        .badge-brand { background: var(--brand-orange-light); color: var(--brand-orange); font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+        .prod-title { font-size: 12px; font-weight: 700; color: var(--text-dark); line-height: 1.25; margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .prod-model { font-size: 10.5px; color: var(--text-muted); margin-top: 2px; }
+        .prod-price { font-size: 14px; font-weight: 800; color: var(--text-dark); }
+        .prod-stock-tag { font-size: 10px; font-weight: 800; color: var(--success); background: #ecfdf5; padding: 2px 5px; border-radius: 4px; }
         .prod-stock-tag.low { color: var(--danger); background: #fef2f2; }
 
-        .checkout-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+        /* CHECKOUT / CARRINHO DESKTOP */
+        .checkout-card {
+            background: #fff; border: 1px solid var(--border); border-radius: 14px;
+            padding: 16px; display: flex; flex-direction: column; justify-content: space-between; height: 100%;
+        }
         .cart-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
         .cart-row { background: var(--bg-app); border-radius: 10px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; }
-        .qty-btn { width: 24px; height: 24px; background: #fff; border: 1px solid var(--border); border-radius: 6px; font-weight: 800; cursor: pointer; }
-        .btn-pay { background: var(--brand-orange); color: #fff; border: none; border-radius: 10px; padding: 14px; font-size: 15px; font-weight: 800; cursor: pointer; width: 100%; transition: background 0.15s; }
-        .btn-pay:hover { background: var(--brand-orange-hover); }
+        .qty-btn { width: 28px; height: 28px; background: #fff; border: 1px solid var(--border); border-radius: 6px; font-weight: 800; cursor: pointer; }
+        .btn-pay {
+            background: var(--brand-orange); color: #fff; border: none;
+            border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 800; cursor: pointer; width: 100%;
+        }
+        .btn-pay:active { background: var(--brand-orange-hover); }
 
-        /* TABELAS */
-        .table-box { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; margin-top: 12px; }
-        th { padding: 12px; border-bottom: 2px solid var(--border); color: var(--text-muted); font-size: 11px; text-transform: uppercase; }
-        td { padding: 12px; border-bottom: 1px solid var(--border); }
-        .btn-sm { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: #fff; font-weight: 700; cursor: pointer; font-size: 12px; }
-        .btn-sm:hover { background: var(--bg-app); }
+        /* BOTÃO FLUTUANTE DE CARRINHO (MOBILE) */
+        .mobile-floating-cart {
+            display: none; position: fixed; bottom: 70px; left: 14px; right: 14px;
+            background: var(--brand-orange); color: #fff; border-radius: 14px;
+            padding: 14px 18px; justify-content: space-between; align-items: center;
+            box-shadow: 0 8px 24px rgba(255, 122, 0, 0.35); z-index: 800; cursor: pointer;
+            font-weight: 800; font-size: 14px;
+        }
 
-        /* MODAIS */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-box { background: #fff; padding: 24px; border-radius: 16px; width: 460px; display: flex; flex-direction: column; gap: 12px; }
+        /* MODAIS E TELAS CHEIAS */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85);
+            display: none; align-items: center; justify-content: center; z-index: 1000; padding: 14px;
+        }
+        .modal-box {
+            background: #fff; padding: 20px; border-radius: 16px; width: 100%; max-width: 440px;
+            display: flex; flex-direction: column; gap: 12px; max-height: 90vh; overflow-y: auto;
+        }
         .input-field { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; font-size: 14px; }
-        .input-field:focus { border-color: var(--brand-orange); }
 
-        /* CONFIGURAÇÕES */
-        .config-wrapper { max-width: 880px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
-        .config-tabs { display: flex; gap: 8px; border-bottom: 2px solid var(--border); padding-bottom: 2px; }
-        .cfg-tab-btn { background: none; border: none; padding: 10px 18px; font-size: 14px; font-weight: 700; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -4px; }
-        .cfg-tab-btn.active { color: var(--brand-orange); border-bottom-color: var(--brand-orange); }
-        .cfg-section-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: none; flex-direction: column; gap: 18px; }
-        .cfg-section-card.active { display: flex; }
-        .cfg-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .cfg-row { display: flex; flex-direction: column; gap: 6px; }
-        .cfg-label { font-size: 12px; font-weight: 700; color: var(--text-dark); }
-        .cfg-desc { font-size: 11px; color: var(--text-muted); }
+        .table-box { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 16px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12.5px; min-width: 500px; }
+        th { padding: 10px; border-bottom: 2px solid var(--border); color: var(--text-muted); font-size: 11px; text-transform: uppercase; }
+        td { padding: 10px; border-bottom: 1px solid var(--border); }
+        .btn-sm { padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border); background: #fff; font-weight: 700; cursor: pointer; font-size: 11.5px; }
+
+        /* ================= AJUSTES MOBILE EXCLUSIVOS ================= */
+        @media (max-width: 850px) {
+            aside { display: none; }
+            .mobile-bottom-nav { display: flex; }
+            .pdv-layout { grid-template-columns: 1fr; }
+            .desktop-checkout { display: none; }
+            .mobile-floating-cart { display: flex; }
+            .view-content { padding: 12px 14px; height: calc(100vh - 120px); }
+            .products-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 140px; }
+            
+            /* Gaveta do Carrinho Mobile */
+            #modalCarrinhoMobile.active {
+                display: flex; align-items: flex-end; padding: 0;
+            }
+            #modalCarrinhoMobile .modal-box {
+                max-width: 100%; border-radius: 20px 20px 0 0; max-height: 80vh; padding: 20px 16px 30px;
+            }
+        }
     </style>
 </head>
 <body>
 
     <!-- MODAL DE LOGIN -->
     <div id="modalLogin" class="modal-overlay" style="display: flex;">
-        <div class="modal-box" style="width: 340px;">
+        <div class="modal-box" style="max-width: 330px;">
             <h3 style="font-weight:800; font-size:18px;">📱 NexCell PDV</h3>
-            <p style="font-size:12px; color:var(--text-muted);">Terminal 100% Web (GitHub Pages)</p>
+            <p style="font-size:12px; color:var(--text-muted);">Terminal Web Mobile</p>
             <div><label style="font-size:11px; font-weight:700;">E-MAIL</label><input type="email" id="logEmail" class="input-field" value="admin@celular.com"></div>
             <div><label style="font-size:11px; font-weight:700;">SENHA</label><input type="password" id="logSenha" class="input-field" value="123"></div>
-            <button class="btn-pay" onclick="efetuarLogin()">Entrar no Terminal</button>
+            <button class="btn-pay" onclick="efetuarLogin()">Entrar</button>
         </div>
     </div>
 
-    <!-- MODAL DE EDIÇÃO / CADASTRO DE PRODUTO -->
+    <!-- GAVETA / MODAL DO CARRINHO (MOBILE) -->
+    <div id="modalCarrinhoMobile" class="modal-overlay">
+        <div class="modal-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
+                <span style="font-size:14px; font-weight:800;">🛒 SEU CARRINHO</span>
+                <button onclick="fecharCarrinhoMobile()" style="background:none; border:none; font-size:18px; font-weight:bold; cursor:pointer;">✕</button>
+            </div>
+            <div id="listaCarrinhoMobile" class="cart-list" style="max-height: 240px;"></div>
+            <div>
+                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+                    <span style="font-size:12px; color:var(--text-muted); font-weight:700;">TOTAL</span>
+                    <span style="font-size:22px; font-weight:900;" id="visorTotalMobile">R$ 0,00</span>
+                </div>
+                <select id="cxMetodoMobile" class="input-field" style="margin-bottom:8px;">
+                    <option value="PIX">📱 PIX Instantâneo</option>
+                    <option value="Cartão de Crédito">💳 Cartão de Crédito</option>
+                    <option value="Cartão de Débito">💳 Cartão de Débito</option>
+                    <option value="Dinheiro">💵 Dinheiro</option>
+                </select>
+                <button class="btn-pay" onclick="finalizarVenda()">✔️ Finalizar Venda</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE PRODUTO -->
     <div id="modalEditarProduto" class="modal-overlay">
         <div class="modal-box">
-            <h3 id="modalProdTitulo" style="font-size:16px;">✏️ Produto / Atalho</h3>
+            <h3 id="modalProdTitulo" style="font-size:15px;">✏️ Produto</h3>
             <input type="hidden" id="editProdId">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <div><label style="font-size:11px; font-weight:700;">CÓDIGO / EAN</label><input type="text" id="editCodigo" class="input-field"></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <div><label style="font-size:11px; font-weight:700;">CÓDIGO</label><input type="text" id="editCodigo" class="input-field"></div>
                 <div><label style="font-size:11px; font-weight:700;">CATEGORIA</label><input type="text" id="editCategoria" class="input-field"></div>
             </div>
-            <div><label style="font-size:11px; font-weight:700;">NOME DO PRODUTO</label><input type="text" id="editNome" class="input-field"></div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div><label style="font-size:11px; font-weight:700;">NOME</label><input type="text" id="editNome" class="input-field"></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                 <div><label style="font-size:11px; font-weight:700;">MARCA</label><input type="text" id="editMarca" class="input-field"></div>
-                <div><label style="font-size:11px; font-weight:700;">MODELO COMPATÍVEL</label><input type="text" id="editModelo" class="input-field"></div>
+                <div><label style="font-size:11px; font-weight:700;">MODELO</label><input type="text" id="editModelo" class="input-field"></div>
             </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                 <div><label style="font-size:11px; font-weight:700;">PREÇO (R$)</label><input type="number" step="0.01" id="editPreco" class="input-field"></div>
-                <div><label style="font-size:11px; font-weight:700;">ESTOQUE ATUAL</label><input type="number" id="editEstoque" class="input-field"></div>
+                <div><label style="font-size:11px; font-weight:700;">ESTOQUE</label><input type="number" id="editEstoque" class="input-field"></div>
             </div>
-            <div style="display:flex; gap:8px; margin-top:8px;">
-                <button class="btn-pay" onclick="salvarAlteracaoProduto()">Salvar Produto</button>
-                <button class="btn-sm" style="background:#f1f5f9; width:100px;" onclick="document.getElementById('modalEditarProduto').style.display='none'">Cancelar</button>
+            <div style="display:flex; gap:8px; margin-top:6px;">
+                <button class="btn-pay" onclick="salvarAlteracaoProduto()">Salvar</button>
+                <button class="btn-sm" style="width:90px;" onclick="document.getElementById('modalEditarProduto').style.display='none'">Fechar</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL REPOSIÇÃO RÁPIDA -->
+    <!-- MODAL REPOSIÇÃO -->
     <div id="modalReporEstoque" class="modal-overlay">
-        <div class="modal-box" style="width:360px;">
-            <h3>📦 Repor Entrada de Estoque</h3>
-            <p id="reporNomeProd" style="font-size:13px; color:var(--text-muted);"></p>
+        <div class="modal-box" style="max-width:320px;">
+            <h3 style="font-size:15px;">📦 Entrada de Estoque</h3>
+            <p id="reporNomeProd" style="font-size:12px; color:var(--text-muted);"></p>
             <input type="hidden" id="reporProdId">
             <div>
-                <label style="font-size:11px; font-weight:700;">QUANTIDADE ADICIONAL CHEGADA</label>
+                <label style="font-size:11px; font-weight:700;">QTD CHEGADA</label>
                 <input type="number" id="reporQtdInput" class="input-field" style="font-size:18px; font-weight:bold;" value="10">
             </div>
-            <div style="display:flex; gap:8px; margin-top:8px;">
-                <button class="btn-pay" onclick="confirmarReposicao()">Confirmar Entrada</button>
-                <button class="btn-sm" style="background:#f1f5f9; width:100px;" onclick="document.getElementById('modalReporEstoque').style.display='none'">Cancelar</button>
+            <div style="display:flex; gap:8px; margin-top:6px;">
+                <button class="btn-pay" onclick="confirmarReposicao()">Confirmar</button>
+                <button class="btn-sm" style="width:80px;" onclick="document.getElementById('modalReporEstoque').style.display='none'">Cancelar</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL DE USUÁRIOS -->
-    <div id="modalUsuario" class="modal-overlay">
-        <div class="modal-box" style="width: 380px;">
-            <h3 id="modalUserTitulo">👤 Cadastrar Usuário</h3>
-            <input type="hidden" id="userIdEdit">
-            <div><label style="font-size:11px; font-weight:700;">NOME COMPLETO</label><input type="text" id="userNome" class="input-field"></div>
-            <div><label style="font-size:11px; font-weight:700;">E-MAIL DE LOGIN</label><input type="email" id="userEmail" class="input-field"></div>
-            <div>
-                <label style="font-size:11px; font-weight:700;">CARGO / PERMISSÃO</label>
-                <select id="userCargo" class="input-field">
-                    <option value="vendedor">Vendedor (Apenas PDV)</option>
-                    <option value="admin">Administrador (Total)</option>
-                </select>
-            </div>
-            <div><label style="font-size:11px; font-weight:700;">SENHA</label><input type="password" id="userSenha" class="input-field"></div>
-            <div style="display:flex; gap:8px; margin-top:8px;">
-                <button class="btn-pay" onclick="salvarUsuarioLocal()">Salvar Usuário</button>
-                <button class="btn-sm" style="background:#f1f5f9; width:100px;" onclick="document.getElementById('modalUsuario').style.display='none'">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- SIDEBAR -->
+    <!-- SIDEBAR (DESKTOP) -->
     <aside>
-        <div style="padding:18px 16px;">
+        <div>
             <div class="store-profile">
                 <div class="store-avatar" id="avatarLetra">NC</div>
                 <div>
@@ -180,26 +265,29 @@
                     <div style="font-size:11px; color:var(--sidebar-text);" id="lblUserRole">Admin</div>
                 </div>
             </div>
-
             <nav class="nav-list">
                 <div class="nav-btn active" onclick="mudarAba('vender', this)">🛒 Vender (PDV)</div>
                 <div class="nav-btn" onclick="mudarAba('produtos', this)">📦 Estoque & Produtos</div>
-                <div class="nav-btn" onclick="mudarAba('usuarios', this)">👥 Equipe & Usuários</div>
                 <div class="nav-btn" onclick="mudarAba('fechamento', this)">📊 Fechamento Caixa</div>
                 <div class="nav-btn" onclick="mudarAba('config', this)">⚙️ Configurações</div>
             </nav>
         </div>
-
-        <div style="padding:16px;">
-            <div class="nav-btn" style="color:var(--danger);" onclick="efetuarLogout()">🚪 Sair</div>
-        </div>
+        <div class="nav-btn" style="color:var(--danger);" onclick="efetuarLogout()">🚪 Sair</div>
     </aside>
 
-    <!-- MAIN -->
+    <!-- BARRA DE NAVEGAÇÃO INFERIOR (MOBILE) -->
+    <div class="mobile-bottom-nav">
+        <div class="m-nav-item active" onclick="mudarAbaMobile('vender', this)"><span class="icon">🛒</span><span>PDV</span></div>
+        <div class="m-nav-item" onclick="mudarAbaMobile('produtos', this)"><span class="icon">📦</span><span>Estoque</span></div>
+        <div class="m-nav-item" onclick="mudarAbaMobile('fechamento', this)"><span class="icon">📊</span><span>Caixa</span></div>
+        <div class="m-nav-item" onclick="mudarAbaMobile('config', this)"><span class="icon">⚙️</span><span>Ajustes</span></div>
+    </div>
+
+    <!-- MAIN CONTAINER -->
     <main>
         <div class="topbar">
-            <h3 style="font-size:16px; font-weight:800;" id="pageTitle">🛒 Balcão de Vendas Rápido</h3>
-            <span style="font-size:12px; font-weight:600; color:var(--text-muted);" id="liveClock"></span>
+            <h3 style="font-size:15px; font-weight:800;" id="pageTitle">🛒 Balcão de Vendas</h3>
+            <span style="font-size:11px; font-weight:700; color:var(--text-muted);" id="liveClock"></span>
         </div>
 
         <!-- ABA 1: PDV -->
@@ -207,8 +295,8 @@
             <div class="pdv-layout">
                 <div class="catalog-section">
                     <div class="scanner-input-bar">
-                        <span>⚡</span>
-                        <input type="text" id="barcodeReader" placeholder="🔍 Passe o leitor ou digite o modelo..." onkeydown="biparProduto(event)" oninput="filtrarPorTexto(this.value)">
+                        <span>🔍</span>
+                        <input type="text" id="barcodeReader" placeholder="Buscar modelo, marca ou código..." onkeydown="biparProduto(event)" oninput="filtrarPorTexto(this.value)">
                     </div>
 
                     <div class="filter-ribbon">
@@ -222,21 +310,21 @@
                     <div class="products-grid" id="gridProdutos"></div>
                 </div>
 
-                <div class="checkout-card">
+                <!-- CHECKOUT DESKTOP -->
+                <div class="checkout-card desktop-checkout">
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:8px; border-bottom:1px solid var(--border);">
                             <span style="font-size:13px; font-weight:800;">CARRINHO</span>
                             <button onclick="limparCarrinho()" style="background:none; border:none; color:var(--danger); font-size:11px; font-weight:700; cursor:pointer;">Limpar</button>
                         </div>
-                        <div id="listaCarrinho" class="cart-list"></div>
+                        <div id="listaCarrinhoDesktop" class="cart-list"></div>
                     </div>
-
                     <div style="border-top:1px solid var(--border); padding-top:10px;">
                         <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
                             <span style="font-size:12px; color:var(--text-muted); font-weight:700;">TOTAL</span>
-                            <span style="font-size:24px; font-weight:900;" id="visorTotal">R$ 0,00</span>
+                            <span style="font-size:22px; font-weight:900;" id="visorTotalDesktop">R$ 0,00</span>
                         </div>
-                        <select id="cxMetodo" class="input-field" style="margin-bottom:8px;">
+                        <select id="cxMetodoDesktop" class="input-field" style="margin-bottom:8px;">
                             <option value="PIX">📱 PIX Instantâneo</option>
                             <option value="Cartão de Crédito">💳 Cartão de Crédito</option>
                             <option value="Cartão de Débito">💳 Cartão de Débito</option>
@@ -246,23 +334,28 @@
                     </div>
                 </div>
             </div>
+
+            <!-- BOTÃO FLUTUANTE CARRINHO (MOBILE) -->
+            <div class="mobile-floating-cart" id="btnCartFloating" onclick="abrirCarrinhoMobile()">
+                <span>🛒 Ver Carrinho (<span id="badgeCartQtd">0</span>)</span>
+                <span id="badgeCartTotal">R$ 0,00</span>
+            </div>
         </div>
 
-        <!-- ABA 2: PRODUTOS E ESTOQUE -->
+        <!-- ABA 2: ESTOQUE -->
         <div id="viewProdutos" class="view-content">
             <div class="table-box">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h3 style="font-size:16px;">📦 Catálogo & Controle de Estoque</h3>
-                    <button class="btn-pay" style="width:auto; padding:8px 16px; font-size:13px;" onclick="abrirModalNovoProduto()">+ Cadastrar Produto</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h3 style="font-size:15px;">📦 Estoque & Variações</h3>
+                    <button class="btn-pay" style="width:auto; padding:6px 12px; font-size:12px;" onclick="abrirModalNovoProduto()">+ Produto</button>
                 </div>
                 <table>
                     <thead>
                         <tr>
-                            <th>Código</th>
                             <th>Produto / Modelo</th>
-                            <th>Marca / Categoria</th>
+                            <th>Marca</th>
                             <th>Preço</th>
-                            <th>Estoque Atual</th>
+                            <th>Estoque</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -271,75 +364,32 @@
             </div>
         </div>
 
-        <!-- ABA 3: USUÁRIOS E PERMISSÕES -->
-        <div id="viewUsuarios" class="view-content">
-            <div class="table-box">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h3 style="font-size:16px;">👥 Gestão de Usuários & Vendedores</h3>
-                    <button class="btn-pay" style="width:auto; padding:8px 16px; font-size:13px;" onclick="abrirModalNovoUsuario()">+ Novo Usuário</button>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>E-mail</th>
-                            <th>Cargo / Nível</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaCorpoUsuarios"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- ABA 4: FECHAMENTO DE CAIXA -->
+        <!-- ABA 3: FECHAMENTO -->
         <div id="viewFechamento" class="view-content">
-            <div style="max-width:500px; background:#fff; padding:24px; border-radius:14px; border:1px solid var(--border);">
-                <h3 style="font-size:16px; margin-bottom:14px;">📊 Resumo do Caixa</h3>
+            <div style="max-width:440px; background:#fff; padding:18px; border-radius:14px; border:1px solid var(--border);">
+                <h3 style="font-size:15px; margin-bottom:12px;">📊 Caixa do Dia</h3>
                 <div id="balancoStream" style="display:flex; flex-direction:column; gap:8px;"></div>
-                <button class="btn-pay" style="margin-top:14px;" onclick="carregarFechamento()">Atualizar Balanço</button>
-                <button class="btn-sm" style="margin-top:8px; width:100%; color:var(--danger); border-color:var(--danger);" onclick="zerarVendasTeste()">🗑️ Zerar Vendas de Teste</button>
+                <button class="btn-pay" style="margin-top:12px;" onclick="carregarFechamento()">Atualizar</button>
+                <button class="btn-sm" style="margin-top:6px; width:100%; color:var(--danger);" onclick="zerarVendasTeste()">🗑️ Zerar Vendas</button>
             </div>
         </div>
 
-        <!-- ABA 5: CONFIGURAÇÕES -->
+        <!-- ABA 4: CONFIGURAÇÕES -->
         <div id="viewConfig" class="view-content">
-            <div class="config-wrapper">
-                <div class="config-tabs">
-                    <button class="cfg-tab-btn active" onclick="mudarSubAbaConfig('loja', this)">🏢 Dados da Loja</button>
-                    <button class="cfg-tab-btn" onclick="mudarSubAbaConfig('pix', this)">⚡ PIX & Pagamentos</button>
+            <div style="max-width:440px; background:#fff; padding:18px; border-radius:14px; border:1px solid var(--border);">
+                <h3 style="font-size:15px; margin-bottom:12px;">⚙️ Configurações</h3>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div><label style="font-size:11px; font-weight:700;">NOME DA LOJA</label><input type="text" id="cfgNomeLoja" class="input-field"></div>
+                    <div><label style="font-size:11px; font-weight:700;">WHATSAPP COMERCIAL</label><input type="text" id="cfgWhatsApp" class="input-field"></div>
+                    <div><label style="font-size:11px; font-weight:700;">CHAVE PIX</label><input type="text" id="cfgChavePix" class="input-field"></div>
+                    <button class="btn-pay" onclick="salvarConfigEmpresa()">Salvar Configurações</button>
                 </div>
-
-                <div id="cfgSubLoja" class="cfg-section-card active">
-                    <div class="cfg-grid-2">
-                        <div class="cfg-row">
-                            <label class="cfg-label">Nome Fantasia da Loja</label>
-                            <input type="text" id="cfgNomeLoja" class="input-field">
-                        </div>
-                        <div class="cfg-row">
-                            <label class="cfg-label">WhatsApp Comercial</label>
-                            <input type="text" id="cfgWhatsApp" class="input-field">
-                        </div>
-                    </div>
-                </div>
-
-                <div id="cfgSubPix" class="cfg-section-card">
-                    <div class="cfg-grid-2">
-                        <div class="cfg-row">
-                            <label class="cfg-label">Chave PIX</label>
-                            <input type="text" id="cfgChavePix" class="input-field">
-                        </div>
-                    </div>
-                </div>
-
-                <button class="btn-pay" onclick="salvarConfigEmpresa()">💾 Salvar Configurações</button>
             </div>
         </div>
     </main>
 
     <script>
-        // BANCO DE DADOS LOCALSTORAGE (INICIALIZAÇÃO)
+        // DADOS PADRÃO LOCALSTORAGE
         const DB_DEFAULT_PRODUTOS = [
             { id: 1, codigo: '7891001', nome: 'Capinha Silicone Aveludada', categoria: 'Capas', marca: 'Apple', modelo: 'iPhone 13 / 14', preco: 35.00, estoque: 18 },
             { id: 2, codigo: '7891002', nome: 'Capinha Silicone Aveludada', categoria: 'Capas', marca: 'Samsung', modelo: 'Galaxy S23', preco: 35.00, estoque: 12 },
@@ -349,52 +399,26 @@
             { id: 6, codigo: '7891006', nome: 'Fonte Turbo 20W Power Delivery', categoria: 'Carregadores', marca: 'Apple', modelo: 'iPhone Geral', preco: 59.90, estoque: 10 }
         ];
 
-        const DB_DEFAULT_USERS = [
-            { id: 1, nome: 'Administrador', email: 'admin@celular.com', senha: '123', cargo: 'admin' }
-        ];
-
-        const DB_DEFAULT_CONFIG = {
-            nome_loja: 'NexCell Smartphone Acessórios',
-            telefone_whatsapp: '5588999999999',
-            chave_pix: 'financeiro@nexcell.com.br'
-        };
-
         if (!localStorage.getItem('nexcell_produtos')) localStorage.setItem('nexcell_produtos', JSON.stringify(DB_DEFAULT_PRODUTOS));
-        if (!localStorage.getItem('nexcell_usuarios')) localStorage.setItem('nexcell_usuarios', JSON.stringify(DB_DEFAULT_USERS));
         if (!localStorage.getItem('nexcell_vendas')) localStorage.setItem('nexcell_vendas', JSON.stringify([]));
-        if (!localStorage.getItem('nexcell_config')) localStorage.setItem('nexcell_config', JSON.stringify(DB_DEFAULT_CONFIG));
+        if (!localStorage.getItem('nexcell_config')) localStorage.setItem('nexcell_config', JSON.stringify({ nome_loja: 'NexCell Store', telefone_whatsapp: '5588999999999', chave_pix: 'pix@nexcell.com' }));
 
         let catalogo = JSON.parse(localStorage.getItem('nexcell_produtos'));
-        let usuarios = JSON.parse(localStorage.getItem('nexcell_usuarios'));
         let vendas = JSON.parse(localStorage.getItem('nexcell_vendas'));
         let configLoja = JSON.parse(localStorage.getItem('nexcell_config'));
 
         let carrinho = [];
-        let usuarioLogado = null;
         let marcaFiltro = 'TODOS';
 
         setInterval(() => { document.getElementById('liveClock').innerText = new Date().toLocaleTimeString('pt-BR'); }, 1000);
 
         function efetuarLogin() {
-            const email = document.getElementById('logEmail').value.trim();
-            const senha = document.getElementById('logSenha').value.trim();
-            const user = usuarios.find(u => u.email === email && u.senha === senha);
-
-            if (user) {
-                usuarioLogado = user;
-                document.getElementById('modalLogin').style.display = 'none';
-                document.getElementById('lblUserRole').innerText = `${user.nome} (${user.cargo.toUpperCase()})`;
-                document.getElementById('avatarLetra').innerText = user.nome.substring(0, 2).toUpperCase();
-                carregarCatalogo();
-                carregarConfigEmpresa();
-            } else {
-                alert('E-mail ou senha inválidos!');
-            }
+            document.getElementById('modalLogin').style.display = 'none';
+            carregarCatalogo();
+            carregarConfigEmpresa();
         }
 
-        function efetuarLogout() {
-            location.reload();
-        }
+        function efetuarLogout() { location.reload(); }
 
         function carregarCatalogo() {
             catalogo = JSON.parse(localStorage.getItem('nexcell_produtos'));
@@ -414,14 +438,12 @@
                         <div>
                             <div style="display:flex; justify-content:space-between;">
                                 <span class="badge-brand">${p.marca}</span>
-                                <span style="font-size:10px; color:var(--text-muted); font-weight:700;">${p.categoria}</span>
+                                <span style="font-size:9px; color:var(--text-muted); font-weight:700;">${p.categoria}</span>
                             </div>
-                            <div style="margin-top:4px;">
-                                <div class="prod-title">${p.nome}</div>
-                                <div style="font-size:11px; color:var(--text-muted);">${p.modelo}</div>
-                            </div>
+                            <div class="prod-title">${p.nome}</div>
+                            <div class="prod-model">${p.modelo}</div>
                         </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:6px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:4px;">
                             <span class="prod-price">R$ ${parseFloat(p.preco).toFixed(2).replace('.', ',')}</span>
                             <span class="prod-stock-tag ${isLow ? 'low' : ''}">${p.estoque} un</span>
                         </div>
@@ -432,13 +454,11 @@
         function renderizarTabelaEstoque(itens) {
             const tbody = document.getElementById('tabelaCorpoProdutos');
             tbody.innerHTML = '';
-
             itens.forEach(p => {
                 tbody.innerHTML += `
                     <tr>
-                        <td><b>${p.codigo || '--'}</b></td>
-                        <td><b>${p.nome}</b><br><span style="font-size:11px; color:var(--text-muted);">${p.modelo}</span></td>
-                        <td>${p.marca} • ${p.categoria}</td>
+                        <td><b>${p.nome}</b><br><span style="font-size:10.5px; color:var(--text-muted);">${p.modelo}</span></td>
+                        <td>${p.marca}</td>
                         <td><b>R$ ${parseFloat(p.preco).toFixed(2).replace('.', ',')}</b></td>
                         <td><b style="color:${p.estoque <= 3 ? 'var(--danger)' : 'var(--text-dark)'};">${p.estoque} un</b></td>
                         <td>
@@ -453,7 +473,7 @@
         function abrirModalRepor(id) {
             const p = catalogo.find(i => i.id == id);
             document.getElementById('reporProdId').value = p.id;
-            document.getElementById('reporNomeProd').innerText = `${p.nome} (${p.modelo}) - Atual: ${p.estoque} un`;
+            document.getElementById('reporNomeProd').innerText = `${p.nome} (${p.modelo})`;
             document.getElementById('modalReporEstoque').style.display = 'flex';
         }
 
@@ -470,7 +490,7 @@
         }
 
         function abrirModalNovoProduto() {
-            document.getElementById('modalProdTitulo').innerText = "📦 Cadastrar Produto";
+            document.getElementById('modalProdTitulo').innerText = "📦 Novo Produto";
             document.getElementById('editProdId').value = "";
             document.getElementById('editCodigo').value = "";
             document.getElementById('editCategoria').value = "";
@@ -522,65 +542,14 @@
         }
 
         function excluirProduto(id) {
-            if (!confirm('Excluir produto permanentemente?')) return;
+            if (!confirm('Excluir produto?')) return;
             catalogo = catalogo.filter(p => p.id !== id);
             localStorage.setItem('nexcell_produtos', JSON.stringify(catalogo));
             carregarCatalogo();
         }
 
-        /* USUÁRIOS */
-        function carregarUsuarios() {
-            usuarios = JSON.parse(localStorage.getItem('nexcell_usuarios'));
-            const tbody = document.getElementById('tabelaCorpoUsuarios');
-            tbody.innerHTML = '';
-            usuarios.forEach(u => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>#${u.id}</td>
-                        <td><b>${u.nome}</b></td>
-                        <td>${u.email}</td>
-                        <td><span class="badge-brand">${u.cargo.toUpperCase()}</span></td>
-                        <td>
-                            <button class="btn-sm" style="color:var(--danger);" onclick="excluirUsuario(${u.id})">🗑️</button>
-                        </td>
-                    </tr>`;
-            });
-        }
-
-        function abrirModalNovoUsuario() {
-            document.getElementById('modalUserTitulo').innerText = "👤 Novo Usuário";
-            document.getElementById('userIdEdit').value = "";
-            document.getElementById('userNome').value = "";
-            document.getElementById('userEmail').value = "";
-            document.getElementById('userCargo').value = "vendedor";
-            document.getElementById('userSenha').value = "";
-            document.getElementById('modalUsuario').style.display = 'flex';
-        }
-
-        function salvarUsuarioLocal() {
-            const novo = {
-                id: Date.now(),
-                nome: document.getElementById('userNome').value,
-                email: document.getElementById('userEmail').value,
-                cargo: document.getElementById('userCargo').value,
-                senha: document.getElementById('userSenha').value || '123'
-            };
-            usuarios.push(novo);
-            localStorage.setItem('nexcell_usuarios', JSON.stringify(usuarios));
-            document.getElementById('modalUsuario').style.display = 'none';
-            carregarUsuarios();
-        }
-
-        function excluirUsuario(id) {
-            if (id === usuarioLogado.id) return alert('Você não pode excluir sua própria conta.');
-            usuarios = usuarios.filter(u => u.id !== id);
-            localStorage.setItem('nexcell_usuarios', JSON.stringify(usuarios));
-            carregarUsuarios();
-        }
-
-        /* CONFIGURAÇÕES */
         function carregarConfigEmpresa() {
-            configLoja = JSON.parse(localStorage.getItem('nexcell_config')) || DB_DEFAULT_CONFIG;
+            configLoja = JSON.parse(localStorage.getItem('nexcell_config')) || {};
             document.getElementById('cfgNomeLoja').value = configLoja.nome_loja || '';
             document.getElementById('cfgWhatsApp').value = configLoja.telefone_whatsapp || '';
             document.getElementById('cfgChavePix').value = configLoja.chave_pix || '';
@@ -598,15 +567,7 @@
             carregarConfigEmpresa();
         }
 
-        function mudarSubAbaConfig(aba, btn) {
-            document.querySelectorAll('.cfg-section-card').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.cfg-tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            if (aba === 'loja') document.getElementById('cfgSubLoja').classList.add('active');
-            else if (aba === 'pix') document.getElementById('cfgSubPix').classList.add('active');
-        }
-
-        /* CARRINHO & PDV */
+        /* FILTROS E PESQUISA */
         function biparProduto(event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
@@ -629,9 +590,10 @@
             renderizarCatalogo(catalogo);
         }
 
+        /* CARRINHO */
         function addCarrinho(id) {
             const prod = catalogo.find(p => p.id == id);
-            if (prod.estoque <= 0) return alert('Sem estoque disponível!');
+            if (prod.estoque <= 0) return alert('Sem estoque!');
             const idx = carrinho.findIndex(i => i.id == id);
             if (idx >= 0) {
                 if (carrinho[idx].qtd + 1 > prod.estoque) return alert('Limite de estoque atingido!');
@@ -654,14 +616,13 @@
         function limparCarrinho() { carrinho = []; atualizarCarrinho(); }
 
         function atualizarCarrinho() {
-            const lista = document.getElementById('listaCarrinho');
-            lista.innerHTML = '';
             let total = 0;
-            if (carrinho.length === 0) lista.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:12px; margin:auto 0;">Carrinho vazio</div>`;
-            carrinho.forEach((item, idx) => {
+            let totalItens = 0;
+            const htmlConteudo = carrinho.map((item, idx) => {
                 const subtotal = parseFloat(item.preco) * item.qtd;
                 total += subtotal;
-                lista.innerHTML += `
+                totalItens += item.qtd;
+                return `
                     <div class="cart-row">
                         <div style="flex:1;">
                             <span style="font-size:12px; font-weight:700;">${item.nome}</span>
@@ -674,14 +635,33 @@
                         </div>
                         <span style="font-weight:800; font-size:12px;">R$ ${subtotal.toFixed(2).replace('.', ',')}</span>
                     </div>`;
-            });
-            document.getElementById('visorTotal').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            }).join('');
+
+            const placeholder = `<div style="text-align:center; color:var(--text-muted); font-size:12px; margin:auto 0; padding:20px;">Carrinho vazio</div>`;
+            
+            // Atualiza Desktop
+            document.getElementById('listaCarrinhoDesktop').innerHTML = htmlConteudo || placeholder;
+            document.getElementById('visorTotalDesktop').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            
+            // Atualiza Mobile
+            document.getElementById('listaCarrinhoMobile').innerHTML = htmlConteudo || placeholder;
+            document.getElementById('visorTotalMobile').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('badgeCartQtd').innerText = totalItens;
+            document.getElementById('badgeCartTotal').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        }
+
+        function abrirCarrinhoMobile() {
+            document.getElementById('modalCarrinhoMobile').classList.add('active');
+        }
+        function fecharCarrinhoMobile() {
+            document.getElementById('modalCarrinhoMobile').classList.remove('active');
         }
 
         function finalizarVenda() {
             if (carrinho.length === 0) return alert('Carrinho vazio!');
             const total = carrinho.reduce((acc, cur) => acc + (parseFloat(cur.preco) * cur.qtd), 0);
-            const metodo = document.getElementById('cxMetodo').value;
+            const isMobile = window.innerWidth <= 850;
+            const metodo = isMobile ? document.getElementById('cxMetodoMobile').value : document.getElementById('cxMetodoDesktop').value;
 
             // Baixa no estoque
             carrinho.forEach(item => {
@@ -690,7 +670,7 @@
             });
             localStorage.setItem('nexcell_produtos', JSON.stringify(catalogo));
 
-            // Registro de venda
+            // Salva venda
             vendas = JSON.parse(localStorage.getItem('nexcell_vendas')) || [];
             vendas.push({ id: Date.now(), total: total, metodo: metodo, data: new Date().toISOString() });
             localStorage.setItem('nexcell_vendas', JSON.stringify(vendas));
@@ -698,6 +678,7 @@
             alert(`✔️ Venda confirmada de ${total.toLocaleString('pt-BR', {style:'currency', currency:'BRL'})}!`);
             carrinho = [];
             atualizarCarrinho();
+            fecharCarrinhoMobile();
             carregarCatalogo();
         }
 
@@ -706,8 +687,8 @@
             const stream = document.getElementById('balancoStream');
             stream.innerHTML = '';
             let totalGeral = 0;
-
             const balanco = {};
+
             vendas.forEach(v => {
                 balanco[v.metodo] = (balanco[v.metodo] || 0) + v.total;
                 totalGeral += v.total;
@@ -722,19 +703,20 @@
             }
 
             stream.innerHTML += `
-                <div style="display:flex; justify-content:space-between; padding:12px 8px; font-weight:800; font-size:16px;">
-                    <span>TOTAL GERAL:</span>
+                <div style="display:flex; justify-content:space-between; padding:12px 8px; font-weight:800; font-size:15px;">
+                    <span>TOTAL DIA:</span>
                     <span style="color:var(--brand-orange);">R$ ${totalGeral.toFixed(2).replace('.', ',')}</span>
                 </div>`;
         }
 
         function zerarVendasTeste() {
-            if (!confirm('Deseja realmente apagar todas as vendas salvas?')) return;
+            if (!confirm('Deseja realmente zerar as vendas?')) return;
             localStorage.setItem('nexcell_vendas', JSON.stringify([]));
             alert('Caixa zerado!');
             carregarFechamento();
         }
 
+        /* NAVEGAÇÃO */
         function mudarAba(aba, el) {
             document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -742,23 +724,25 @@
 
             if (aba === 'vender') {
                 document.getElementById('viewVender').classList.add('active');
-                document.getElementById('pageTitle').innerText = '🛒 Balcão de Vendas Rápido';
+                document.getElementById('pageTitle').innerText = '🛒 Balcão de Vendas';
             } else if (aba === 'produtos') {
                 document.getElementById('viewProdutos').classList.add('active');
-                document.getElementById('pageTitle').innerText = '📦 Estoque & Produtos';
-            } else if (aba === 'usuarios') {
-                document.getElementById('viewUsuarios').classList.add('active');
-                document.getElementById('pageTitle').innerText = '👥 Gestão de Usuários';
-                carregarUsuarios();
+                document.getElementById('pageTitle').innerText = '📦 Estoque & Variações';
             } else if (aba === 'fechamento') {
                 document.getElementById('viewFechamento').classList.add('active');
                 document.getElementById('pageTitle').innerText = '📊 Fechamento de Caixa';
                 carregarFechamento();
             } else if (aba === 'config') {
                 document.getElementById('viewConfig').classList.add('active');
-                document.getElementById('pageTitle').innerText = '⚙️ Configurações da Empresa';
+                document.getElementById('pageTitle').innerText = '⚙️ Configurações';
                 carregarConfigEmpresa();
             }
+        }
+
+        function mudarAbaMobile(aba, el) {
+            document.querySelectorAll('.m-nav-item').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            mudarAba(aba, null);
         }
     </script>
 </body>
