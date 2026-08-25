@@ -346,9 +346,10 @@
         </div>
     </main>
 
-    <!-- FIREBASE SDK MODULAR COMPLETO -->
+   <!-- FIREBASE SDK MODULAR ATUALIZADO (v12.18.0) -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-analytics.js";
         import { 
             initializeFirestore, 
             collection, 
@@ -359,8 +360,9 @@
             deleteDoc, 
             increment, 
             getDocs 
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
+        // CREDENCIAIS DO PROJETO NEXCELL-6515
         const firebaseConfig = {
             apiKey: "AIzaSyBQ9Jw5tCaff3t4wgeAkfFr051s07wdlhg",
             authDomain: "nexcell-6515.firebaseapp.com",
@@ -372,6 +374,9 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+
+        // Firestore com Long Polling para compatibilidade máxima no navegador
         const db = initializeFirestore(app, {
             experimentalForceLongPolling: true
         });
@@ -385,6 +390,7 @@
             if (liveClock) liveClock.innerText = new Date().toLocaleTimeString('pt-BR'); 
         }, 1000);
 
+        // SINCRONIZAÇÃO EM TEMPO REAL
         onSnapshot(collection(db, "produtos"), (snapshot) => {
             catalogo = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
             renderizarCatalogo(catalogo);
@@ -628,6 +634,7 @@
             document.getElementById('modalCarrinhoMobile').classList.remove('active');
         };
 
+        // PESQUISA EM TEMPO REAL
         document.getElementById('barcodeReader').oninput = (e) => {
             const b = e.target.value.toLowerCase();
             const filtrados = catalogo.filter(p => 
@@ -639,6 +646,7 @@
             renderizarCatalogo(filtrados);
         };
 
+        // FECHAMENTO DE CAIXA
         async function carregarFechamento() {
             try {
                 const snapshot = await getDocs(collection(db, "vendas"));
@@ -673,6 +681,7 @@
 
         document.getElementById('btnAtualizarFechamento').onclick = carregarFechamento;
 
+        // FILTROS DE CATEGORIA/MARCA
         document.querySelectorAll('#ribbonContainer .ribbon-btn').forEach(btn => {
             btn.onclick = () => {
                 document.querySelectorAll('#ribbonContainer .ribbon-btn').forEach(b => b.classList.remove('active'));
@@ -682,6 +691,7 @@
             };
         });
 
+        // NAVEGAÇÃO
         function mudarAba(aba) {
             document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
             if (aba === 'vender') document.getElementById('viewVender').classList.add('active');
