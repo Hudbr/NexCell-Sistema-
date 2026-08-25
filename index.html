@@ -177,7 +177,7 @@
         .role-estoque { background: #fef3c7; color: #b45309; }
         .role-financeiro { background: #e0e7ff; color: #4338ca; }
 
-        /* FINANCEIRO KPIs */
+        /* FINANCEIRO */
         .kpi-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 16px;
         }
@@ -201,6 +201,12 @@
         .config-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
         .config-title { font-size: 13.5px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
 
+        /* BLOCOS DINÂMICOS DE PAGAMENTO (TROCO / PARCELAS) */
+        .pay-details-box {
+            background: var(--bg-app); border: 1px solid var(--border);
+            border-radius: 10px; padding: 10px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px;
+        }
+
         @media screen and (max-width: 850px) {
             aside { display: none !important; }
             .mobile-bottom-nav { display: flex !important; }
@@ -215,7 +221,7 @@
                 display: flex !important; align-items: flex-end !important; padding: 0 !important;
             }
             #modalCarrinhoMobile .modal-box {
-                max-width: 100% !important; border-radius: 20px 20px 0 0 !important; max-height: 82vh !important; padding: 18px 16px 30px !important;
+                max-width: 100% !important; border-radius: 20px 20px 0 0 !important; max-height: 85vh !important; padding: 18px 16px 30px !important;
             }
         }
     </style>
@@ -336,18 +342,40 @@
                 <span style="font-size:14px; font-weight:800;">🛒 CARRINHO</span>
                 <button id="btnFecharCartMobile" style="background:none; border:none; font-size:18px; font-weight:bold; cursor:pointer;">✕</button>
             </div>
-            <div id="listaCarrinhoMobile" class="cart-list" style="max-height: 220px;"></div>
+            <div id="listaCarrinhoMobile" class="cart-list" style="max-height: 200px;"></div>
             <div>
                 <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
                     <span style="font-size:12px; color:var(--text-muted); font-weight:700;">TOTAL</span>
                     <span style="font-size:22px; font-weight:900;" id="visorTotalMobile">R$ 0,00</span>
                 </div>
+                
                 <select id="cxMetodoMobile" class="input-field" style="margin-bottom:8px;">
                     <option value="PIX">📱 PIX Instantâneo</option>
                     <option value="Cartão de Crédito">💳 Cartão de Crédito</option>
                     <option value="Cartão de Débito">💳 Cartão de Débito</option>
                     <option value="Dinheiro">💵 Dinheiro</option>
                 </select>
+
+                <!-- BLOCO CONDICIONAL CRÉDITO (MOBILE) -->
+                <div id="boxCreditoMobile" class="pay-details-box" style="display:none;">
+                    <label style="font-size:11px; font-weight:700;">PARCELAMENTO</label>
+                    <select id="cxParcelasMobile" class="input-field" style="font-weight:700;"></select>
+                </div>
+
+                <!-- BLOCO CONDICIONAL DINHEIRO / TROCO (MOBILE) -->
+                <div id="boxDinheiroMobile" class="pay-details-box" style="display:none;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                        <div>
+                            <label style="font-size:10.5px; font-weight:700;">VALOR RECEBIDO</label>
+                            <input type="number" step="0.01" id="cxRecebidoMobile" class="input-field" placeholder="0,00" style="font-weight:bold;">
+                        </div>
+                        <div>
+                            <label style="font-size:10.5px; font-weight:700;">TROCO</label>
+                            <div id="cxTrocoMobile" style="font-size:16px; font-weight:900; color:var(--success); padding:9px 0;">R$ 0,00</div>
+                        </div>
+                    </div>
+                </div>
+
                 <button class="btn-pay" id="btnConcluirMobile">✔️ Finalizar Venda</button>
             </div>
         </div>
@@ -471,12 +499,34 @@
                             <span style="font-size:12px; color:var(--text-muted); font-weight:700;">TOTAL</span>
                             <span style="font-size:22px; font-weight:900;" id="visorTotalDesktop">R$ 0,00</span>
                         </div>
+
                         <select id="cxMetodoDesktop" class="input-field" style="margin-bottom:8px;">
                             <option value="PIX">📱 PIX Instantâneo</option>
                             <option value="Cartão de Crédito">💳 Cartão de Crédito</option>
                             <option value="Cartão de Débito">💳 Cartão de Débito</option>
                             <option value="Dinheiro">💵 Dinheiro</option>
                         </select>
+
+                        <!-- BLOCO CRÉDITO / PARCELAS (DESKTOP) -->
+                        <div id="boxCreditoDesktop" class="pay-details-box" style="display:none;">
+                            <label style="font-size:11px; font-weight:700;">PARCELAMENTO</label>
+                            <select id="cxParcelasDesktop" class="input-field" style="font-weight:700;"></select>
+                        </div>
+
+                        <!-- BLOCO DINHEIRO / TROCO (DESKTOP) -->
+                        <div id="boxDinheiroDesktop" class="pay-details-box" style="display:none;">
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                <div>
+                                    <label style="font-size:10.5px; font-weight:700;">VALOR RECEBIDO</label>
+                                    <input type="number" step="0.01" id="cxRecebidoDesktop" class="input-field" placeholder="0,00" style="font-weight:bold;">
+                                </div>
+                                <div>
+                                    <label style="font-size:10.5px; font-weight:700;">TROCO</label>
+                                    <div id="cxTrocoDesktop" style="font-size:16px; font-weight:900; color:var(--success); padding:9px 0;">R$ 0,00</div>
+                                </div>
+                            </div>
+                        </div>
+
                         <button class="btn-pay" id="btnConcluirDesktop">✔️ Concluir Venda</button>
                     </div>
                 </div>
@@ -514,7 +564,6 @@
         <!-- ABA 3: MÓDULO FINANCEIRO COMPLETO -->
         <div id="viewFechamento" class="view-content">
             
-            <!-- 1. CARDS DE INDICADORES (KPIs) -->
             <div class="kpi-grid">
                 <div class="kpi-card">
                     <span class="kpi-label">Faturamento Total</span>
@@ -540,7 +589,6 @@
                 </div>
             </div>
 
-            <!-- 2. MIX DE PAGAMENTOS & FLUXO -->
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px; margin-bottom:16px;">
                 <div style="background:#fff; border:1px solid var(--border); border-radius:14px; padding:16px;">
                     <div class="fin-section-title">
@@ -557,7 +605,6 @@
                 </div>
             </div>
 
-            <!-- 3. EXTRATO ANALÍTICO DE VENDAS -->
             <div class="table-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
                     <h3 style="font-size:14px;">📑 Extrato Detalhado de Vendas</h3>
@@ -577,7 +624,7 @@
                             <th>Data / Hora</th>
                             <th>Operador</th>
                             <th>Meio de Pagamento</th>
-                            <th>Itens</th>
+                            <th>Detalhes</th>
                             <th>Valor Total</th>
                             <th>Status / Ações</th>
                         </tr>
@@ -1037,7 +1084,6 @@
                 });
             }
 
-            // Escuta do módulo financeiro em tempo real
             if (userData && (userData.cargo === 'admin' || userData.cargo === 'financeiro')) {
                 onSnapshot(collection(db, "vendas"), (snap) => {
                     todasVendas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -1051,13 +1097,70 @@
         }
 
         // ==========================================
+        // CONTROLE DINÂMICO DE PAGAMENTO (TROCO / PARCELAS)
+        // ==========================================
+        function calcularTotalCarrinho() {
+            return carrinho.reduce((acc, cur) => acc + (parseFloat(cur.preco) * cur.qtd), 0);
+        }
+
+        function atualizarOpcoesParcelas(selectEl, total) {
+            selectEl.innerHTML = '';
+            for (let i = 1; i <= 12; i++) {
+                const valorParcela = total / i;
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.innerText = `${i}x de ${valorParcela.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} ${i === 1 ? '(à vista)' : '(sem juros)'}`;
+                selectEl.appendChild(opt);
+            }
+        }
+
+        function alternarCamposPagamento(isMobile) {
+            const metodo = isMobile ? document.getElementById('cxMetodoMobile').value : document.getElementById('cxMetodoDesktop').value;
+            const boxCredito = isMobile ? document.getElementById('boxCreditoMobile') : document.getElementById('boxCreditoDesktop');
+            const boxDinheiro = isMobile ? document.getElementById('boxDinheiroMobile') : document.getElementById('boxDinheiroDesktop');
+            const selectParcelas = isMobile ? document.getElementById('cxParcelasMobile') : document.getElementById('cxParcelasDesktop');
+            const total = calcularTotalCarrinho();
+
+            boxCredito.style.display = (metodo === 'Cartão de Crédito') ? 'flex' : 'none';
+            boxDinheiro.style.display = (metodo === 'Dinheiro') ? 'flex' : 'none';
+
+            if (metodo === 'Cartão de Crédito') {
+                atualizarOpcoesParcelas(selectParcelas, total);
+            } else if (metodo === 'Dinheiro') {
+                calcularTroco(isMobile);
+            }
+        }
+
+        function calcularTroco(isMobile) {
+            const inputRecebido = isMobile ? document.getElementById('cxRecebidoMobile') : document.getElementById('cxRecebidoDesktop');
+            const visorTroco = isMobile ? document.getElementById('cxTrocoMobile') : document.getElementById('cxTrocoDesktop');
+            const total = calcularTotalCarrinho();
+            const recebido = parseFloat(inputRecebido.value || 0);
+
+            if (recebido >= total) {
+                const troco = recebido - total;
+                visorTroco.innerText = troco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                visorTroco.style.color = "var(--success)";
+            } else {
+                const falta = total - recebido;
+                visorTroco.innerText = `Falta ${falta.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+                visorTroco.style.color = "var(--danger)";
+            }
+        }
+
+        document.getElementById('cxMetodoDesktop').onchange = () => alternarCamposPagamento(false);
+        document.getElementById('cxMetodoMobile').onchange = () => alternarCamposPagamento(true);
+
+        document.getElementById('cxRecebidoDesktop').oninput = () => calcularTroco(false);
+        document.getElementById('cxRecebidoMobile').oninput = () => calcularTroco(true);
+
+        // ==========================================
         // MÓDULO FINANCEIRO: CÁLCULOS & DASHBOARD
         // ==========================================
         function processarDadosFinanceiros() {
             const filtro = document.getElementById('finFiltroPeriodo').value;
             const agora = new Date();
             
-            // Filtragem por Período
             const vendasFiltradas = todasVendas.filter(v => {
                 if (v.status === 'cancelada') return false;
                 if (!v.data_venda) return true;
@@ -1091,7 +1194,6 @@
             const qtdVendas = vendasFiltradas.length;
             const ticketMedio = qtdVendas > 0 ? (faturamentoTotal / qtdVendas) : 0;
 
-            // Cálculo da gaveta (Saldo em Dinheiro)
             let totalSuprimentos = 0;
             let totalSangrias = 0;
 
@@ -1103,13 +1205,11 @@
 
             const saldoGaveta = totalDinheiroVendas + totalSuprimentos - totalSangrias;
 
-            // Atualização dos Cards KPIs
             document.getElementById('finKpiFaturamento').innerText = faturamentoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('finKpiVendasContagem').innerText = `${qtdVendas} transações no período`;
             document.getElementById('finKpiTicketMedio').innerText = ticketMedio.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('finKpiGavetaDinheiro').innerText = saldoGaveta.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-            // Renderizar Barras do Mix de Pagamentos
             const mixContainer = document.getElementById('finMixContainer');
             mixContainer.innerHTML = '';
             const cores = { 'PIX': 'var(--brand-orange)', 'Cartão de Crédito': 'var(--info)', 'Cartão de Débito': 'var(--warning)', 'Dinheiro': 'var(--success)' };
@@ -1128,7 +1228,6 @@
                     </div>`;
             }
 
-            // Renderizar Lista de Movimentações de Gaveta
             const listaMov = document.getElementById('finListaMovimentacoes');
             listaMov.innerHTML = '';
             if (todasMovimentacoes.length === 0) {
@@ -1147,7 +1246,6 @@
                 });
             }
 
-            // Renderizar Tabela de Extrato de Vendas
             const tbodyVendas = document.getElementById('tabelaCorpoVendas');
             tbodyVendas.innerHTML = '';
 
@@ -1156,13 +1254,20 @@
                 const isCancelada = v.status === 'cancelada';
                 const dataFormatada = v.data_venda ? `${new Date(v.data_venda).toLocaleDateString('pt-BR')} ${new Date(v.data_venda).toLocaleTimeString('pt-BR')}` : '-';
                 
+                let detalhePagamento = '';
+                if (v.forma_pagamento === 'Cartão de Crédito' && v.parcelas) {
+                    detalhePagamento = ` (${v.parcelas}x)`;
+                } else if (v.forma_pagamento === 'Dinheiro' && v.troco > 0) {
+                    detalhePagamento = ` (Troco: R$ ${parseFloat(v.troco).toFixed(2).replace('.', ',')})`;
+                }
+
                 const resumoItens = (v.itens || []).map(i => `${i.qtd}x ${i.nome}`).join(', ') || 'Produtos Avulsos';
 
                 tr.innerHTML = `
                     <td>${dataFormatada}</td>
                     <td><b>${v.operador_nome || 'Operador'}</b></td>
-                    <td><span class="badge-role" style="background:#f1f5f9; color:var(--text-dark);">${v.forma_pagamento}</span></td>
-                    <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${resumoItens}">${resumoItens}</td>
+                    <td><span class="badge-role" style="background:#f1f5f9; color:var(--text-dark);">${v.forma_pagamento}${detalhePagamento}</span></td>
+                    <td style="max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${resumoItens}">${resumoItens}</td>
                     <td><b style="color:${isCancelada ? 'var(--text-muted)' : 'var(--text-dark)'};">R$ ${parseFloat(v.valor_total).toFixed(2).replace('.', ',')}</b></td>
                     <td>
                         ${isCancelada ? `<span style="color:var(--danger); font-weight:800;">Cancelada</span>` : `
@@ -1177,12 +1282,10 @@
             });
         }
 
-        // ESTORNO DE VENDA COM DEVOLUÇÃO AO ESTOQUE
         async function estornarVenda(venda) {
             if (!confirm(`Deseja cancelar a venda de R$ ${parseFloat(venda.valor_total).toFixed(2).replace('.', ',')} e devolver os produtos para o estoque?`)) return;
 
             try {
-                // Devolve itens ao estoque
                 if (venda.itens && Array.isArray(venda.itens)) {
                     for (const item of venda.itens) {
                         if (item.id) {
@@ -1205,7 +1308,6 @@
             }
         }
 
-        // MODAL DE SANGRIA E SUPRIMENTO
         document.getElementById('btnAbrirSangria').onclick = () => {
             document.getElementById('movCaixaTitulo').innerText = "🔴 Realizar Sangria (Retirada)";
             document.getElementById('movCaixaTipo').value = "sangria";
@@ -1505,31 +1607,52 @@
             document.getElementById('visorTotalMobile').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('badgeCartQtd').innerText = totalItens;
             document.getElementById('badgeCartTotal').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            alternarCamposPagamento(false);
+            alternarCamposPagamento(true);
         }
 
         window._alterarQtd = alterarQtd;
 
+        // FINALIZAÇÃO DE VENDA COM SUPORTE A TROCO E PARCELAS
         async function finalizarVenda() {
             if (carrinho.length === 0) return alert('Carrinho vazio!');
-            const total = carrinho.reduce((acc, cur) => acc + (parseFloat(cur.preco) * cur.qtd), 0);
+            const total = calcularTotalCarrinho();
             const isMobile = window.innerWidth <= 850;
             const metodo = isMobile ? document.getElementById('cxMetodoMobile').value : document.getElementById('cxMetodoDesktop').value;
+
+            let dadosPagamento = {
+                valor_total: total,
+                forma_pagamento: metodo
+            };
+
+            if (metodo === 'Cartão de Crédito') {
+                const parcelas = parseInt(isMobile ? document.getElementById('cxParcelasMobile').value : document.getElementById('cxParcelasDesktop').value) || 1;
+                dadosPagamento.parcelas = parcelas;
+                dadosPagamento.valor_parcela = total / parcelas;
+            } else if (metodo === 'Dinheiro') {
+                const inputRecebido = isMobile ? document.getElementById('cxRecebidoMobile') : document.getElementById('cxRecebidoDesktop');
+                const recebido = parseFloat(inputRecebido.value || 0);
+                if (recebido < total) {
+                    return alert(`O valor recebido em dinheiro (R$ ${recebido.toFixed(2)}) é menor que o total da venda (R$ ${total.toFixed(2)})!`);
+                }
+                const troco = recebido - total;
+                dadosPagamento.valor_recebido = recebido;
+                dadosPagamento.troco = troco;
+            }
 
             const operadorNome = userData ? userData.nome : (currentUser ? currentUser.email : 'Anônimo');
             const operadorEmail = currentUser ? currentUser.email : '';
 
             try {
-                // Baixa no estoque
                 for (const item of carrinho) {
                     await updateDoc(doc(db, "produtos", item.id), {
                         estoque: increment(-item.qtd)
                     });
                 }
 
-                // Grava a venda com os itens para fins de auditoria/estorno
                 await addDoc(collection(db, "vendas"), {
-                    valor_total: total,
-                    forma_pagamento: metodo,
+                    ...dadosPagamento,
                     operador_nome: operadorNome,
                     operador_email: operadorEmail,
                     operador_uid: currentUser ? currentUser.uid : null,
@@ -1538,8 +1661,15 @@
                     data_venda: new Date().toISOString()
                 });
 
-                alert(`✔️ Venda confirmada de ${total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} por ${operadorNome}!`);
+                let msgConfirmacao = `✔️ Venda confirmada de ${total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}!`;
+                if (dadosPagamento.troco > 0) {
+                    msgConfirmacao += `\n💵 Troco a devolver: ${dadosPagamento.troco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+                }
+                alert(msgConfirmacao);
+
                 carrinho = [];
+                document.getElementById('cxRecebidoDesktop').value = '';
+                document.getElementById('cxRecebidoMobile').value = '';
                 atualizarCarrinho();
                 document.getElementById('modalCarrinhoMobile').classList.remove('active');
             } catch (err) {
