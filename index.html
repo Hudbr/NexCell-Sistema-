@@ -21,6 +21,7 @@
             --brand-orange-light: rgba(255, 122, 0, 0.12);
             --danger: #ef4444;
             --success: #10b981;
+            --info: #3b82f6;
         }
 
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -167,6 +168,14 @@
         td { padding: 8px; border-bottom: 1px solid var(--border); }
         .btn-sm { padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border); background: #fff; font-weight: 700; cursor: pointer; font-size: 11px; }
 
+        .badge-role {
+            font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;
+        }
+        .role-admin { background: #fee2e2; color: #b91c1c; }
+        .role-comercial { background: #dcfce7; color: #15803d; }
+        .role-estoque { background: #fef3c7; color: #b45309; }
+        .role-financeiro { background: #e0e7ff; color: #4338ca; }
+
         @media screen and (max-width: 850px) {
             aside { display: none !important; }
             .mobile-bottom-nav { display: flex !important; }
@@ -219,6 +228,14 @@
                 <input type="text" id="cadNome" class="input-field" placeholder="Nome Completo" required>
                 <input type="email" id="cadEmail" class="input-field" placeholder="E-mail de Trabalho" required>
                 <input type="password" id="cadPassword" class="input-field" placeholder="Senha (Mínimo 6 dígitos)" required minlength="6">
+                
+                <select id="cadCargo" class="input-field">
+                    <option value="comercial">🛒 Comercial (Vendedor)</option>
+                    <option value="estoque">📦 Estoque (Almoxarifado)</option>
+                    <option value="financeiro">📊 Financeiro</option>
+                    <option value="admin">👑 Administrador</option>
+                </select>
+
                 <button type="submit" class="btn-pay" id="btnCadSubmit" style="margin-top:4px;">Criar Conta</button>
             </form>
 
@@ -238,11 +255,31 @@
             </form>
 
             <button type="button" class="auth-toggle-btn" id="btnVoltarLogin2">Voltar ao Login</button>
-            
-            <!-- AVISO COM ALERTA DE SPAM -->
             <div id="resetStatusMsg" style="display: none; margin-top: 14px; padding: 12px; border-radius: 10px; font-size: 11.5px; text-align: left; line-height: 1.4;"></div>
         </div>
 
+    </div>
+
+    <!-- MODAL DE EDIÇÃO DE CARGO (ADMIN EXCLUSIVO) -->
+    <div id="modalEditarUsuario" class="modal-overlay">
+        <div class="modal-box" style="max-width:340px;">
+            <h3 style="font-size:15px;">👥 Editar Cargo do Usuário</h3>
+            <p id="editUsuarioNome" style="font-size:12px; color:var(--text-muted);"></p>
+            <input type="hidden" id="editUsuarioUid">
+            <div>
+                <label style="font-size:11px; font-weight:700;">CARGO / FUNÇÃO</label>
+                <select id="editUsuarioCargoSelect" class="input-field" style="margin-top:4px;">
+                    <option value="comercial">🛒 Comercial (Vendedor)</option>
+                    <option value="estoque">📦 Estoque (Almoxarifado)</option>
+                    <option value="financeiro">📊 Financeiro</option>
+                    <option value="admin">👑 Administrador</option>
+                </select>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+                <button class="btn-pay" id="btnSalvarCargoUsuario">Salvar Cargo</button>
+                <button class="btn-sm" style="width:80px;" onclick="document.getElementById('modalEditarUsuario').style.display='none'">Cancelar</button>
+            </div>
+        </div>
     </div>
 
     <!-- GAVETA DO CARRINHO (MOBILE) -->
@@ -319,12 +356,14 @@
                 <div style="overflow:hidden;">
                     <div style="font-weight:800; color:#fff; font-size:13px;" id="userSidebarName">NexCell Store</div>
                     <div style="font-size:10.5px; color:var(--sidebar-text); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;" id="userSidebarEmail">Carregando...</div>
+                    <span id="userSidebarRoleBadge" class="badge-role role-admin" style="margin-top:3px; display:inline-block;">...</span>
                 </div>
             </div>
             <nav class="nav-list">
-                <div class="nav-btn active" id="btnNavVender">🛒 Vender (PDV)</div>
+                <div class="nav-btn" id="btnNavVender">🛒 Vender (PDV)</div>
                 <div class="nav-btn" id="btnNavProdutos">📦 Estoque & Produtos</div>
                 <div class="nav-btn" id="btnNavFechamento">📊 Fechamento Caixa</div>
+                <div class="nav-btn" id="btnNavUsuarios">👥 Gestão de Usuários</div>
             </nav>
         </div>
         <button class="btn-logout" id="btnLogoutDesktop">🚪 Encerrar Sessão</button>
@@ -332,9 +371,10 @@
 
     <!-- BARRA INFERIOR (MOBILE) -->
     <div class="mobile-bottom-nav">
-        <div class="m-nav-item active" id="mNavVender"><span class="icon">🛒</span><span>PDV</span></div>
+        <div class="m-nav-item" id="mNavVender"><span class="icon">🛒</span><span>PDV</span></div>
         <div class="m-nav-item" id="mNavProdutos"><span class="icon">📦</span><span>Estoque</span></div>
         <div class="m-nav-item" id="mNavFechamento"><span class="icon">📊</span><span>Caixa</span></div>
+        <div class="m-nav-item" id="mNavUsuarios"><span class="icon">👥</span><span>Usuários</span></div>
         <div class="m-nav-item" id="mNavLogout" style="color:var(--danger);"><span class="icon">🚪</span><span>Sair</span></div>
     </div>
 
@@ -349,7 +389,7 @@
         </div>
 
         <!-- ABA 1: PDV -->
-        <div id="viewVender" class="view-content active">
+        <div id="viewVender" class="view-content">
             <div class="pdv-layout">
                 <div class="catalog-section">
                     <div class="scanner-input-bar">
@@ -422,12 +462,32 @@
             </div>
         </div>
 
-        <!-- ABA 3: FECHAMENTO -->
+        <!-- ABA 3: FECHAMENTO FINANCEIRO -->
         <div id="viewFechamento" class="view-content">
             <div style="max-width:440px; background:#fff; padding:18px; border-radius:14px; border:1px solid var(--border);">
-                <h3 style="font-size:14px; margin-bottom:12px;">📊 Caixa em Nuvem</h3>
+                <h3 style="font-size:14px; margin-bottom:12px;">📊 Caixa em Nuvem (Financeiro)</h3>
                 <div id="balancoStream" style="display:flex; flex-direction:column; gap:8px;"></div>
                 <button class="btn-pay" style="margin-top:12px;" id="btnAtualizarFechamento">Atualizar Balanço</button>
+            </div>
+        </div>
+
+        <!-- ABA 4: GESTÃO DE USUÁRIOS (ADMIN EXCLUSIVO) -->
+        <div id="viewUsuarios" class="view-content">
+            <div class="table-box">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h3 style="font-size:14px;">👥 Colaboradores & Permissões</h3>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Colaborador</th>
+                            <th>E-mail</th>
+                            <th>Cargo Atual</th>
+                            <th>Ações (Admin)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaCorpoUsuarios"></tbody>
+                </table>
             </div>
         </div>
     </main>
@@ -477,6 +537,7 @@
         let userData = null;
         let catalogo = [];
         let carrinho = [];
+        let usuariosLista = [];
         let marcaFiltro = 'TODOS';
 
         setInterval(() => { 
@@ -503,17 +564,26 @@
                     if (uSnap.exists()) {
                         userData = uSnap.data();
                     } else {
-                        userData = { nome: user.email.split('@')[0], email: user.email };
+                        // Se não existir perfil salvo no Firestore, atribui cargo admin inicial
+                        userData = { nome: user.email.split('@')[0], email: user.email, cargo: 'admin' };
+                        await setDoc(doc(db, "usuarios", user.uid), userData);
                     }
                 } catch (e) {
-                    userData = { nome: user.email.split('@')[0], email: user.email };
+                    userData = { nome: user.email.split('@')[0], email: user.email, cargo: 'comercial' };
                 }
 
                 document.getElementById('authOverlay').style.display = 'none';
                 document.getElementById('userSidebarName').innerText = userData.nome || 'Operador';
                 document.getElementById('userSidebarEmail').innerText = user.email;
                 document.getElementById('avatarLetra').innerText = (userData.nome || 'N')[0].toUpperCase();
-                document.getElementById('topbarUserLabel').innerText = `Operador: ${userData.nome} (${user.email})`;
+                
+                const roleBadge = document.getElementById('userSidebarRoleBadge');
+                roleBadge.innerText = (userData.cargo || 'comercial').toUpperCase();
+                roleBadge.className = `badge-role role-${userData.cargo || 'comercial'}`;
+
+                document.getElementById('topbarUserLabel').innerText = `Operador: ${userData.nome} [${(userData.cargo || 'comercial').toUpperCase()}]`;
+                
+                aplicarPermissoes(userData.cargo || 'comercial');
                 iniciarEscutaBanco();
             } else {
                 currentUser = null;
@@ -524,6 +594,56 @@
                 cardLogin.style.display = 'block';
             }
         });
+
+        // APLICAÇÃO DE REGRAS DE PERMISSÃO / VISIBILIDADE
+        function aplicarPermissoes(cargo) {
+            const btnNavVender = document.getElementById('btnNavVender');
+            const btnNavProdutos = document.getElementById('btnNavProdutos');
+            const btnNavFechamento = document.getElementById('btnNavFechamento');
+            const btnNavUsuarios = document.getElementById('btnNavUsuarios');
+
+            const mNavVender = document.getElementById('mNavVender');
+            const mNavProdutos = document.getElementById('mNavProdutos');
+            const mNavFechamento = document.getElementById('mNavFechamento');
+            const mNavUsuarios = document.getElementById('mNavUsuarios');
+
+            // Resetar visibilidade
+            [btnNavVender, btnNavProdutos, btnNavFechamento, btnNavUsuarios].forEach(el => el.style.display = 'none');
+            [mNavVender, mNavProdutos, mNavFechamento, mNavUsuarios].forEach(el => el.style.display = 'none');
+
+            if (cargo === 'admin') {
+                [btnNavVender, btnNavProdutos, btnNavFechamento, btnNavUsuarios].forEach(el => el.style.display = 'flex');
+                [mNavVender, mNavProdutos, mNavFechamento, mNavUsuarios].forEach(el => el.style.display = 'flex');
+                ativarAbaPadrao('vender', btnNavVender, mNavVender);
+            } else if (cargo === 'comercial') {
+                btnNavVender.style.display = 'flex';
+                mNavVender.style.display = 'flex';
+                btnNavProdutos.style.display = 'flex'; // Leitura de catálogo
+                mNavProdutos.style.display = 'flex';
+                document.getElementById('btnAbrirNovoProd').style.display = 'none';
+                ativarAbaPadrao('vender', btnNavVender, mNavVender);
+            } else if (cargo === 'estoque') {
+                btnNavProdutos.style.display = 'flex';
+                mNavProdutos.style.display = 'flex';
+                document.getElementById('btnAbrirNovoProd').style.display = 'inline-block';
+                ativarAbaPadrao('produtos', btnNavProdutos, mNavProdutos);
+            } else if (cargo === 'financeiro') {
+                btnNavFechamento.style.display = 'flex';
+                mNavFechamento.style.display = 'flex';
+                btnNavProdutos.style.display = 'flex';
+                mNavProdutos.style.display = 'flex';
+                document.getElementById('btnAbrirNovoProd').style.display = 'none';
+                ativarAbaPadrao('fechamento', btnNavFechamento, mNavFechamento);
+            }
+        }
+
+        function ativarAbaPadrao(aba, btnDesk, btnMob) {
+            mudarAba(aba);
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.m-nav-item').forEach(b => b.classList.remove('active'));
+            if (btnDesk) btnDesk.classList.add('active');
+            if (btnMob) btnMob.classList.add('active');
+        }
 
         // 1. LOGIN
         document.getElementById('formLogin').onsubmit = async (e) => {
@@ -554,6 +674,7 @@
             const nome = document.getElementById('cadNome').value.trim();
             const email = document.getElementById('cadEmail').value.trim();
             const pass = document.getElementById('cadPassword').value;
+            const cargo = document.getElementById('cadCargo').value;
             const btn = document.getElementById('btnCadSubmit');
             const errBox = document.getElementById('cadErrorMsg');
 
@@ -566,7 +687,7 @@
                 await setDoc(doc(db, "usuarios", cred.user.uid), {
                     nome: nome,
                     email: email,
-                    cargo: 'operador',
+                    cargo: cargo,
                     criado_em: new Date().toISOString()
                 });
             } catch (err) {
@@ -578,7 +699,7 @@
             }
         };
 
-        // 3. ALTERAÇÃO / RECUPERAÇÃO DE SENHA COM AVISO DE SPAM
+        // 3. ALTERAÇÃO DE SENHA
         document.getElementById('formReset').onsubmit = async (e) => {
             e.preventDefault();
             const email = document.getElementById('resetEmail').value.trim();
@@ -626,7 +747,66 @@
             }, (error) => {
                 console.error("Erro no Firestore:", error);
             });
+
+            // Se for Admin, ativa escuta de usuários
+            if (userData && userData.cargo === 'admin') {
+                onSnapshot(collection(db, "usuarios"), (snapshot) => {
+                    usuariosLista = snapshot.docs.map(d => ({ uid: d.id, ...d.data() }));
+                    renderizarTabelaUsuarios(usuariosLista);
+                });
+            }
         }
+
+        // TABELA DE GESTÃO DE USUÁRIOS (ADMIN)
+        function renderizarTabelaUsuarios(usuarios) {
+            const tbody = document.getElementById('tabelaCorpoUsuarios');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            usuarios.forEach(u => {
+                const tr = document.createElement('tr');
+                const role = u.cargo || 'comercial';
+                tr.innerHTML = `
+                    <td><b>${u.nome || 'Sem nome'}</b></td>
+                    <td>${u.email || ''}</td>
+                    <td><span class="badge-role role-${role}">${role.toUpperCase()}</span></td>
+                    <td>
+                        <button class="btn-sm btn-edit-user" style="color:var(--brand-orange);">✏️ Alterar Cargo</button>
+                    </td>`;
+                
+                tr.querySelector('.btn-edit-user').onclick = () => abrirModalEditarUsuario(u);
+                tbody.appendChild(tr);
+            });
+        }
+
+        function abrirModalEditarUsuario(u) {
+            document.getElementById('editUsuarioUid').value = u.uid;
+            document.getElementById('editUsuarioNome').innerText = `${u.nome} (${u.email})`;
+            document.getElementById('editUsuarioCargoSelect').value = u.cargo || 'comercial';
+            document.getElementById('modalEditarUsuario').style.display = 'flex';
+        }
+
+        document.getElementById('btnSalvarCargoUsuario').onclick = async () => {
+            const uid = document.getElementById('editUsuarioUid').value;
+            const novoCargo = document.getElementById('editUsuarioCargoSelect').value;
+            const btn = document.getElementById('btnSalvarCargoUsuario');
+
+            btn.disabled = true;
+            btn.innerText = "Salvando...";
+
+            try {
+                await updateDoc(doc(db, "usuarios", uid), {
+                    cargo: novoCargo
+                });
+                alert("Cargo atualizado com sucesso!");
+                document.getElementById('modalEditarUsuario').style.display = 'none';
+            } catch (err) {
+                alert("Erro ao alterar cargo: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Salvar Cargo";
+            }
+        };
 
         function renderizarCatalogo(itens) {
             const grid = document.getElementById('gridProdutos');
@@ -660,6 +840,8 @@
             const tbody = document.getElementById('tabelaCorpoProdutos');
             if (!tbody) return;
             tbody.innerHTML = '';
+            const podeEditar = userData && (userData.cargo === 'admin' || userData.cargo === 'estoque');
+
             itens.forEach(p => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -668,14 +850,18 @@
                     <td><b>R$ ${parseFloat(p.preco || 0).toFixed(2).replace('.', ',')}</b></td>
                     <td><b style="color:${(p.estoque || 0) <= 3 ? 'var(--danger)' : 'var(--text-dark)'};">${p.estoque || 0} un</b></td>
                     <td>
-                        <button class="btn-sm btn-repor" style="color:var(--brand-orange);">+ Repor</button>
-                        <button class="btn-sm btn-edit">✏️</button>
-                        <button class="btn-sm btn-del" style="color:var(--danger);">🗑️</button>
+                        ${podeEditar ? `
+                            <button class="btn-sm btn-repor" style="color:var(--brand-orange);">+ Repor</button>
+                            <button class="btn-sm btn-edit">✏️</button>
+                            <button class="btn-sm btn-del" style="color:var(--danger);">🗑️</button>
+                        ` : `<span style="font-size:11px; color:var(--text-muted);">Apenas Consulta</span>`}
                     </td>`;
                 
-                tr.querySelector('.btn-repor').onclick = () => abrirModalRepor(p.id);
-                tr.querySelector('.btn-edit').onclick = () => abrirModalEdicao(p.id);
-                tr.querySelector('.btn-del').onclick = () => excluirProduto(p.id);
+                if (podeEditar) {
+                    tr.querySelector('.btn-repor').onclick = () => abrirModalRepor(p.id);
+                    tr.querySelector('.btn-edit').onclick = () => abrirModalEdicao(p.id);
+                    tr.querySelector('.btn-del').onclick = () => excluirProduto(p.id);
+                }
                 tbody.appendChild(tr);
             });
         }
@@ -769,6 +955,9 @@
         }
 
         function addCarrinho(id) {
+            if (userData && (userData.cargo !== 'admin' && userData.cargo !== 'comercial')) {
+                return alert('Seu cargo não possui permissão para emitir vendas!');
+            }
             const prod = catalogo.find(p => p.id === id);
             if ((prod.estoque || 0) <= 0) return alert('Sem estoque disponível!');
             const idx = carrinho.findIndex(i => i.id === id);
@@ -881,7 +1070,7 @@
             renderizarCatalogo(filtrados);
         };
 
-        // FECHAMENTO DE CAIXA
+        // FECHAMENTO DE CAIXA (FINANCEIRO)
         async function carregarFechamento() {
             try {
                 const snapshot = await getDocs(collection(db, "vendas"));
@@ -926,7 +1115,7 @@
             };
         });
 
-        // NAVEGAÇÃO
+        // NAVEGAÇÃO ENTRE ABAS
         function mudarAba(aba) {
             document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
             if (aba === 'vender') document.getElementById('viewVender').classList.add('active');
@@ -935,15 +1124,18 @@
                 document.getElementById('viewFechamento').classList.add('active');
                 carregarFechamento();
             }
+            if (aba === 'usuarios') document.getElementById('viewUsuarios').classList.add('active');
         }
 
         document.getElementById('btnNavVender').onclick = (e) => { ativarNav(e.target); mudarAba('vender'); };
         document.getElementById('btnNavProdutos').onclick = (e) => { ativarNav(e.target); mudarAba('produtos'); };
         document.getElementById('btnNavFechamento').onclick = (e) => { ativarNav(e.target); mudarAba('fechamento'); };
+        document.getElementById('btnNavUsuarios').onclick = (e) => { ativarNav(e.target); mudarAba('usuarios'); };
 
         document.getElementById('mNavVender').onclick = (e) => { ativarNavMobile(e.currentTarget); mudarAba('vender'); };
         document.getElementById('mNavProdutos').onclick = (e) => { ativarNavMobile(e.currentTarget); mudarAba('produtos'); };
         document.getElementById('mNavFechamento').onclick = (e) => { ativarNavMobile(e.currentTarget); mudarAba('fechamento'); };
+        document.getElementById('mNavUsuarios').onclick = (e) => { ativarNavMobile(e.currentTarget); mudarAba('usuarios'); };
 
         function ativarNav(el) {
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
