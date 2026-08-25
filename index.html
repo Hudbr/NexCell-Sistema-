@@ -82,10 +82,10 @@
         }
         .m-nav-item {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: var(--text-muted); font-size: 10px; font-weight: 700; gap: 2px; flex: 1; height: 100%; cursor: pointer;
+            color: var(--text-muted); font-size: 9.5px; font-weight: 700; gap: 2px; flex: 1; height: 100%; cursor: pointer;
         }
         .m-nav-item.active { color: var(--brand-orange); }
-        .m-nav-item .icon { font-size: 19px; }
+        .m-nav-item .icon { font-size: 18px; }
 
         main { flex: 1; display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; width: 100%; }
         .topbar {
@@ -176,6 +176,16 @@
         .role-estoque { background: #fef3c7; color: #b45309; }
         .role-financeiro { background: #e0e7ff; color: #4338ca; }
 
+        /* CONFIGURAÇÕES GRID */
+        .config-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;
+        }
+        .config-card {
+            background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 18px;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .config-title { font-size: 13.5px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+
         @media screen and (max-width: 850px) {
             aside { display: none !important; }
             .mobile-bottom-nav { display: flex !important; }
@@ -260,7 +270,7 @@
 
     </div>
 
-    <!-- MODAL DE EDIÇÃO DE CARGO (ADMIN EXCLUSIVO) -->
+    <!-- MODAL DE EDIÇÃO DE CARGO (ADMIN) -->
     <div id="modalEditarUsuario" class="modal-overlay">
         <div class="modal-box" style="max-width:340px;">
             <h3 style="font-size:15px;">👥 Editar Cargo do Usuário</h3>
@@ -364,6 +374,7 @@
                 <div class="nav-btn" id="btnNavProdutos">📦 Estoque & Produtos</div>
                 <div class="nav-btn" id="btnNavFechamento">📊 Fechamento Caixa</div>
                 <div class="nav-btn" id="btnNavUsuarios">👥 Gestão de Usuários</div>
+                <div class="nav-btn" id="btnNavConfig">⚙️ Configurações</div>
             </nav>
         </div>
         <button class="btn-logout" id="btnLogoutDesktop">🚪 Encerrar Sessão</button>
@@ -375,6 +386,7 @@
         <div class="m-nav-item" id="mNavProdutos"><span class="icon">📦</span><span>Estoque</span></div>
         <div class="m-nav-item" id="mNavFechamento"><span class="icon">📊</span><span>Caixa</span></div>
         <div class="m-nav-item" id="mNavUsuarios"><span class="icon">👥</span><span>Usuários</span></div>
+        <div class="m-nav-item" id="mNavConfig"><span class="icon">⚙️</span><span>Ajustes</span></div>
         <div class="m-nav-item" id="mNavLogout" style="color:var(--danger);"><span class="icon">🚪</span><span>Sair</span></div>
     </div>
 
@@ -471,7 +483,7 @@
             </div>
         </div>
 
-        <!-- ABA 4: GESTÃO DE USUÁRIOS (ADMIN EXCLUSIVO) -->
+        <!-- ABA 4: GESTÃO DE USUÁRIOS (ADMIN) -->
         <div id="viewUsuarios" class="view-content">
             <div class="table-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -488,6 +500,73 @@
                     </thead>
                     <tbody id="tabelaCorpoUsuarios"></tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- ABA 5: CONFIGURAÇÕES (USUÁRIO + ADMIN) -->
+        <div id="viewConfig" class="view-content">
+            <div class="config-grid">
+                
+                <!-- CARD COMUM: MEU PERFIL -->
+                <div class="config-card">
+                    <div class="config-title">👤 Meu Perfil de Colaborador</div>
+                    <div>
+                        <label style="font-size:11px; font-weight:700;">NOME DE EXIBIÇÃO</label>
+                        <input type="text" id="cfgMeuNome" class="input-field" style="margin-top:4px;">
+                    </div>
+                    <div>
+                        <label style="font-size:11px; font-weight:700;">E-MAIL VINCULADO</label>
+                        <input type="text" id="cfgMeuEmail" class="input-field" style="margin-top:4px; background:#f1f5f9;" disabled>
+                    </div>
+                    <button class="btn-pay" id="btnSalvarMeuPerfil">Salvar Alterações</button>
+                </div>
+
+                <!-- CARD COMUM: SEGURANÇA -->
+                <div class="config-card">
+                    <div class="config-title">🔑 Segurança & Senha</div>
+                    <p style="font-size:11.5px; color:var(--text-muted);">Deseja redefinir sua senha de acesso?</p>
+                    <button class="btn-pay" id="btnEnviarResetConfig" style="background:var(--text-dark);">Enviar Link de Redefinição para meu E-mail</button>
+                    <div id="cfgResetFeedback" style="display:none; padding:8px; border-radius:8px; font-size:11px;"></div>
+                </div>
+
+                <!-- CARD EXCLUSIVO ADMIN: DADOS DA LOJA -->
+                <div class="config-card config-admin-only" style="display:none;">
+                    <div class="config-title">🏢 Dados da Empresa (Exclusivo Admin)</div>
+                    <div>
+                        <label style="font-size:11px; font-weight:700;">NOME DA LOJA NO SISTEMA</label>
+                        <input type="text" id="cfgLojaNome" class="input-field" placeholder="Ex: NexCell Store Matriz" style="margin-top:4px;">
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                        <div>
+                            <label style="font-size:11px; font-weight:700;">CNPJ / CPF</label>
+                            <input type="text" id="cfgLojaDoc" class="input-field" placeholder="00.000.000/0001-00" style="margin-top:4px;">
+                        </div>
+                        <div>
+                            <label style="font-size:11px; font-weight:700;">TELEFONE / WHATSAPP</label>
+                            <input type="text" id="cfgLojaTel" class="input-field" placeholder="(11) 99999-9999" style="margin-top:4px;">
+                        </div>
+                    </div>
+                    <div>
+                        <label style="font-size:11px; font-weight:700;">CHAVE PIX PADRÃO</label>
+                        <input type="text" id="cfgLojaPix" class="input-field" placeholder="CNPJ, E-mail, Celular ou Chave Aleatória" style="margin-top:4px;">
+                    </div>
+                    <button class="btn-pay" id="btnSalvarConfigLoja">Salvar Dados da Empresa</button>
+                </div>
+
+                <!-- CARD EXCLUSIVO ADMIN: PARÂMETROS OPERACIONAIS -->
+                <div class="config-card config-admin-only" style="display:none;">
+                    <div class="config-title">⚙️ Parâmetros Operacionais (Exclusivo Admin)</div>
+                    <div>
+                        <label style="font-size:11px; font-weight:700;">ALERTA DE ESTOQUE BAIXO (QTD MÍNIMA)</label>
+                        <input type="number" id="cfgAlertaEstoque" class="input-field" value="3" style="margin-top:4px;">
+                    </div>
+                    <div>
+                        <label style="font-size:11px; font-weight:700;">MENSAGEM DE RODAPÉ DO COMPROVANTE</label>
+                        <input type="text" id="cfgMsgRodape" class="input-field" placeholder="Obrigado pela preferência! Volte sempre." style="margin-top:4px;">
+                    </div>
+                    <button class="btn-pay" id="btnSalvarParametros">Salvar Parâmetros</button>
+                </div>
+
             </div>
         </div>
     </main>
@@ -539,6 +618,7 @@
         let carrinho = [];
         let usuariosLista = [];
         let marcaFiltro = 'TODOS';
+        let limiteEstoqueBaixo = 3;
 
         setInterval(() => { 
             const liveClock = document.getElementById('liveClock');
@@ -564,7 +644,6 @@
                     if (uSnap.exists()) {
                         userData = uSnap.data();
                     } else {
-                        // Se não existir perfil salvo no Firestore, atribui cargo admin inicial
                         userData = { nome: user.email.split('@')[0], email: user.email, cargo: 'admin' };
                         await setDoc(doc(db, "usuarios", user.uid), userData);
                     }
@@ -583,8 +662,13 @@
 
                 document.getElementById('topbarUserLabel').innerText = `Operador: ${userData.nome} [${(userData.cargo || 'comercial').toUpperCase()}]`;
                 
+                // Preencher campos de perfil na aba de Configurações
+                document.getElementById('cfgMeuNome').value = userData.nome || '';
+                document.getElementById('cfgMeuEmail').value = user.email;
+
                 aplicarPermissoes(userData.cargo || 'comercial');
                 iniciarEscutaBanco();
+                carregarConfiguracoesGlobais();
             } else {
                 currentUser = null;
                 userData = null;
@@ -601,15 +685,25 @@
             const btnNavProdutos = document.getElementById('btnNavProdutos');
             const btnNavFechamento = document.getElementById('btnNavFechamento');
             const btnNavUsuarios = document.getElementById('btnNavUsuarios');
+            const btnNavConfig = document.getElementById('btnNavConfig');
 
             const mNavVender = document.getElementById('mNavVender');
             const mNavProdutos = document.getElementById('mNavProdutos');
             const mNavFechamento = document.getElementById('mNavFechamento');
             const mNavUsuarios = document.getElementById('mNavUsuarios');
+            const mNavConfig = document.getElementById('mNavConfig');
 
             // Resetar visibilidade
-            [btnNavVender, btnNavProdutos, btnNavFechamento, btnNavUsuarios].forEach(el => el.style.display = 'none');
-            [mNavVender, mNavProdutos, mNavFechamento, mNavUsuarios].forEach(el => el.style.display = 'none');
+            [btnNavVender, btnNavProdutos, btnNavFechamento, btnNavUsuarios, btnNavConfig].forEach(el => el.style.display = 'none');
+            [mNavVender, mNavProdutos, mNavFechamento, mNavUsuarios, mNavConfig].forEach(el => el.style.display = 'none');
+
+            // Todos os usuários autenticados têm acesso à aba de Configuração (limitada ao perfil)
+            btnNavConfig.style.display = 'flex';
+            mNavConfig.style.display = 'flex';
+
+            // Alterna blocos exclusivos de Admin nas Configurações
+            const adminCards = document.querySelectorAll('.config-admin-only');
+            adminCards.forEach(c => c.style.display = (cargo === 'admin') ? 'flex' : 'none');
 
             if (cargo === 'admin') {
                 [btnNavVender, btnNavProdutos, btnNavFechamento, btnNavUsuarios].forEach(el => el.style.display = 'flex');
@@ -618,7 +712,7 @@
             } else if (cargo === 'comercial') {
                 btnNavVender.style.display = 'flex';
                 mNavVender.style.display = 'flex';
-                btnNavProdutos.style.display = 'flex'; // Leitura de catálogo
+                btnNavProdutos.style.display = 'flex';
                 mNavProdutos.style.display = 'flex';
                 document.getElementById('btnAbrirNovoProd').style.display = 'none';
                 ativarAbaPadrao('vender', btnNavVender, mNavVender);
@@ -644,6 +738,105 @@
             if (btnDesk) btnDesk.classList.add('active');
             if (btnMob) btnMob.classList.add('active');
         }
+
+        // CARREGAR CONFIGURAÇÕES GLOBAIS (ADMIN)
+        async function carregarConfiguracoesGlobais() {
+            try {
+                const docSnap = await getDoc(doc(db, "configuracoes", "geral"));
+                if (docSnap.exists()) {
+                    const cfg = docSnap.data();
+                    if (cfg.loja_nome) {
+                        document.getElementById('userSidebarName').innerText = cfg.loja_nome;
+                        document.getElementById('cfgLojaNome').value = cfg.loja_nome;
+                    }
+                    if (cfg.loja_doc) document.getElementById('cfgLojaDoc').value = cfg.loja_doc;
+                    if (cfg.loja_tel) document.getElementById('cfgLojaTel').value = cfg.loja_tel;
+                    if (cfg.loja_pix) document.getElementById('cfgLojaPix').value = cfg.loja_pix;
+                    if (cfg.alerta_estoque) {
+                        limiteEstoqueBaixo = parseInt(cfg.alerta_estoque);
+                        document.getElementById('cfgAlertaEstoque').value = limiteEstoqueBaixo;
+                    }
+                    if (cfg.msg_rodape) document.getElementById('cfgMsgRodape').value = cfg.msg_rodape;
+                }
+            } catch (e) {
+                console.error("Erro ao carregar configurações gerais:", e);
+            }
+        }
+
+        // SALVAR MEU PERFIL (USUÁRIO COMUM & ADMIN)
+        document.getElementById('btnSalvarMeuPerfil').onclick = async () => {
+            const novoNome = document.getElementById('cfgMeuNome').value.trim();
+            if (!novoNome) return alert("Por favor, preencha o seu nome.");
+
+            try {
+                await updateDoc(doc(db, "usuarios", currentUser.uid), {
+                    nome: novoNome
+                });
+                userData.nome = novoNome;
+                document.getElementById('userSidebarName').innerText = novoNome;
+                document.getElementById('avatarLetra').innerText = novoNome[0].toUpperCase();
+                document.getElementById('topbarUserLabel').innerText = `Operador: ${novoNome} [${(userData.cargo || 'comercial').toUpperCase()}]`;
+                alert("Perfil atualizado com sucesso!");
+            } catch (err) {
+                alert("Erro ao salvar perfil: " + err.message);
+            }
+        };
+
+        // ENVIAR RESET DE SENHA DE DENTRO DO APP
+        document.getElementById('btnEnviarResetConfig').onclick = async () => {
+            const statusBox = document.getElementById('cfgResetFeedback');
+            statusBox.style.display = "none";
+            try {
+                await sendPasswordResetEmail(auth, currentUser.email);
+                statusBox.style.background = "rgba(16, 185, 129, 0.1)";
+                statusBox.style.color = "#065f46";
+                statusBox.innerText = "Link enviado! Verifique seu e-mail (e a pasta de spam).";
+                statusBox.style.display = "block";
+            } catch (err) {
+                statusBox.style.background = "rgba(239, 68, 68, 0.1)";
+                statusBox.style.color = "var(--danger)";
+                statusBox.innerText = "Erro ao solicitar redefinição: " + err.message;
+                statusBox.style.display = "block";
+            }
+        };
+
+        // SALVAR DADOS DA LOJA (EXCLUSIVO ADMIN)
+        document.getElementById('btnSalvarConfigLoja').onclick = async () => {
+            const payload = {
+                loja_nome: document.getElementById('cfgLojaNome').value.trim() || 'NexCell Store',
+                loja_doc: document.getElementById('cfgLojaDoc').value.trim() || '',
+                loja_tel: document.getElementById('cfgLojaTel').value.trim() || '',
+                loja_pix: document.getElementById('cfgLojaPix').value.trim() || ''
+            };
+
+            try {
+                await setDoc(doc(db, "configuracoes", "geral"), payload, { merge: true });
+                document.getElementById('userSidebarName').innerText = payload.loja_nome;
+                alert("Dados da empresa salvos com sucesso!");
+            } catch (err) {
+                alert("Erro ao gravar dados da loja: " + err.message);
+            }
+        };
+
+        // SALVAR PARÂMETROS OPERACIONAIS (EXCLUSIVO ADMIN)
+        document.getElementById('btnSalvarParametros').onclick = async () => {
+            const qtdAlerta = parseInt(document.getElementById('cfgAlertaEstoque').value) || 3;
+            const msgRodape = document.getElementById('cfgMsgRodape').value.trim() || '';
+
+            try {
+                await setDoc(doc(db, "configuracoes", "geral"), {
+                    alerta_estoque: qtdAlerta,
+                    msg_rodape: msgRodape
+                }, { merge: true });
+
+                limiteEstoqueBaixo = qtdAlerta;
+                renderizarCatalogo(catalogo);
+                renderizarTabelaEstoque(catalogo);
+                alert("Parâmetros operacionais salvos!");
+            } catch (err) {
+                alert("Erro ao gravar parâmetros: " + err.message);
+            }
+        };
 
         // 1. LOGIN
         document.getElementById('formLogin').onsubmit = async (e) => {
@@ -699,7 +892,7 @@
             }
         };
 
-        // 3. ALTERAÇÃO DE SENHA
+        // 3. ALTERAÇÃO DE SENHA NA TELA INICIAL
         document.getElementById('formReset').onsubmit = async (e) => {
             e.preventDefault();
             const email = document.getElementById('resetEmail').value.trim();
@@ -748,7 +941,6 @@
                 console.error("Erro no Firestore:", error);
             });
 
-            // Se for Admin, ativa escuta de usuários
             if (userData && userData.cargo === 'admin') {
                 onSnapshot(collection(db, "usuarios"), (snapshot) => {
                     usuariosLista = snapshot.docs.map(d => ({ uid: d.id, ...d.data() }));
@@ -815,7 +1007,7 @@
             let filtrados = marcaFiltro === 'TODOS' ? itens : itens.filter(p => (p.marca || '').toLowerCase() === marcaFiltro.toLowerCase());
 
             filtrados.forEach(p => {
-                const isLow = (p.estoque || 0) <= 3;
+                const isLow = (p.estoque || 0) <= limiteEstoqueBaixo;
                 const card = document.createElement('div');
                 card.className = 'prod-card';
                 card.onclick = () => addCarrinho(p.id);
@@ -843,12 +1035,13 @@
             const podeEditar = userData && (userData.cargo === 'admin' || userData.cargo === 'estoque');
 
             itens.forEach(p => {
+                const isLow = (p.estoque || 0) <= limiteEstoqueBaixo;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><b>${p.nome}</b><br><span style="font-size:10.5px; color:var(--text-muted);">${p.modelo || ''}</span></td>
                     <td>${p.marca || ''}</td>
                     <td><b>R$ ${parseFloat(p.preco || 0).toFixed(2).replace('.', ',')}</b></td>
-                    <td><b style="color:${(p.estoque || 0) <= 3 ? 'var(--danger)' : 'var(--text-dark)'};">${p.estoque || 0} un</b></td>
+                    <td><b style="color:${isLow ? 'var(--danger)' : 'var(--text-dark)'};">${p.estoque || 0} un</b></td>
                     <td>
                         ${podeEditar ? `
                             <button class="btn-sm btn-repor" style="color:var(--brand-orange);">+ Repor</button>
@@ -1070,7 +1263,7 @@
             renderizarCatalogo(filtrados);
         };
 
-        // FECHAMENTO DE CAIXA (FINANCEIRO)
+        // FECHAMENTO DE CAIXA
         async function carregarFechamento() {
             try {
                 const snapshot = await getDocs(collection(db, "vendas"));
@@ -1125,17 +1318,20 @@
                 carregarFechamento();
             }
             if (aba === 'usuarios') document.getElementById('viewUsuarios').classList.add('active');
+            if (aba === 'config') document.getElementById('viewConfig').classList.add('active');
         }
 
         document.getElementById('btnNavVender').onclick = (e) => { ativarNav(e.target); mudarAba('vender'); };
         document.getElementById('btnNavProdutos').onclick = (e) => { ativarNav(e.target); mudarAba('produtos'); };
         document.getElementById('btnNavFechamento').onclick = (e) => { ativarNav(e.target); mudarAba('fechamento'); };
         document.getElementById('btnNavUsuarios').onclick = (e) => { ativarNav(e.target); mudarAba('usuarios'); };
+        document.getElementById('btnNavConfig').onclick = (e) => { ativarNav(e.target); mudarAba('config'); };
 
         document.getElementById('mNavVender').onclick = (e) => { ativarNavMobile(e.currentTarget); mudarAba('vender'); };
         document.getElementById('mNavProdutos').onclick = (e) => { ativarNavMobile(e.currentTarget); mudarAba('produtos'); };
         document.getElementById('mNavFechamento').onclick = (e) => { ativarNavMobile(e.currentTarget); mudarAba('fechamento'); };
         document.getElementById('mNavUsuarios').onclick = (e) => { ativarNavMobile(e.currentTarget); mudarAba('usuarios'); };
+        document.getElementById('mNavConfig').onclick = (e) => { ativarNavMobile(e.currentTarget); mudarAba('config'); };
 
         function ativarNav(el) {
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
