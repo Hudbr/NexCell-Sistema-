@@ -26,7 +26,7 @@
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { display: flex; height: 100vh; height: 100dvh; overflow: hidden; background: var(--bg-app); color: var(--text-dark); }
 
-        /* MODAIS DE AUTENTICAÇÃO */
+        /* OVERLAY DE AUTENTICAÇÃO */
         #authOverlay {
             position: fixed; inset: 0; background: #0b0f19; z-index: 2000;
             display: flex; align-items: center; justify-content: center; padding: 20px;
@@ -238,7 +238,9 @@
             </form>
 
             <button type="button" class="auth-toggle-btn" id="btnVoltarLogin2">Voltar ao Login</button>
-            <p id="resetStatusMsg" style="font-size: 11.5px; margin-top: 10px; display: none;"></p>
+            
+            <!-- AVISO COM ALERTA DE SPAM -->
+            <div id="resetStatusMsg" style="display: none; margin-top: 14px; padding: 12px; border-radius: 10px; font-size: 11.5px; text-align: left; line-height: 1.4;"></div>
         </div>
 
     </div>
@@ -482,7 +484,7 @@
             if (liveClock) liveClock.innerText = new Date().toLocaleTimeString('pt-BR'); 
         }, 1000);
 
-        // NAVEGAÇÃO ENTRE CARDS DE LOGIN / CADASTRO / RESET
+        // NAVEGAÇÃO ENTRE TELAS DE AUTENTICAÇÃO
         const cardLogin = document.getElementById('cardLogin');
         const cardCadastro = document.getElementById('cardCadastro');
         const cardReset = document.getElementById('cardReset');
@@ -576,7 +578,7 @@
             }
         };
 
-        // 3. ALTERAÇÃO / RECUPERAÇÃO DE SENHA
+        // 3. ALTERAÇÃO / RECUPERAÇÃO DE SENHA COM AVISO DE SPAM
         document.getElementById('formReset').onsubmit = async (e) => {
             e.preventDefault();
             const email = document.getElementById('resetEmail').value.trim();
@@ -589,12 +591,20 @@
 
             try {
                 await sendPasswordResetEmail(auth, email);
-                statusBox.style.color = "var(--success)";
-                statusBox.innerText = "Link de alteração enviado para seu e-mail!";
+                statusBox.style.background = "rgba(16, 185, 129, 0.1)";
+                statusBox.style.border = "1px solid rgba(16, 185, 129, 0.3)";
+                statusBox.style.color = "#065f46";
+                statusBox.innerHTML = `
+                    <b>✉️ Link enviado com sucesso!</b><br>
+                    Verifique seu e-mail agora.<br><br>
+                    ⚠️ <b>Importante:</b> O e-mail pode cair na sua pasta de <b>Spam</b> ou <b>Lixo Eletrônico</b>. Caso não veja na caixa de entrada, procure por lá.
+                `;
                 statusBox.style.display = "block";
             } catch (err) {
+                statusBox.style.background = "rgba(239, 68, 68, 0.1)";
+                statusBox.style.border = "1px solid rgba(239, 68, 68, 0.3)";
                 statusBox.style.color = "var(--danger)";
-                statusBox.innerText = "Erro: e-mail não encontrado ou inválido.";
+                statusBox.innerHTML = `<b>Erro:</b> E-mail não encontrado ou formato inválido.`;
                 statusBox.style.display = "block";
             } finally {
                 btn.disabled = false;
