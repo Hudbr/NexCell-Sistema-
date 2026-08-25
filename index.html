@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NexCell • PDV Firebase</title>
+    <title>NexCell • PDV & Gestão Financeira</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -22,6 +22,7 @@
             --danger: #ef4444;
             --success: #10b981;
             --info: #3b82f6;
+            --warning: #f59e0b;
         }
 
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -176,13 +177,28 @@
         .role-estoque { background: #fef3c7; color: #b45309; }
         .role-financeiro { background: #e0e7ff; color: #4338ca; }
 
-        .config-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;
+        /* FINANCEIRO KPIs */
+        .kpi-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 16px;
         }
-        .config-card {
-            background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 18px;
-            display: flex; flex-direction: column; gap: 12px;
+        .kpi-card {
+            background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px;
+            display: flex; flex-direction: column; justify-content: space-between;
         }
+        .kpi-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+        .kpi-val { font-size: 20px; font-weight: 900; color: var(--text-dark); margin-top: 4px; }
+        .kpi-sub { font-size: 10.5px; color: var(--text-muted); margin-top: 2px; }
+
+        .fin-section-title {
+            font-size: 13.5px; font-weight: 800; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .mix-bar-wrap { margin-bottom: 8px; }
+        .mix-bar-header { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+        .mix-bar-track { height: 7px; background: #e2e8f0; border-radius: 10px; overflow: hidden; }
+        .mix-bar-fill { height: 100%; border-radius: 10px; }
+
+        .config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+        .config-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
         .config-title { font-size: 13.5px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
 
         @media screen and (max-width: 850px) {
@@ -193,6 +209,7 @@
             .mobile-floating-cart { display: flex !important; }
             .view-content { padding: 12px 12px 80px 12px !important; height: calc(100vh - 58px) !important; height: calc(100dvh - 58px) !important; }
             .products-grid { grid-template-columns: repeat(2, 1fr) !important; grid-auto-rows: 135px !important; }
+            .kpi-grid { grid-template-columns: 1fr 1fr !important; }
 
             #modalCarrinhoMobile.active {
                 display: flex !important; align-items: flex-end !important; padding: 0 !important;
@@ -247,7 +264,7 @@
             <p id="cadErrorMsg" style="font-size: 11.5px; color: var(--danger); margin-top: 10px; display: none;"></p>
         </div>
 
-        <!-- CARD 3: ALTERAR / REDEFINIR SENHA -->
+        <!-- CARD 3: ALTERAR SENHA -->
         <div class="auth-card" id="cardReset" style="display:none;">
             <div class="auth-logo">🔑</div>
             <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 4px;">Alterar Senha</h2>
@@ -262,6 +279,32 @@
             <div id="resetStatusMsg" style="display: none; margin-top: 14px; padding: 12px; border-radius: 10px; font-size: 11.5px; text-align: left; line-height: 1.4;"></div>
         </div>
 
+    </div>
+
+    <!-- MODAL DE MOVIMENTAÇÃO DE CAIXA (SANGRIA / SUPRIMENTO) -->
+    <div id="modalMovCaixa" class="modal-overlay">
+        <div class="modal-box" style="max-width:360px;">
+            <h3 id="movCaixaTitulo" style="font-size:15px;">💸 Movimentação de Gaveta</h3>
+            <div>
+                <label style="font-size:11px; font-weight:700;">TIPO DE OPERAÇÃO</label>
+                <select id="movCaixaTipo" class="input-field" style="margin-top:4px;">
+                    <option value="suprimento">🟢 Suprimento (Entrada / Troco)</option>
+                    <option value="sangria">🔴 Sangria (Retirada de Dinheiro)</option>
+                </select>
+            </div>
+            <div>
+                <label style="font-size:11px; font-weight:700;">VALOR (R$)</label>
+                <input type="number" step="0.01" id="movCaixaValor" class="input-field" placeholder="0,00" style="margin-top:4px; font-size:16px; font-weight:bold;">
+            </div>
+            <div>
+                <label style="font-size:11px; font-weight:700;">MOTIVO / OBSERVAÇÃO</label>
+                <input type="text" id="movCaixaMotivo" class="input-field" placeholder="Ex: Abertura do dia, Pagamento motoboy..." style="margin-top:4px;">
+            </div>
+            <div style="display:flex; gap:8px; margin-top:6px;">
+                <button class="btn-pay" id="btnConfirmarMovCaixa">Confirmar Lançamento</button>
+                <button class="btn-sm" style="width:80px;" onclick="document.getElementById('modalMovCaixa').style.display='none'">Cancelar</button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL DE EDIÇÃO DE CARGO (ADMIN) -->
@@ -366,7 +409,7 @@
             <nav class="nav-list">
                 <div class="nav-btn" id="btnNavVender">🛒 Vender (PDV)</div>
                 <div class="nav-btn" id="btnNavProdutos">📦 Estoque & Produtos</div>
-                <div class="nav-btn" id="btnNavFechamento">📊 Fechamento Caixa</div>
+                <div class="nav-btn" id="btnNavFechamento">📊 Módulo Financeiro</div>
                 <div class="nav-btn" id="btnNavUsuarios">👥 Gestão de Usuários</div>
                 <div class="nav-btn" id="btnNavConfig">⚙️ Configurações</div>
             </nav>
@@ -378,7 +421,7 @@
     <div class="mobile-bottom-nav">
         <div class="m-nav-item" id="mNavVender"><span class="icon">🛒</span><span>PDV</span></div>
         <div class="m-nav-item" id="mNavProdutos"><span class="icon">📦</span><span>Estoque</span></div>
-        <div class="m-nav-item" id="mNavFechamento"><span class="icon">📊</span><span>Caixa</span></div>
+        <div class="m-nav-item" id="mNavFechamento"><span class="icon">📊</span><span>Finanças</span></div>
         <div class="m-nav-item" id="mNavUsuarios"><span class="icon">👥</span><span>Usuários</span></div>
         <div class="m-nav-item" id="mNavConfig"><span class="icon">⚙️</span><span>Ajustes</span></div>
         <div class="m-nav-item" id="mNavLogout" style="color:var(--danger);"><span class="icon">🚪</span><span>Sair</span></div>
@@ -468,13 +511,81 @@
             </div>
         </div>
 
-        <!-- ABA 3: FECHAMENTO FINANCEIRO -->
+        <!-- ABA 3: MÓDULO FINANCEIRO COMPLETO -->
         <div id="viewFechamento" class="view-content">
-            <div style="max-width:440px; background:#fff; padding:18px; border-radius:14px; border:1px solid var(--border);">
-                <h3 style="font-size:14px; margin-bottom:12px;">📊 Caixa em Nuvem (Financeiro)</h3>
-                <div id="balancoStream" style="display:flex; flex-direction:column; gap:8px;"></div>
-                <button class="btn-pay" style="margin-top:12px;" id="btnAtualizarFechamento">Atualizar Balanço</button>
+            
+            <!-- 1. CARDS DE INDICADORES (KPIs) -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <span class="kpi-label">Faturamento Total</span>
+                    <span class="kpi-val" id="finKpiFaturamento" style="color:var(--brand-orange);">R$ 0,00</span>
+                    <span class="kpi-sub" id="finKpiVendasContagem">0 transações realizadas</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label">Ticket Médio</span>
+                    <span class="kpi-val" id="finKpiTicketMedio">R$ 0,00</span>
+                    <span class="kpi-sub">Média por cliente atendido</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label">Gaveta (Dinheiro Físico)</span>
+                    <span class="kpi-val" id="finKpiGavetaDinheiro" style="color:var(--success);">R$ 0,00</span>
+                    <span class="kpi-sub">Saldo esperado em caixa</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label">Ações de Gaveta</span>
+                    <div style="display:flex; gap:6px; margin-top:8px;">
+                        <button class="btn-sm" id="btnAbrirSangria" style="flex:1; background:var(--danger); color:#fff; border:none;">- Sangria</button>
+                        <button class="btn-sm" id="btnAbrirSuprimento" style="flex:1; background:var(--success); color:#fff; border:none;">+ Suprimento</button>
+                    </div>
+                </div>
             </div>
+
+            <!-- 2. MIX DE PAGAMENTOS & FLUXO -->
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px; margin-bottom:16px;">
+                <div style="background:#fff; border:1px solid var(--border); border-radius:14px; padding:16px;">
+                    <div class="fin-section-title">
+                        <span>💳 Mix de Meios de Pagamento</span>
+                    </div>
+                    <div id="finMixContainer"></div>
+                </div>
+
+                <div style="background:#fff; border:1px solid var(--border); border-radius:14px; padding:16px;">
+                    <div class="fin-section-title">
+                        <span>📥 Movimentações da Gaveta de Dinheiro</span>
+                    </div>
+                    <div id="finListaMovimentacoes" style="max-height:160px; overflow-y:auto; display:flex; flex-direction:column; gap:6px;"></div>
+                </div>
+            </div>
+
+            <!-- 3. EXTRATO ANALÍTICO DE VENDAS -->
+            <div class="table-box">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                    <h3 style="font-size:14px;">📑 Extrato Detalhado de Vendas</h3>
+                    <div style="display:flex; gap:8px;">
+                        <select id="finFiltroPeriodo" class="input-field" style="padding:4px 8px; font-size:12px; width:auto;">
+                            <option value="hoje">Hoje</option>
+                            <option value="7dias">Últimos 7 dias</option>
+                            <option value="30dias">Últimos 30 dias</option>
+                            <option value="todos">Todo o Histórico</option>
+                        </select>
+                        <button class="btn-pay" style="width:auto; padding:6px 12px; font-size:12px;" id="btnAtualizarFinanceiro">🔄 Atualizar</button>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data / Hora</th>
+                            <th>Operador</th>
+                            <th>Meio de Pagamento</th>
+                            <th>Itens</th>
+                            <th>Valor Total</th>
+                            <th>Status / Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaCorpoVendas"></tbody>
+                </table>
+            </div>
+
         </div>
 
         <!-- ABA 4: GESTÃO DE USUÁRIOS (ADMIN) -->
@@ -611,6 +722,8 @@
         let catalogo = [];
         let carrinho = [];
         let usuariosLista = [];
+        let todasVendas = [];
+        let todasMovimentacoes = [];
         let marcaFiltro = 'TODOS';
         let limiteEstoqueBaixo = 3;
 
@@ -923,7 +1036,222 @@
                     renderizarTabelaUsuarios(usuariosLista);
                 });
             }
+
+            // Escuta do módulo financeiro em tempo real
+            if (userData && (userData.cargo === 'admin' || userData.cargo === 'financeiro')) {
+                onSnapshot(collection(db, "vendas"), (snap) => {
+                    todasVendas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    processarDadosFinanceiros();
+                });
+                onSnapshot(collection(db, "movimentacoes_caixa"), (snap) => {
+                    todasMovimentacoes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    processarDadosFinanceiros();
+                });
+            }
         }
+
+        // ==========================================
+        // MÓDULO FINANCEIRO: CÁLCULOS & DASHBOARD
+        // ==========================================
+        function processarDadosFinanceiros() {
+            const filtro = document.getElementById('finFiltroPeriodo').value;
+            const agora = new Date();
+            
+            // Filtragem por Período
+            const vendasFiltradas = todasVendas.filter(v => {
+                if (v.status === 'cancelada') return false;
+                if (!v.data_venda) return true;
+                const dt = new Date(v.data_venda);
+                if (filtro === 'hoje') {
+                    return dt.toDateString() === agora.toDateString();
+                } else if (filtro === '7dias') {
+                    const limite = new Date();
+                    limite.setDate(limite.getDate() - 7);
+                    return dt >= limite;
+                } else if (filtro === '30dias') {
+                    const limite = new Date();
+                    limite.setDate(limite.getDate() - 30);
+                    return dt >= limite;
+                }
+                return true;
+            });
+
+            let faturamentoTotal = 0;
+            let totalDinheiroVendas = 0;
+            const mixPagamentos = { 'PIX': 0, 'Cartão de Crédito': 0, 'Cartão de Débito': 0, 'Dinheiro': 0 };
+
+            vendasFiltradas.forEach(v => {
+                const val = parseFloat(v.valor_total || 0);
+                faturamentoTotal += val;
+                const m = v.forma_pagamento || 'Dinheiro';
+                mixPagamentos[m] = (mixPagamentos[m] || 0) + val;
+                if (m === 'Dinheiro') totalDinheiroVendas += val;
+            });
+
+            const qtdVendas = vendasFiltradas.length;
+            const ticketMedio = qtdVendas > 0 ? (faturamentoTotal / qtdVendas) : 0;
+
+            // Cálculo da gaveta (Saldo em Dinheiro)
+            let totalSuprimentos = 0;
+            let totalSangrias = 0;
+
+            todasMovimentacoes.forEach(m => {
+                const val = parseFloat(m.valor || 0);
+                if (m.tipo === 'suprimento') totalSuprimentos += val;
+                if (m.tipo === 'sangria') totalSangrias += val;
+            });
+
+            const saldoGaveta = totalDinheiroVendas + totalSuprimentos - totalSangrias;
+
+            // Atualização dos Cards KPIs
+            document.getElementById('finKpiFaturamento').innerText = faturamentoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('finKpiVendasContagem').innerText = `${qtdVendas} transações no período`;
+            document.getElementById('finKpiTicketMedio').innerText = ticketMedio.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('finKpiGavetaDinheiro').innerText = saldoGaveta.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            // Renderizar Barras do Mix de Pagamentos
+            const mixContainer = document.getElementById('finMixContainer');
+            mixContainer.innerHTML = '';
+            const cores = { 'PIX': 'var(--brand-orange)', 'Cartão de Crédito': 'var(--info)', 'Cartão de Débito': 'var(--warning)', 'Dinheiro': 'var(--success)' };
+
+            for (const [metodo, totalMetodo] of Object.entries(mixPagamentos)) {
+                const perc = faturamentoTotal > 0 ? ((totalMetodo / faturamentoTotal) * 100).toFixed(1) : 0;
+                mixContainer.innerHTML += `
+                    <div class="mix-bar-wrap">
+                        <div class="mix-bar-header">
+                            <span><b>${metodo}</b> (${perc}%)</span>
+                            <span>R$ ${totalMetodo.toFixed(2).replace('.', ',')}</span>
+                        </div>
+                        <div class="mix-bar-track">
+                            <div class="mix-bar-fill" style="width:${perc}%; background:${cores[metodo] || 'var(--text-dark)'};"></div>
+                        </div>
+                    </div>`;
+            }
+
+            // Renderizar Lista de Movimentações de Gaveta
+            const listaMov = document.getElementById('finListaMovimentacoes');
+            listaMov.innerHTML = '';
+            if (todasMovimentacoes.length === 0) {
+                listaMov.innerHTML = `<span style="font-size:11px; color:var(--text-muted); text-align:center; padding:10px;">Nenhuma sangria ou suprimento registrado.</span>`;
+            } else {
+                todasMovimentacoes.slice(-8).reverse().forEach(m => {
+                    const isSup = m.tipo === 'suprimento';
+                    listaMov.innerHTML += `
+                        <div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; padding:6px 8px; background:var(--bg-app); border-radius:8px;">
+                            <div>
+                                <b style="color:${isSup ? 'var(--success)' : 'var(--danger)'};">${isSup ? '+ Suprimento' : '- Sangria'}</b>: ${m.motivo || 'Sem motivo'}
+                                <span style="display:block; font-size:9.5px; color:var(--text-muted);">${new Date(m.data).toLocaleDateString('pt-BR')} às ${new Date(m.data).toLocaleTimeString('pt-BR')} • ${m.operador}</span>
+                            </div>
+                            <b style="color:${isSup ? 'var(--success)' : 'var(--danger)'};">R$ ${parseFloat(m.valor).toFixed(2).replace('.', ',')}</b>
+                        </div>`;
+                });
+            }
+
+            // Renderizar Tabela de Extrato de Vendas
+            const tbodyVendas = document.getElementById('tabelaCorpoVendas');
+            tbodyVendas.innerHTML = '';
+
+            todasVendas.slice().reverse().forEach(v => {
+                const tr = document.createElement('tr');
+                const isCancelada = v.status === 'cancelada';
+                const dataFormatada = v.data_venda ? `${new Date(v.data_venda).toLocaleDateString('pt-BR')} ${new Date(v.data_venda).toLocaleTimeString('pt-BR')}` : '-';
+                
+                const resumoItens = (v.itens || []).map(i => `${i.qtd}x ${i.nome}`).join(', ') || 'Produtos Avulsos';
+
+                tr.innerHTML = `
+                    <td>${dataFormatada}</td>
+                    <td><b>${v.operador_nome || 'Operador'}</b></td>
+                    <td><span class="badge-role" style="background:#f1f5f9; color:var(--text-dark);">${v.forma_pagamento}</span></td>
+                    <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${resumoItens}">${resumoItens}</td>
+                    <td><b style="color:${isCancelada ? 'var(--text-muted)' : 'var(--text-dark)'};">R$ ${parseFloat(v.valor_total).toFixed(2).replace('.', ',')}</b></td>
+                    <td>
+                        ${isCancelada ? `<span style="color:var(--danger); font-weight:800;">Cancelada</span>` : `
+                            <button class="btn-sm btn-estorno" style="color:var(--danger);">↩️ Estornar</button>
+                        `}
+                    </td>`;
+
+                if (!isCancelada) {
+                    tr.querySelector('.btn-estorno').onclick = () => estornarVenda(v);
+                }
+                tbodyVendas.appendChild(tr);
+            });
+        }
+
+        // ESTORNO DE VENDA COM DEVOLUÇÃO AO ESTOQUE
+        async function estornarVenda(venda) {
+            if (!confirm(`Deseja cancelar a venda de R$ ${parseFloat(venda.valor_total).toFixed(2).replace('.', ',')} e devolver os produtos para o estoque?`)) return;
+
+            try {
+                // Devolve itens ao estoque
+                if (venda.itens && Array.isArray(venda.itens)) {
+                    for (const item of venda.itens) {
+                        if (item.id) {
+                            await updateDoc(doc(db, "produtos", item.id), {
+                                estoque: increment(item.qtd)
+                            });
+                        }
+                    }
+                }
+
+                await updateDoc(doc(db, "vendas", venda.id), {
+                    status: 'cancelada',
+                    cancelada_por: userData ? userData.nome : 'Admin',
+                    cancelada_em: new Date().toISOString()
+                });
+
+                alert("Venda estornada com sucesso e estoque reabastecido!");
+            } catch (err) {
+                alert("Erro ao estornar venda: " + err.message);
+            }
+        }
+
+        // MODAL DE SANGRIA E SUPRIMENTO
+        document.getElementById('btnAbrirSangria').onclick = () => {
+            document.getElementById('movCaixaTitulo').innerText = "🔴 Realizar Sangria (Retirada)";
+            document.getElementById('movCaixaTipo').value = "sangria";
+            document.getElementById('movCaixaValor').value = "";
+            document.getElementById('movCaixaMotivo').value = "";
+            document.getElementById('modalMovCaixa').style.display = 'flex';
+        };
+
+        document.getElementById('btnAbrirSuprimento').onclick = () => {
+            document.getElementById('movCaixaTitulo').innerText = "🟢 Realizar Suprimento (Entrada)";
+            document.getElementById('movCaixaTipo').value = "suprimento";
+            document.getElementById('movCaixaValor').value = "";
+            document.getElementById('movCaixaMotivo').value = "";
+            document.getElementById('modalMovCaixa').style.display = 'flex';
+        };
+
+        document.getElementById('btnConfirmarMovCaixa').onclick = async () => {
+            const tipo = document.getElementById('movCaixaTipo').value;
+            const val = parseFloat(document.getElementById('movCaixaValor').value);
+            const motivo = document.getElementById('movCaixaMotivo').value.trim();
+
+            if (!val || val <= 0) return alert("Digite um valor válido.");
+
+            const btn = document.getElementById('btnConfirmarMovCaixa');
+            btn.disabled = true;
+
+            try {
+                await addDoc(collection(db, "movimentacoes_caixa"), {
+                    tipo: tipo,
+                    valor: val,
+                    motivo: motivo || (tipo === 'sangria' ? 'Sangria de Caixa' : 'Fundo de Troco'),
+                    operador: userData ? userData.nome : 'Operador',
+                    data: new Date().toISOString()
+                });
+
+                alert("Movimentação registrada com sucesso!");
+                document.getElementById('modalMovCaixa').style.display = 'none';
+            } catch (err) {
+                alert("Erro ao registrar movimentação: " + err.message);
+            } finally {
+                btn.disabled = false;
+            }
+        };
+
+        document.getElementById('finFiltroPeriodo').onchange = processarDadosFinanceiros;
+        document.getElementById('btnAtualizarFinanceiro').onclick = processarDadosFinanceiros;
 
         function renderizarTabelaUsuarios(usuarios) {
             const tbody = document.getElementById('tabelaCorpoUsuarios');
@@ -1191,18 +1519,22 @@
             const operadorEmail = currentUser ? currentUser.email : '';
 
             try {
+                // Baixa no estoque
                 for (const item of carrinho) {
                     await updateDoc(doc(db, "produtos", item.id), {
                         estoque: increment(-item.qtd)
                     });
                 }
 
+                // Grava a venda com os itens para fins de auditoria/estorno
                 await addDoc(collection(db, "vendas"), {
                     valor_total: total,
                     forma_pagamento: metodo,
                     operador_nome: operadorNome,
                     operador_email: operadorEmail,
                     operador_uid: currentUser ? currentUser.uid : null,
+                    status: 'concluida',
+                    itens: carrinho.map(c => ({ id: c.id, nome: c.nome, preco: c.preco, qtd: c.qtd })),
                     data_venda: new Date().toISOString()
                 });
 
@@ -1237,40 +1569,6 @@
             renderizarCatalogo(filtrados);
         };
 
-        async function carregarFechamento() {
-            try {
-                const snapshot = await getDocs(collection(db, "vendas"));
-                const stream = document.getElementById('balancoStream');
-                stream.innerHTML = '';
-                let totalGeral = 0;
-                const balanco = {};
-
-                snapshot.docs.forEach(docSnap => {
-                    const v = docSnap.data();
-                    balanco[v.forma_pagamento] = (balanco[v.forma_pagamento] || 0) + parseFloat(v.valor_total || 0);
-                    totalGeral += parseFloat(v.valor_total || 0);
-                });
-
-                for (const [metodo, valor] of Object.entries(balanco)) {
-                    stream.innerHTML += `
-                        <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid var(--border);">
-                            <span><b>${metodo}</b></span>
-                            <b>R$ ${parseFloat(valor).toFixed(2).replace('.', ',')}</b>
-                        </div>`;
-                }
-
-                stream.innerHTML += `
-                    <div style="display:flex; justify-content:space-between; padding:12px 8px; font-weight:800; font-size:15px;">
-                        <span>TOTAL DIA:</span>
-                        <span style="color:var(--brand-orange);">R$ ${totalGeral.toFixed(2).replace('.', ',')}</span>
-                    </div>`;
-            } catch (err) {
-                alert("Erro ao buscar fechamento: " + err.message);
-            }
-        }
-
-        document.getElementById('btnAtualizarFechamento').onclick = carregarFechamento;
-
         document.querySelectorAll('#ribbonContainer .ribbon-btn').forEach(btn => {
             btn.onclick = () => {
                 document.querySelectorAll('#ribbonContainer .ribbon-btn').forEach(b => b.classList.remove('active'));
@@ -1286,7 +1584,7 @@
             if (aba === 'produtos') document.getElementById('viewProdutos').classList.add('active');
             if (aba === 'fechamento') {
                 document.getElementById('viewFechamento').classList.add('active');
-                carregarFechamento();
+                processarDadosFinanceiros();
             }
             if (aba === 'usuarios') document.getElementById('viewUsuarios').classList.add('active');
             if (aba === 'config') document.getElementById('viewConfig').classList.add('active');
