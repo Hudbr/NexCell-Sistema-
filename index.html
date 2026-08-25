@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NexCell • PDV & Gestão Financeira</title>
+    <title>NexCell • PDV & Gestão de Estoque</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -164,7 +164,7 @@
         }
         .input-field { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; outline: none; font-size: 14px; }
         .table-box { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 14px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; min-width: 460px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; min-width: 540px; }
         th { padding: 8px; border-bottom: 2px solid var(--border); color: var(--text-muted); font-size: 10px; text-transform: uppercase; }
         td { padding: 8px; border-bottom: 1px solid var(--border); }
         .btn-sm { padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border); background: #fff; font-weight: 700; cursor: pointer; font-size: 11px; }
@@ -177,7 +177,7 @@
         .role-estoque { background: #fef3c7; color: #b45309; }
         .role-financeiro { background: #e0e7ff; color: #4338ca; }
 
-        /* FINANCEIRO */
+        /* KPIS GRID */
         .kpi-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 16px;
         }
@@ -201,7 +201,6 @@
         .config-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
         .config-title { font-size: 13.5px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
 
-        /* BLOCOS DINÂMICOS DE PAGAMENTO (TROCO / PARCELAS) */
         .pay-details-box {
             background: var(--bg-app); border: 1px solid var(--border);
             border-radius: 10px; padding: 10px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px;
@@ -287,7 +286,7 @@
 
     </div>
 
-    <!-- MODAL DE MOVIMENTAÇÃO DE CAIXA (SANGRIA / SUPRIMENTO) -->
+    <!-- MODAL DE MOVIMENTAÇÃO DE CAIXA -->
     <div id="modalMovCaixa" class="modal-overlay">
         <div class="modal-box" style="max-width:360px;">
             <h3 id="movCaixaTitulo" style="font-size:15px;">💸 Movimentação de Gaveta</h3>
@@ -309,6 +308,37 @@
             <div style="display:flex; gap:8px; margin-top:6px;">
                 <button class="btn-pay" id="btnConfirmarMovCaixa">Confirmar Lançamento</button>
                 <button class="btn-sm" style="width:80px;" onclick="document.getElementById('modalMovCaixa').style.display='none'">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE AJUSTE / PERDA DE ESTOQUE -->
+    <div id="modalPerdaEstoque" class="modal-overlay">
+        <div class="modal-box" style="max-width:360px;">
+            <h3 style="font-size:15px; color:var(--danger);">⚠️ Lançar Ajuste / Perda de Item</h3>
+            <p id="perdaNomeProd" style="font-size:12px; color:var(--text-muted);"></p>
+            <input type="hidden" id="perdaProdId">
+            <div>
+                <label style="font-size:11px; font-weight:700;">QUANTIDADE A BAIXAR</label>
+                <input type="number" id="perdaQtd" class="input-field" value="1" min="1" style="font-size:16px; font-weight:bold; margin-top:4px;">
+            </div>
+            <div>
+                <label style="font-size:11px; font-weight:700;">MOTIVO DO AJUSTE</label>
+                <select id="perdaMotivo" class="input-field" style="margin-top:4px;">
+                    <option value="Avaria / Quebra">💔 Avaria / Quebra Física</option>
+                    <option value="Garantia / Defeito">⚙️ Defeito de Fábrica / Garantia</option>
+                    <option value="Consumo Interno">🏢 Consumo Interno / Uso da Loja</option>
+                    <option value="Perda / Furto">🔍 Perda ou Furto</option>
+                    <option value="Ajuste de Inventário">📝 Contagem / Ajuste de Inventário</option>
+                </select>
+            </div>
+            <div>
+                <label style="font-size:11px; font-weight:700;">OBSERVAÇÕES ADICIONAIS</label>
+                <input type="text" id="perdaObs" class="input-field" placeholder="Detalhes do ocorrido..." style="margin-top:4px;">
+            </div>
+            <div style="display:flex; gap:8px; margin-top:6px;">
+                <button class="btn-pay" style="background:var(--danger);" id="btnConfirmarPerda">Confirmar Baixa</button>
+                <button class="btn-sm" style="width:80px;" onclick="document.getElementById('modalPerdaEstoque').style.display='none'">Cancelar</button>
             </div>
         </div>
     </div>
@@ -356,13 +386,11 @@
                     <option value="Dinheiro">💵 Dinheiro</option>
                 </select>
 
-                <!-- BLOCO CONDICIONAL CRÉDITO (MOBILE) -->
                 <div id="boxCreditoMobile" class="pay-details-box" style="display:none;">
                     <label style="font-size:11px; font-weight:700;">PARCELAMENTO</label>
                     <select id="cxParcelasMobile" class="input-field" style="font-weight:700;"></select>
                 </div>
 
-                <!-- BLOCO CONDICIONAL DINHEIRO / TROCO (MOBILE) -->
                 <div id="boxDinheiroMobile" class="pay-details-box" style="display:none;">
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                         <div>
@@ -381,23 +409,27 @@
         </div>
     </div>
 
-    <!-- MODAL DE PRODUTO -->
+    <!-- MODAL DE PRODUTO COM PREÇO DE CUSTO E LOCALIZAÇÃO -->
     <div id="modalEditarProduto" class="modal-overlay">
         <div class="modal-box">
-            <h3 id="modalProdTitulo" style="font-size:15px;">✏️ Produto</h3>
+            <h3 id="modalProdTitulo" style="font-size:15px;">✏️ Produto & Precificação</h3>
             <input type="hidden" id="editProdId">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                <div><label style="font-size:11px; font-weight:700;">CÓDIGO</label><input type="text" id="editCodigo" class="input-field"></div>
-                <div><label style="font-size:11px; font-weight:700;">CATEGORIA</label><input type="text" id="editCategoria" class="input-field"></div>
+                <div><label style="font-size:11px; font-weight:700;">CÓDIGO INTERNO</label><input type="text" id="editCodigo" class="input-field"></div>
+                <div><label style="font-size:11px; font-weight:700;">CATEGORIA</label><input type="text" id="editCategoria" class="input-field" placeholder="Ex: Capas, Películas, Fones"></div>
             </div>
-            <div><label style="font-size:11px; font-weight:700;">NOME</label><input type="text" id="editNome" class="input-field"></div>
+            <div><label style="font-size:11px; font-weight:700;">NOME DO PRODUTO</label><input type="text" id="editNome" class="input-field"></div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                 <div><label style="font-size:11px; font-weight:700;">MARCA</label><input type="text" id="editMarca" class="input-field"></div>
-                <div><label style="font-size:11px; font-weight:700;">MODELO</label><input type="text" id="editModelo" class="input-field"></div>
+                <div><label style="font-size:11px; font-weight:700;">MODELO / COMPATIBILIDADE</label><input type="text" id="editModelo" class="input-field"></div>
             </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                <div><label style="font-size:11px; font-weight:700;">PREÇO (R$)</label><input type="number" step="0.01" id="editPreco" class="input-field"></div>
-                <div><label style="font-size:11px; font-weight:700;">ESTOQUE</label><input type="number" id="editEstoque" class="input-field"></div>
+                <div><label style="font-size:11px; font-weight:700; color:var(--text-muted);">PREÇO DE CUSTO (R$)</label><input type="number" step="0.01" id="editPrecoCusto" class="input-field" placeholder="0,00"></div>
+                <div><label style="font-size:11px; font-weight:700; color:var(--brand-orange);">PREÇO DE VENDA (R$)</label><input type="number" step="0.01" id="editPreco" class="input-field" placeholder="0,00"></div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <div><label style="font-size:11px; font-weight:700;">ESTOQUE ATUAL</label><input type="number" id="editEstoque" class="input-field"></div>
+                <div><label style="font-size:11px; font-weight:700;">LOCALIZAÇÃO FÍSICA</label><input type="text" id="editLocalizacao" class="input-field" placeholder="Ex: Gaveta B2, Prateleira 1"></div>
             </div>
             <div style="display:flex; gap:8px; margin-top:6px;">
                 <button class="btn-pay" id="btnSalvarProd">Salvar no Firestore</button>
@@ -406,18 +438,26 @@
         </div>
     </div>
 
-    <!-- MODAL REPOSIÇÃO -->
+    <!-- MODAL REPOSIÇÃO AVANÇADA -->
     <div id="modalReporEstoque" class="modal-overlay">
-        <div class="modal-box" style="max-width:320px;">
-            <h3 style="font-size:15px;">📦 Entrada de Estoque</h3>
+        <div class="modal-box" style="max-width:340px;">
+            <h3 style="font-size:15px;">📦 Entrada de Mercadoria</h3>
             <p id="reporNomeProd" style="font-size:12px; color:var(--text-muted);"></p>
             <input type="hidden" id="reporProdId">
             <div>
-                <label style="font-size:11px; font-weight:700;">QTD CHEGADA</label>
-                <input type="number" id="reporQtdInput" class="input-field" style="font-size:18px; font-weight:bold;" value="10">
+                <label style="font-size:11px; font-weight:700;">QUANTIDADE CHEGADA</label>
+                <input type="number" id="reporQtdInput" class="input-field" style="font-size:18px; font-weight:bold; margin-top:4px;" value="10">
+            </div>
+            <div>
+                <label style="font-size:11px; font-weight:700;">NOVO CUSTO UNITÁRIO (OPCIONAL)</label>
+                <input type="number" step="0.01" id="reporNovoCusto" class="input-field" placeholder="Manter atual" style="margin-top:4px;">
+            </div>
+            <div>
+                <label style="font-size:11px; font-weight:700;">FORNECEDOR / NOTA</label>
+                <input type="text" id="reporFornecedor" class="input-field" placeholder="Ex: Distribuidora SP" style="margin-top:4px;">
             </div>
             <div style="display:flex; gap:8px; margin-top:6px;">
-                <button class="btn-pay" id="btnConfirmarRepor">Confirmar</button>
+                <button class="btn-pay" id="btnConfirmarRepor">Confirmar Entrada</button>
                 <button class="btn-sm" style="width:80px;" onclick="document.getElementById('modalReporEstoque').style.display='none'">Cancelar</button>
             </div>
         </div>
@@ -436,7 +476,7 @@
             </div>
             <nav class="nav-list">
                 <div class="nav-btn" id="btnNavVender">🛒 Vender (PDV)</div>
-                <div class="nav-btn" id="btnNavProdutos">📦 Estoque & Produtos</div>
+                <div class="nav-btn" id="btnNavProdutos">📦 Gestão de Estoque</div>
                 <div class="nav-btn" id="btnNavFechamento">📊 Módulo Financeiro</div>
                 <div class="nav-btn" id="btnNavUsuarios">👥 Gestão de Usuários</div>
                 <div class="nav-btn" id="btnNavConfig">⚙️ Configurações</div>
@@ -507,13 +547,11 @@
                             <option value="Dinheiro">💵 Dinheiro</option>
                         </select>
 
-                        <!-- BLOCO CRÉDITO / PARCELAS (DESKTOP) -->
                         <div id="boxCreditoDesktop" class="pay-details-box" style="display:none;">
                             <label style="font-size:11px; font-weight:700;">PARCELAMENTO</label>
                             <select id="cxParcelasDesktop" class="input-field" style="font-weight:700;"></select>
                         </div>
 
-                        <!-- BLOCO DINHEIRO / TROCO (DESKTOP) -->
                         <div id="boxDinheiroDesktop" class="pay-details-box" style="display:none;">
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                 <div>
@@ -539,19 +577,50 @@
             </div>
         </div>
 
-        <!-- ABA 2: ESTOQUE -->
+        <!-- ABA 2: GESTÃO DE ESTOQUE AVANÇADA -->
         <div id="viewProdutos" class="view-content">
+            
+            <!-- KPIS DE ESTOQUE / INVENTÁRIO -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <span class="kpi-label">Capital Imobilizado (Custo)</span>
+                    <span class="kpi-val" id="kpiEstoqueCusto" style="color:var(--text-dark);">R$ 0,00</span>
+                    <span class="kpi-sub" id="kpiEstoqueItens">0 produtos em estoque</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label">Projeção de Faturamento</span>
+                    <span class="kpi-val" id="kpiEstoqueVenda" style="color:var(--brand-orange);">R$ 0,00</span>
+                    <span class="kpi-sub">Total se todo estoque for vendido</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label">Lucro Bruto Previsto</span>
+                    <span class="kpi-val" id="kpiEstoqueLucro" style="color:var(--success);">R$ 0,00</span>
+                    <span class="kpi-sub" id="kpiEstoqueMargemGeral">Margem média: 0%</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label">Alerta de Reposição</span>
+                    <span class="kpi-val" id="kpiEstoqueCritico" style="color:var(--danger);">0</span>
+                    <span class="kpi-sub">Itens com estoque zerado ou baixo</span>
+                </div>
+            </div>
+
             <div class="table-box">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <h3 style="font-size:14px;">📦 Estoque Sincronizado (Firestore)</h3>
-                    <button class="btn-pay" style="width:auto; padding:6px 12px; font-size:12px;" id="btnAbrirNovoProd">+ Produto</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <input type="text" id="buscaEstoqueTabela" class="input-field" placeholder="Filtrar por nome, marca ou código..." style="width:240px; padding:6px 10px; font-size:12px;">
+                        <button class="btn-sm" id="btnFiltrarCriticos" style="background:#fee2e2; color:var(--danger); border:none;">⚠️ Apenas Críticos</button>
+                    </div>
+                    <button class="btn-pay" style="width:auto; padding:6px 14px; font-size:12px;" id="btnAbrirNovoProd">+ Cadastrar Produto</button>
                 </div>
                 <table>
                     <thead>
                         <tr>
                             <th>Produto / Modelo</th>
-                            <th>Marca</th>
-                            <th>Preço</th>
+                            <th>Marca / Categoria</th>
+                            <th>Local</th>
+                            <th>Custo</th>
+                            <th>Venda</th>
+                            <th>Margem</th>
                             <th>Estoque</th>
                             <th>Ações</th>
                         </tr>
@@ -561,7 +630,7 @@
             </div>
         </div>
 
-        <!-- ABA 3: MÓDULO FINANCEIRO COMPLETO -->
+        <!-- ABA 3: MÓDULO FINANCEIRO -->
         <div id="viewFechamento" class="view-content">
             
             <div class="kpi-grid">
@@ -773,6 +842,7 @@
         let todasMovimentacoes = [];
         let marcaFiltro = 'TODOS';
         let limiteEstoqueBaixo = 3;
+        let apenasCriticos = false;
 
         setInterval(() => { 
             const liveClock = document.getElementById('liveClock');
@@ -973,7 +1043,7 @@
 
                 limiteEstoqueBaixo = qtdAlerta;
                 renderizarCatalogo(catalogo);
-                renderizarTabelaEstoque(catalogo);
+                renderizarPainelEstoque(catalogo);
                 alert("Parâmetros operacionais salvos!");
             } catch (err) {
                 alert("Erro ao gravar parâmetros: " + err.message);
@@ -1072,7 +1142,7 @@
             onSnapshot(collection(db, "produtos"), (snapshot) => {
                 catalogo = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderizarCatalogo(catalogo);
-                renderizarTabelaEstoque(catalogo);
+                renderizarPainelEstoque(catalogo);
             }, (error) => {
                 console.error("Erro no Firestore:", error);
             });
@@ -1097,7 +1167,274 @@
         }
 
         // ==========================================
-        // CONTROLE DINÂMICO DE PAGAMENTO (TROCO / PARCELAS)
+        // GESTÃO AVANÇADA DE ESTOQUE & INVENTÁRIO
+        // ==========================================
+        function renderizarPainelEstoque(itens) {
+            let totalCusto = 0;
+            let totalVenda = 0;
+            let totalItens = 0;
+            let qtdCriticos = 0;
+
+            itens.forEach(p => {
+                const qtd = parseInt(p.estoque || 0);
+                const custo = parseFloat(p.preco_custo || 0);
+                const venda = parseFloat(p.preco || 0);
+
+                totalItens += qtd;
+                totalCusto += (custo * qtd);
+                totalVenda += (venda * qtd);
+
+                if (qtd <= limiteEstoqueBaixo) qtdCriticos++;
+            });
+
+            const lucroBruto = totalVenda - totalCusto;
+            const margemMedia = totalVenda > 0 ? ((lucroBruto / totalVenda) * 100).toFixed(1) : 0;
+
+            document.getElementById('kpiEstoqueCusto').innerText = totalCusto.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('kpiEstoqueItens').innerText = `${itens.length} SKUs (${totalItens} un totais)`;
+            document.getElementById('kpiEstoqueVenda').innerText = totalVenda.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('kpiEstoqueLucro').innerText = lucroBruto.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('kpiEstoqueMargemGeral').innerText = `Margem bruta: ${margemMedia}%`;
+            document.getElementById('kpiEstoqueCritico').innerText = qtdCriticos;
+
+            renderizarTabelaEstoqueFiltrada();
+        }
+
+        function renderizarTabelaEstoqueFiltrada() {
+            const tbody = document.getElementById('tabelaCorpoProdutos');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const busca = (document.getElementById('buscaEstoqueTabela').value || '').toLowerCase();
+            const podeEditar = userData && (userData.cargo === 'admin' || userData.cargo === 'estoque');
+
+            let lista = catalogo.filter(p => {
+                const matchTexto = (p.nome || '').toLowerCase().includes(busca) || 
+                                   (p.marca || '').toLowerCase().includes(busca) || 
+                                   (p.modelo || '').toLowerCase().includes(busca) || 
+                                   (p.codigo || '').toLowerCase().includes(busca);
+                if (apenasCriticos) {
+                    return matchTexto && (parseInt(p.estoque || 0) <= limiteEstoqueBaixo);
+                }
+                return matchTexto;
+            });
+
+            lista.forEach(p => {
+                const isLow = (p.estoque || 0) <= limiteEstoqueBaixo;
+                const custo = parseFloat(p.preco_custo || 0);
+                const preco = parseFloat(p.preco || 0);
+                const margem = preco > 0 ? (((preco - custo) / preco) * 100).toFixed(0) : 0;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <b>${p.nome}</b><br>
+                        <span style="font-size:10px; color:var(--text-muted);">${p.modelo || 'Geral'}</span>
+                    </td>
+                    <td>
+                        <span class="badge-brand">${p.marca || 'Outros'}</span><br>
+                        <span style="font-size:10px; color:var(--text-muted);">${p.categoria || 'Geral'}</span>
+                    </td>
+                    <td><span style="font-size:10.5px; font-weight:700; color:var(--text-muted);">${p.localizacao || 'Padrão'}</span></td>
+                    <td>R$ ${custo.toFixed(2).replace('.', ',')}</td>
+                    <td><b>R$ ${preco.toFixed(2).replace('.', ',')}</b></td>
+                    <td><span style="color:${margem > 30 ? 'var(--success)' : 'var(--warning)'}; font-weight:800;">${margem}%</span></td>
+                    <td><b style="color:${isLow ? 'var(--danger)' : 'var(--text-dark)'};">${p.estoque || 0} un</b></td>
+                    <td>
+                        ${podeEditar ? `
+                            <button class="btn-sm btn-repor" style="color:var(--brand-orange);" title="Entrada de Mercadoria">+ Entrada</button>
+                            <button class="btn-sm btn-perda" style="color:var(--danger);" title="Registrar Quebra/Ajuste">⚠️ Ajuste</button>
+                            <button class="btn-sm btn-edit" title="Editar Ficha">✏️</button>
+                            <button class="btn-sm btn-del" style="color:var(--danger);" title="Excluir">🗑️</button>
+                        ` : `<span style="font-size:11px; color:var(--text-muted);">Apenas Consulta</span>`}
+                    </td>`;
+
+                if (podeEditar) {
+                    tr.querySelector('.btn-repor').onclick = () => abrirModalRepor(p.id);
+                    tr.querySelector('.btn-perda').onclick = () => abrirModalPerda(p.id);
+                    tr.querySelector('.btn-edit').onclick = () => abrirModalEdicao(p.id);
+                    tr.querySelector('.btn-del').onclick = () => excluirProduto(p.id);
+                }
+                tbody.appendChild(tr);
+            });
+        }
+
+        document.getElementById('buscaEstoqueTabela').oninput = renderizarTabelaEstoqueFiltrada;
+
+        document.getElementById('btnFiltrarCriticos').onclick = () => {
+            apenasCriticos = !apenasCriticos;
+            const btn = document.getElementById('btnFiltrarCriticos');
+            if (apenasCriticos) {
+                btn.style.background = "var(--danger)";
+                btn.style.color = "#fff";
+                btn.innerText = "✖️ Ver Todos";
+            } else {
+                btn.style.background = "#fee2e2";
+                btn.style.color = "var(--danger)";
+                btn.innerText = "⚠️ Apenas Críticos";
+            }
+            renderizarTabelaEstoqueFiltrada();
+        };
+
+        function abrirModalRepor(id) {
+            const p = catalogo.find(i => i.id === id);
+            document.getElementById('reporProdId').value = p.id;
+            document.getElementById('reporNomeProd').innerText = `${p.nome} (Atual: ${p.estoque || 0} un • Custo: R$ ${parseFloat(p.preco_custo || 0).toFixed(2)})`;
+            document.getElementById('reporNovoCusto').value = p.preco_custo || '';
+            document.getElementById('reporFornecedor').value = '';
+            document.getElementById('modalReporEstoque').style.display = 'flex';
+        }
+
+        document.getElementById('btnConfirmarRepor').onclick = async () => {
+            const id = document.getElementById('reporProdId').value;
+            const qtd = parseInt(document.getElementById('reporQtdInput').value);
+            const novoCusto = parseFloat(document.getElementById('reporNovoCusto').value);
+            const fornecedor = document.getElementById('reporFornecedor').value.trim();
+
+            if (!qtd || qtd <= 0) return alert("Digite uma quantidade válida.");
+
+            const prod = catalogo.find(p => p.id === id);
+            const payload = { estoque: increment(qtd) };
+            if (!isNaN(novoCusto) && novoCusto > 0) payload.preco_custo = novoCusto;
+
+            try {
+                await updateDoc(doc(db, "produtos", id), payload);
+                await addDoc(collection(db, "movimentacoes_estoque"), {
+                    produto_id: id,
+                    produto_nome: prod.nome,
+                    tipo: 'entrada',
+                    quantidade: qtd,
+                    custo_unitario: !isNaN(novoCusto) && novoCusto > 0 ? novoCusto : (prod.preco_custo || 0),
+                    fornecedor: fornecedor || 'Padrão',
+                    operador: userData ? userData.nome : 'Operador',
+                    data: new Date().toISOString()
+                });
+
+                alert("Entrada de mercadoria concluída!");
+                document.getElementById('modalReporEstoque').style.display = 'none';
+            } catch (err) {
+                alert("Erro ao repor estoque: " + err.message);
+            }
+        };
+
+        function abrirModalPerda(id) {
+            const p = catalogo.find(i => i.id === id);
+            document.getElementById('perdaProdId').value = p.id;
+            document.getElementById('perdaNomeProd').innerText = `${p.nome} (Disponível em estoque: ${p.estoque || 0} un)`;
+            document.getElementById('perdaQtd').value = 1;
+            document.getElementById('perdaObs').value = '';
+            document.getElementById('modalPerdaEstoque').style.display = 'flex';
+        }
+
+        document.getElementById('btnConfirmarPerda').onclick = async () => {
+            const id = document.getElementById('perdaProdId').value;
+            const qtd = parseInt(document.getElementById('perdaQtd').value);
+            const motivo = document.getElementById('perdaMotivo').value;
+            const obs = document.getElementById('perdaObs').value.trim();
+
+            const prod = catalogo.find(p => p.id === id);
+            if (!qtd || qtd <= 0) return alert("Digite uma quantidade válida.");
+            if (qtd > (prod.estoque || 0)) return alert("A quantidade a baixar não pode ser maior que o saldo em estoque.");
+
+            try {
+                await updateDoc(doc(db, "produtos", id), {
+                    estoque: increment(-qtd)
+                });
+
+                await addDoc(collection(db, "movimentacoes_estoque"), {
+                    produto_id: id,
+                    produto_nome: prod.nome,
+                    tipo: 'saida_ajuste',
+                    quantidade: qtd,
+                    motivo: motivo,
+                    observacao: obs,
+                    operador: userData ? userData.nome : 'Operador',
+                    data: new Date().toISOString()
+                });
+
+                alert("Ajuste de estoque lançado com sucesso!");
+                document.getElementById('modalPerdaEstoque').style.display = 'none';
+            } catch (err) {
+                alert("Erro ao lançar perda: " + err.message);
+            }
+        };
+
+        document.getElementById('btnAbrirNovoProd').onclick = () => {
+            document.getElementById('modalProdTitulo').innerText = "📦 Novo Produto";
+            document.getElementById('editProdId').value = "";
+            document.getElementById('editCodigo').value = "";
+            document.getElementById('editCategoria').value = "";
+            document.getElementById('editNome').value = "";
+            document.getElementById('editMarca').value = "";
+            document.getElementById('editModelo').value = "";
+            document.getElementById('editPrecoCusto').value = "";
+            document.getElementById('editPreco').value = "";
+            document.getElementById('editEstoque').value = "10";
+            document.getElementById('editLocalizacao').value = "";
+            document.getElementById('modalEditarProduto').style.display = 'flex';
+        };
+
+        function abrirModalEdicao(id) {
+            const p = catalogo.find(item => item.id === id);
+            document.getElementById('modalProdTitulo').innerText = "✏️ Editar Produto & Precificação";
+            document.getElementById('editProdId').value = p.id;
+            document.getElementById('editCodigo').value = p.codigo || '';
+            document.getElementById('editCategoria').value = p.categoria || '';
+            document.getElementById('editNome').value = p.nome || '';
+            document.getElementById('editMarca').value = p.marca || '';
+            document.getElementById('editModelo').value = p.modelo || '';
+            document.getElementById('editPrecoCusto').value = p.preco_custo || 0;
+            document.getElementById('editPreco').value = p.preco || 0;
+            document.getElementById('editEstoque').value = p.estoque || 0;
+            document.getElementById('editLocalizacao').value = p.localizacao || '';
+            document.getElementById('modalEditarProduto').style.display = 'flex';
+        }
+
+        document.getElementById('btnSalvarProd').onclick = async () => {
+            const btn = document.getElementById('btnSalvarProd');
+            btn.disabled = true;
+            btn.innerText = "Salvando...";
+
+            const id = document.getElementById('editProdId').value;
+            const payload = {
+                codigo: document.getElementById('editCodigo').value || '',
+                categoria: document.getElementById('editCategoria').value || 'Geral',
+                nome: document.getElementById('editNome').value || 'Sem Nome',
+                marca: document.getElementById('editMarca').value || 'Outros',
+                modelo: document.getElementById('editModelo').value || 'Geral',
+                preco_custo: parseFloat(document.getElementById('editPrecoCusto').value || 0),
+                preco: parseFloat(document.getElementById('editPreco').value || 0),
+                estoque: parseInt(document.getElementById('editEstoque').value || 0),
+                localizacao: document.getElementById('editLocalizacao').value || 'Padrão'
+            };
+
+            try {
+                if (id) {
+                    await updateDoc(doc(db, "produtos", id), payload);
+                } else {
+                    await addDoc(collection(db, "produtos"), payload);
+                }
+                document.getElementById('modalEditarProduto').style.display = 'none';
+            } catch (err) {
+                console.error("Erro ao salvar produto:", err);
+                alert("Erro ao gravar no Firebase: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Salvar no Firestore";
+            }
+        };
+
+        async function excluirProduto(id) {
+            if (!confirm('Excluir este produto do Firestore?')) return;
+            try {
+                await deleteDoc(doc(db, "produtos", id));
+            } catch (err) {
+                alert("Erro ao excluir: " + err.message);
+            }
+        }
+
+        // ==========================================
+        // PDV / VENDAS / CHECKOUT
         // ==========================================
         function calcularTotalCarrinho() {
             return carrinho.reduce((acc, cur) => acc + (parseFloat(cur.preco) * cur.qtd), 0);
@@ -1154,8 +1491,182 @@
         document.getElementById('cxRecebidoDesktop').oninput = () => calcularTroco(false);
         document.getElementById('cxRecebidoMobile').oninput = () => calcularTroco(true);
 
+        function addCarrinho(id) {
+            if (userData && (userData.cargo !== 'admin' && userData.cargo !== 'comercial')) {
+                return alert('Seu cargo não possui permissão para emitir vendas!');
+            }
+            const prod = catalogo.find(p => p.id === id);
+            if ((prod.estoque || 0) <= 0) return alert('Sem estoque disponível!');
+            const idx = carrinho.findIndex(i => i.id === id);
+            if (idx >= 0) {
+                if (carrinho[idx].qtd + 1 > prod.estoque) return alert('Limite de estoque atingido!');
+                carrinho[idx].qtd += 1;
+            } else {
+                carrinho.push({ ...prod, qtd: 1 });
+            }
+            atualizarCarrinho();
+        }
+
+        function alterarQtd(idx, delta) {
+            const item = carrinho[idx];
+            const prod = catalogo.find(p => p.id === item.id);
+            if (item.qtd + delta > prod.estoque) return alert('Estoque insuficiente!');
+            item.qtd += delta;
+            if (item.qtd <= 0) carrinho.splice(idx, 1);
+            atualizarCarrinho();
+        }
+
+        function atualizarCarrinho() {
+            let total = 0;
+            let totalItens = 0;
+            const htmlConteudo = carrinho.map((item, idx) => {
+                const subtotal = parseFloat(item.preco) * item.qtd;
+                total += subtotal;
+                totalItens += item.qtd;
+                return `
+                    <div class="cart-row">
+                        <div style="flex:1;">
+                            <span style="font-size:12px; font-weight:700;">${item.nome}</span>
+                            <span style="font-size:10px; color:var(--text-muted); display:block;">${item.modelo || ''}</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:4px; margin:0 6px;">
+                            <button class="qty-btn" onclick="window._alterarQtd(${idx}, -1)">-</button>
+                            <span style="font-size:12px; font-weight:800; min-width:16px; text-align:center;">${item.qtd}</span>
+                            <button class="qty-btn" onclick="window._alterarQtd(${idx}, 1)">+</button>
+                        </div>
+                        <span style="font-weight:800; font-size:12px;">R$ ${subtotal.toFixed(2).replace('.', ',')}</span>
+                    </div>`;
+            }).join('');
+
+            const placeholder = `<div style="text-align:center; color:var(--text-muted); font-size:12px; margin:auto 0; padding:20px;">Carrinho vazio</div>`;
+            
+            document.getElementById('listaCarrinhoDesktop').innerHTML = htmlConteudo || placeholder;
+            document.getElementById('visorTotalDesktop').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('listaCarrinhoMobile').innerHTML = htmlConteudo || placeholder;
+            document.getElementById('visorTotalMobile').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('badgeCartQtd').innerText = totalItens;
+            document.getElementById('badgeCartTotal').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            alternarCamposPagamento(false);
+            alternarCamposPagamento(true);
+        }
+
+        window._alterarQtd = alterarQtd;
+
+        async function finalizarVenda() {
+            if (carrinho.length === 0) return alert('Carrinho vazio!');
+            const total = calcularTotalCarrinho();
+            const isMobile = window.innerWidth <= 850;
+            const metodo = isMobile ? document.getElementById('cxMetodoMobile').value : document.getElementById('cxMetodoDesktop').value;
+
+            let dadosPagamento = {
+                valor_total: total,
+                forma_pagamento: metodo
+            };
+
+            if (metodo === 'Cartão de Crédito') {
+                const parcelas = parseInt(isMobile ? document.getElementById('cxParcelasMobile').value : document.getElementById('cxParcelasDesktop').value) || 1;
+                dadosPagamento.parcelas = parcelas;
+                dadosPagamento.valor_parcela = total / parcelas;
+            } else if (metodo === 'Dinheiro') {
+                const inputRecebido = isMobile ? document.getElementById('cxRecebidoMobile') : document.getElementById('cxRecebidoDesktop');
+                const recebido = parseFloat(inputRecebido.value || 0);
+                if (recebido < total) {
+                    return alert(`O valor recebido em dinheiro (R$ ${recebido.toFixed(2)}) é menor que o total da venda (R$ ${total.toFixed(2)})!`);
+                }
+                const troco = recebido - total;
+                dadosPagamento.valor_recebido = recebido;
+                dadosPagamento.troco = troco;
+            }
+
+            const operadorNome = userData ? userData.nome : (currentUser ? currentUser.email : 'Anônimo');
+            const operadorEmail = currentUser ? currentUser.email : '';
+
+            try {
+                for (const item of carrinho) {
+                    await updateDoc(doc(db, "produtos", item.id), {
+                        estoque: increment(-item.qtd)
+                    });
+                }
+
+                await addDoc(collection(db, "vendas"), {
+                    ...dadosPagamento,
+                    operador_nome: operadorNome,
+                    operador_email: operadorEmail,
+                    operador_uid: currentUser ? currentUser.uid : null,
+                    status: 'concluida',
+                    itens: carrinho.map(c => ({ id: c.id, nome: c.nome, preco: c.preco, qtd: c.qtd })),
+                    data_venda: new Date().toISOString()
+                });
+
+                let msgConfirmacao = `✔️ Venda confirmada de ${total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}!`;
+                if (dadosPagamento.troco > 0) {
+                    msgConfirmacao += `\n💵 Troco a devolver: ${dadosPagamento.troco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+                }
+                alert(msgConfirmacao);
+
+                carrinho = [];
+                document.getElementById('cxRecebidoDesktop').value = '';
+                document.getElementById('cxRecebidoMobile').value = '';
+                atualizarCarrinho();
+                document.getElementById('modalCarrinhoMobile').classList.remove('active');
+            } catch (err) {
+                alert("Erro ao registrar venda: " + err.message);
+            }
+        }
+
+        document.getElementById('btnConcluirDesktop').onclick = finalizarVenda;
+        document.getElementById('btnConcluirMobile').onclick = finalizarVenda;
+        document.getElementById('btnLimparCartDesktop').onclick = () => { carrinho = []; atualizarCarrinho(); };
+
+        document.getElementById('btnCartFloating').onclick = () => {
+            document.getElementById('modalCarrinhoMobile').classList.add('active');
+        };
+        document.getElementById('btnFecharCartMobile').onclick = () => {
+            document.getElementById('modalCarrinhoMobile').classList.remove('active');
+        };
+
+        function renderizarCatalogo(itens) {
+            const grid = document.getElementById('gridProdutos');
+            if (!grid) return;
+            grid.innerHTML = '';
+            let filtrados = marcaFiltro === 'TODOS' ? itens : itens.filter(p => (p.marca || '').toLowerCase() === marcaFiltro.toLowerCase());
+
+            filtrados.forEach(p => {
+                const isLow = (p.estoque || 0) <= limiteEstoqueBaixo;
+                const card = document.createElement('div');
+                card.className = 'prod-card';
+                card.onclick = () => addCarrinho(p.id);
+                card.innerHTML = `
+                    <div>
+                        <div style="display:flex; justify-content:space-between;">
+                            <span class="badge-brand">${p.marca || ''}</span>
+                            <span style="font-size:9px; color:var(--text-muted); font-weight:700;">${p.categoria || ''}</span>
+                        </div>
+                        <div class="prod-title">${p.nome || ''}</div>
+                        <div class="prod-model">${p.modelo || ''}</div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:4px;">
+                        <span class="prod-price">R$ ${parseFloat(p.preco || 0).toFixed(2).replace('.', ',')}</span>
+                        <span class="prod-stock-tag ${isLow ? 'low' : ''}">${p.estoque || 0} un</span>
+                    </div>`;
+                grid.appendChild(card);
+            });
+        }
+
+        document.getElementById('barcodeReader').oninput = (e) => {
+            const b = e.target.value.toLowerCase();
+            const filtrados = catalogo.filter(p => 
+                (p.nome || '').toLowerCase().includes(b) || 
+                (p.modelo || '').toLowerCase().includes(b) || 
+                (p.marca || '').toLowerCase().includes(b) || 
+                (p.codigo || '').includes(b)
+            );
+            renderizarCatalogo(filtrados);
+        };
+
         // ==========================================
-        // MÓDULO FINANCEIRO: CÁLCULOS & DASHBOARD
+        // MÓDULO FINANCEIRO: PROCESSAMENTO
         // ==========================================
         function processarDadosFinanceiros() {
             const filtro = document.getElementById('finFiltroPeriodo').value;
@@ -1405,300 +1916,6 @@
             }
         };
 
-        function renderizarCatalogo(itens) {
-            const grid = document.getElementById('gridProdutos');
-            if (!grid) return;
-            grid.innerHTML = '';
-            let filtrados = marcaFiltro === 'TODOS' ? itens : itens.filter(p => (p.marca || '').toLowerCase() === marcaFiltro.toLowerCase());
-
-            filtrados.forEach(p => {
-                const isLow = (p.estoque || 0) <= limiteEstoqueBaixo;
-                const card = document.createElement('div');
-                card.className = 'prod-card';
-                card.onclick = () => addCarrinho(p.id);
-                card.innerHTML = `
-                    <div>
-                        <div style="display:flex; justify-content:space-between;">
-                            <span class="badge-brand">${p.marca || ''}</span>
-                            <span style="font-size:9px; color:var(--text-muted); font-weight:700;">${p.categoria || ''}</span>
-                        </div>
-                        <div class="prod-title">${p.nome || ''}</div>
-                        <div class="prod-model">${p.modelo || ''}</div>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:4px;">
-                        <span class="prod-price">R$ ${parseFloat(p.preco || 0).toFixed(2).replace('.', ',')}</span>
-                        <span class="prod-stock-tag ${isLow ? 'low' : ''}">${p.estoque || 0} un</span>
-                    </div>`;
-                grid.appendChild(card);
-            });
-        }
-
-        function renderizarTabelaEstoque(itens) {
-            const tbody = document.getElementById('tabelaCorpoProdutos');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            const podeEditar = userData && (userData.cargo === 'admin' || userData.cargo === 'estoque');
-
-            itens.forEach(p => {
-                const isLow = (p.estoque || 0) <= limiteEstoqueBaixo;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><b>${p.nome}</b><br><span style="font-size:10.5px; color:var(--text-muted);">${p.modelo || ''}</span></td>
-                    <td>${p.marca || ''}</td>
-                    <td><b>R$ ${parseFloat(p.preco || 0).toFixed(2).replace('.', ',')}</b></td>
-                    <td><b style="color:${isLow ? 'var(--danger)' : 'var(--text-dark)'};">${p.estoque || 0} un</b></td>
-                    <td>
-                        ${podeEditar ? `
-                            <button class="btn-sm btn-repor" style="color:var(--brand-orange);">+ Repor</button>
-                            <button class="btn-sm btn-edit">✏️</button>
-                            <button class="btn-sm btn-del" style="color:var(--danger);">🗑️</button>
-                        ` : `<span style="font-size:11px; color:var(--text-muted);">Apenas Consulta</span>`}
-                    </td>`;
-                
-                if (podeEditar) {
-                    tr.querySelector('.btn-repor').onclick = () => abrirModalRepor(p.id);
-                    tr.querySelector('.btn-edit').onclick = () => abrirModalEdicao(p.id);
-                    tr.querySelector('.btn-del').onclick = () => excluirProduto(p.id);
-                }
-                tbody.appendChild(tr);
-            });
-        }
-
-        function abrirModalRepor(id) {
-            const p = catalogo.find(i => i.id === id);
-            document.getElementById('reporProdId').value = p.id;
-            document.getElementById('reporNomeProd').innerText = `${p.nome} (${p.modelo || ''})`;
-            document.getElementById('modalReporEstoque').style.display = 'flex';
-        }
-
-        document.getElementById('btnConfirmarRepor').onclick = async () => {
-            const id = document.getElementById('reporProdId').value;
-            const qtd = parseInt(document.getElementById('reporQtdInput').value);
-            try {
-                await updateDoc(doc(db, "produtos", id), {
-                    estoque: increment(qtd)
-                });
-                document.getElementById('modalReporEstoque').style.display = 'none';
-            } catch (err) {
-                alert("Erro ao repor estoque: " + err.message);
-            }
-        };
-
-        document.getElementById('btnAbrirNovoProd').onclick = () => {
-            document.getElementById('modalProdTitulo').innerText = "📦 Novo Produto";
-            document.getElementById('editProdId').value = "";
-            document.getElementById('editCodigo').value = "";
-            document.getElementById('editCategoria').value = "";
-            document.getElementById('editNome').value = "";
-            document.getElementById('editMarca').value = "";
-            document.getElementById('editModelo').value = "";
-            document.getElementById('editPreco').value = "";
-            document.getElementById('editEstoque').value = "10";
-            document.getElementById('modalEditarProduto').style.display = 'flex';
-        };
-
-        function abrirModalEdicao(id) {
-            const p = catalogo.find(item => item.id === id);
-            document.getElementById('modalProdTitulo').innerText = "✏️ Editar Produto";
-            document.getElementById('editProdId').value = p.id;
-            document.getElementById('editCodigo').value = p.codigo || '';
-            document.getElementById('editCategoria').value = p.categoria || '';
-            document.getElementById('editNome').value = p.nome || '';
-            document.getElementById('editMarca').value = p.marca || '';
-            document.getElementById('editModelo').value = p.modelo || '';
-            document.getElementById('editPreco').value = p.preco || 0;
-            document.getElementById('editEstoque').value = p.estoque || 0;
-            document.getElementById('modalEditarProduto').style.display = 'flex';
-        }
-
-        document.getElementById('btnSalvarProd').onclick = async () => {
-            const btn = document.getElementById('btnSalvarProd');
-            btn.disabled = true;
-            btn.innerText = "Salvando...";
-
-            const id = document.getElementById('editProdId').value;
-            const payload = {
-                codigo: document.getElementById('editCodigo').value || '',
-                categoria: document.getElementById('editCategoria').value || 'Geral',
-                nome: document.getElementById('editNome').value || 'Sem Nome',
-                marca: document.getElementById('editMarca').value || 'Outros',
-                modelo: document.getElementById('editModelo').value || 'Geral',
-                preco: parseFloat(document.getElementById('editPreco').value || 0),
-                estoque: parseInt(document.getElementById('editEstoque').value || 0)
-            };
-
-            try {
-                if (id) {
-                    await updateDoc(doc(db, "produtos", id), payload);
-                } else {
-                    await addDoc(collection(db, "produtos"), payload);
-                }
-                document.getElementById('modalEditarProduto').style.display = 'none';
-            } catch (err) {
-                console.error("Erro ao salvar produto:", err);
-                alert("Erro ao gravar no Firebase: " + err.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Salvar no Firestore";
-            }
-        };
-
-        async function excluirProduto(id) {
-            if (!confirm('Excluir este produto do Firestore?')) return;
-            try {
-                await deleteDoc(doc(db, "produtos", id));
-            } catch (err) {
-                alert("Erro ao excluir: " + err.message);
-            }
-        }
-
-        function addCarrinho(id) {
-            if (userData && (userData.cargo !== 'admin' && userData.cargo !== 'comercial')) {
-                return alert('Seu cargo não possui permissão para emitir vendas!');
-            }
-            const prod = catalogo.find(p => p.id === id);
-            if ((prod.estoque || 0) <= 0) return alert('Sem estoque disponível!');
-            const idx = carrinho.findIndex(i => i.id === id);
-            if (idx >= 0) {
-                if (carrinho[idx].qtd + 1 > prod.estoque) return alert('Limite de estoque atingido!');
-                carrinho[idx].qtd += 1;
-            } else {
-                carrinho.push({ ...prod, qtd: 1 });
-            }
-            atualizarCarrinho();
-        }
-
-        function alterarQtd(idx, delta) {
-            const item = carrinho[idx];
-            const prod = catalogo.find(p => p.id === item.id);
-            if (item.qtd + delta > prod.estoque) return alert('Estoque insuficiente!');
-            item.qtd += delta;
-            if (item.qtd <= 0) carrinho.splice(idx, 1);
-            atualizarCarrinho();
-        }
-
-        function atualizarCarrinho() {
-            let total = 0;
-            let totalItens = 0;
-            const htmlConteudo = carrinho.map((item, idx) => {
-                const subtotal = parseFloat(item.preco) * item.qtd;
-                total += subtotal;
-                totalItens += item.qtd;
-                return `
-                    <div class="cart-row">
-                        <div style="flex:1;">
-                            <span style="font-size:12px; font-weight:700;">${item.nome}</span>
-                            <span style="font-size:10px; color:var(--text-muted); display:block;">${item.modelo || ''}</span>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:4px; margin:0 6px;">
-                            <button class="qty-btn" onclick="window._alterarQtd(${idx}, -1)">-</button>
-                            <span style="font-size:12px; font-weight:800; min-width:16px; text-align:center;">${item.qtd}</span>
-                            <button class="qty-btn" onclick="window._alterarQtd(${idx}, 1)">+</button>
-                        </div>
-                        <span style="font-weight:800; font-size:12px;">R$ ${subtotal.toFixed(2).replace('.', ',')}</span>
-                    </div>`;
-            }).join('');
-
-            const placeholder = `<div style="text-align:center; color:var(--text-muted); font-size:12px; margin:auto 0; padding:20px;">Carrinho vazio</div>`;
-            
-            document.getElementById('listaCarrinhoDesktop').innerHTML = htmlConteudo || placeholder;
-            document.getElementById('visorTotalDesktop').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('listaCarrinhoMobile').innerHTML = htmlConteudo || placeholder;
-            document.getElementById('visorTotalMobile').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('badgeCartQtd').innerText = totalItens;
-            document.getElementById('badgeCartTotal').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
-            alternarCamposPagamento(false);
-            alternarCamposPagamento(true);
-        }
-
-        window._alterarQtd = alterarQtd;
-
-        // FINALIZAÇÃO DE VENDA COM SUPORTE A TROCO E PARCELAS
-        async function finalizarVenda() {
-            if (carrinho.length === 0) return alert('Carrinho vazio!');
-            const total = calcularTotalCarrinho();
-            const isMobile = window.innerWidth <= 850;
-            const metodo = isMobile ? document.getElementById('cxMetodoMobile').value : document.getElementById('cxMetodoDesktop').value;
-
-            let dadosPagamento = {
-                valor_total: total,
-                forma_pagamento: metodo
-            };
-
-            if (metodo === 'Cartão de Crédito') {
-                const parcelas = parseInt(isMobile ? document.getElementById('cxParcelasMobile').value : document.getElementById('cxParcelasDesktop').value) || 1;
-                dadosPagamento.parcelas = parcelas;
-                dadosPagamento.valor_parcela = total / parcelas;
-            } else if (metodo === 'Dinheiro') {
-                const inputRecebido = isMobile ? document.getElementById('cxRecebidoMobile') : document.getElementById('cxRecebidoDesktop');
-                const recebido = parseFloat(inputRecebido.value || 0);
-                if (recebido < total) {
-                    return alert(`O valor recebido em dinheiro (R$ ${recebido.toFixed(2)}) é menor que o total da venda (R$ ${total.toFixed(2)})!`);
-                }
-                const troco = recebido - total;
-                dadosPagamento.valor_recebido = recebido;
-                dadosPagamento.troco = troco;
-            }
-
-            const operadorNome = userData ? userData.nome : (currentUser ? currentUser.email : 'Anônimo');
-            const operadorEmail = currentUser ? currentUser.email : '';
-
-            try {
-                for (const item of carrinho) {
-                    await updateDoc(doc(db, "produtos", item.id), {
-                        estoque: increment(-item.qtd)
-                    });
-                }
-
-                await addDoc(collection(db, "vendas"), {
-                    ...dadosPagamento,
-                    operador_nome: operadorNome,
-                    operador_email: operadorEmail,
-                    operador_uid: currentUser ? currentUser.uid : null,
-                    status: 'concluida',
-                    itens: carrinho.map(c => ({ id: c.id, nome: c.nome, preco: c.preco, qtd: c.qtd })),
-                    data_venda: new Date().toISOString()
-                });
-
-                let msgConfirmacao = `✔️ Venda confirmada de ${total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}!`;
-                if (dadosPagamento.troco > 0) {
-                    msgConfirmacao += `\n💵 Troco a devolver: ${dadosPagamento.troco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
-                }
-                alert(msgConfirmacao);
-
-                carrinho = [];
-                document.getElementById('cxRecebidoDesktop').value = '';
-                document.getElementById('cxRecebidoMobile').value = '';
-                atualizarCarrinho();
-                document.getElementById('modalCarrinhoMobile').classList.remove('active');
-            } catch (err) {
-                alert("Erro ao registrar venda: " + err.message);
-            }
-        }
-
-        document.getElementById('btnConcluirDesktop').onclick = finalizarVenda;
-        document.getElementById('btnConcluirMobile').onclick = finalizarVenda;
-        document.getElementById('btnLimparCartDesktop').onclick = () => { carrinho = []; atualizarCarrinho(); };
-
-        document.getElementById('btnCartFloating').onclick = () => {
-            document.getElementById('modalCarrinhoMobile').classList.add('active');
-        };
-        document.getElementById('btnFecharCartMobile').onclick = () => {
-            document.getElementById('modalCarrinhoMobile').classList.remove('active');
-        };
-
-        document.getElementById('barcodeReader').oninput = (e) => {
-            const b = e.target.value.toLowerCase();
-            const filtrados = catalogo.filter(p => 
-                (p.nome || '').toLowerCase().includes(b) || 
-                (p.modelo || '').toLowerCase().includes(b) || 
-                (p.marca || '').toLowerCase().includes(b) || 
-                (p.codigo || '').includes(b)
-            );
-            renderizarCatalogo(filtrados);
-        };
-
         document.querySelectorAll('#ribbonContainer .ribbon-btn').forEach(btn => {
             btn.onclick = () => {
                 document.querySelectorAll('#ribbonContainer .ribbon-btn').forEach(b => b.classList.remove('active'));
@@ -1711,7 +1928,10 @@
         function mudarAba(aba) {
             document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
             if (aba === 'vender') document.getElementById('viewVender').classList.add('active');
-            if (aba === 'produtos') document.getElementById('viewProdutos').classList.add('active');
+            if (aba === 'produtos') {
+                document.getElementById('viewProdutos').classList.add('active');
+                renderizarPainelEstoque(catalogo);
+            }
             if (aba === 'fechamento') {
                 document.getElementById('viewFechamento').classList.add('active');
                 processarDadosFinanceiros();
