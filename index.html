@@ -26,19 +26,23 @@
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { display: flex; height: 100vh; height: 100dvh; overflow: hidden; background: var(--bg-app); color: var(--text-dark); }
 
-        /* TELA DE LOGIN */
-        #loginScreen {
+        /* MODAIS DE AUTENTICAÇÃO */
+        #authOverlay {
             position: fixed; inset: 0; background: #0b0f19; z-index: 2000;
             display: flex; align-items: center; justify-content: center; padding: 20px;
         }
-        .login-card {
-            background: #ffffff; width: 100%; max-width: 380px; padding: 28px;
+        .auth-card {
+            background: #ffffff; width: 100%; max-width: 400px; padding: 28px;
             border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); text-align: center;
         }
-        .login-logo {
+        .auth-logo {
             width: 50px; height: 50px; border-radius: 12px; background: var(--brand-orange);
             color: #fff; display: inline-flex; align-items: center; justify-content: center;
             font-weight: 800; font-size: 20px; margin-bottom: 12px;
+        }
+        .auth-toggle-btn {
+            background: none; border: none; color: var(--brand-orange);
+            font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: underline; margin-top: 10px;
         }
 
         aside {
@@ -183,20 +187,60 @@
 </head>
 <body>
 
-    <!-- TELA DE AUTENTICAÇÃO -->
-    <div id="loginScreen">
-        <div class="login-card">
-            <div class="login-logo">NC</div>
+    <!-- OVERLAY DE AUTENTICAÇÃO -->
+    <div id="authOverlay">
+        
+        <!-- CARD 1: LOGIN -->
+        <div class="auth-card" id="cardLogin">
+            <div class="auth-logo">NC</div>
             <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 4px;">NexCell PDV</h2>
             <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Entre com sua credencial de operador</p>
             
             <form id="formLogin" style="display:flex; flex-direction:column; gap:10px;">
                 <input type="email" id="loginEmail" class="input-field" placeholder="E-mail" required>
                 <input type="password" id="loginPassword" class="input-field" placeholder="Senha" required>
-                <button type="submit" class="btn-pay" id="btnLoginSubmit" style="margin-top:6px;">Entrar no Sistema</button>
+                <button type="submit" class="btn-pay" id="btnLoginSubmit" style="margin-top:4px;">Entrar no Sistema</button>
             </form>
+
+            <div style="display:flex; flex-direction:column; gap:4px; margin-top:12px;">
+                <button type="button" class="auth-toggle-btn" id="btnIrParaReset">Esqueceu ou quer alterar a senha?</button>
+                <button type="button" class="auth-toggle-btn" id="btnIrParaCadastro" style="color:var(--text-dark);">Novo por aqui? Cadastrar Colaborador</button>
+            </div>
             <p id="loginErrorMsg" style="font-size: 11.5px; color: var(--danger); margin-top: 10px; display: none;"></p>
         </div>
+
+        <!-- CARD 2: CADASTRO -->
+        <div class="auth-card" id="cardCadastro" style="display:none;">
+            <div class="auth-logo">👤</div>
+            <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 4px;">Novo Usuário</h2>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Crie o perfil de acesso à plataforma</p>
+            
+            <form id="formCadastro" style="display:flex; flex-direction:column; gap:10px;">
+                <input type="text" id="cadNome" class="input-field" placeholder="Nome Completo" required>
+                <input type="email" id="cadEmail" class="input-field" placeholder="E-mail de Trabalho" required>
+                <input type="password" id="cadPassword" class="input-field" placeholder="Senha (Mínimo 6 dígitos)" required minlength="6">
+                <button type="submit" class="btn-pay" id="btnCadSubmit" style="margin-top:4px;">Criar Conta</button>
+            </form>
+
+            <button type="button" class="auth-toggle-btn" id="btnVoltarLogin1">Já possui conta? Fazer login</button>
+            <p id="cadErrorMsg" style="font-size: 11.5px; color: var(--danger); margin-top: 10px; display: none;"></p>
+        </div>
+
+        <!-- CARD 3: ALTERAR / REDEFINIR SENHA -->
+        <div class="auth-card" id="cardReset" style="display:none;">
+            <div class="auth-logo">🔑</div>
+            <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 4px;">Alterar Senha</h2>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Enviaremos um link de redefinição para seu e-mail</p>
+            
+            <form id="formReset" style="display:flex; flex-direction:column; gap:10px;">
+                <input type="email" id="resetEmail" class="input-field" placeholder="Digite seu e-mail cadastrado" required>
+                <button type="submit" class="btn-pay" id="btnResetSubmit" style="margin-top:4px;">Enviar Link de Alteração</button>
+            </form>
+
+            <button type="button" class="auth-toggle-btn" id="btnVoltarLogin2">Voltar ao Login</button>
+            <p id="resetStatusMsg" style="font-size: 11.5px; margin-top: 10px; display: none;"></p>
+        </div>
+
     </div>
 
     <!-- GAVETA DO CARRINHO (MOBILE) -->
@@ -269,10 +313,10 @@
     <aside>
         <div>
             <div class="store-profile">
-                <div class="store-avatar">NC</div>
+                <div class="store-avatar" id="avatarLetra">NC</div>
                 <div style="overflow:hidden;">
-                    <div style="font-weight:800; color:#fff; font-size:13px;">NexCell Store</div>
-                    <div style="font-size:10px; color:var(--sidebar-text); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;" id="userSidebarEmail">Carregando...</div>
+                    <div style="font-weight:800; color:#fff; font-size:13px;" id="userSidebarName">NexCell Store</div>
+                    <div style="font-size:10.5px; color:var(--sidebar-text); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;" id="userSidebarEmail">Carregando...</div>
                 </div>
             </div>
             <nav class="nav-list">
@@ -297,7 +341,7 @@
         <div class="topbar">
             <div>
                 <h3 style="font-size:14px; font-weight:800;" id="pageTitle">🛒 Balcão de Vendas</h3>
-                <span style="font-size:10.5px; color:var(--text-muted);" id="topbarUserLabel"></span>
+                <span style="font-size:11px; color:var(--text-muted); font-weight:600;" id="topbarUserLabel"></span>
             </div>
             <span style="font-size:11px; font-weight:700; color:var(--text-muted);" id="liveClock"></span>
         </div>
@@ -386,12 +430,14 @@
         </div>
     </main>
 
-    <!-- FIREBASE SDK MODULAR COM AUTHENTICATION -->
+    <!-- FIREBASE SDK MODULAR COMPLETO -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
         import { 
             getAuth, 
             signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword,
+            sendPasswordResetEmail,
             signOut, 
             onAuthStateChanged 
         } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
@@ -400,6 +446,8 @@
             collection, 
             onSnapshot, 
             doc, 
+            setDoc,
+            getDoc,
             addDoc, 
             updateDoc, 
             deleteDoc, 
@@ -424,6 +472,7 @@
         }, "default");
 
         let currentUser = null;
+        let userData = null;
         let catalogo = [];
         let carrinho = [];
         let marcaFiltro = 'TODOS';
@@ -433,24 +482,51 @@
             if (liveClock) liveClock.innerText = new Date().toLocaleTimeString('pt-BR'); 
         }, 1000);
 
-        // CONTROLE DE AUTENTICAÇÃO
-        onAuthStateChanged(auth, (user) => {
+        // NAVEGAÇÃO ENTRE CARDS DE LOGIN / CADASTRO / RESET
+        const cardLogin = document.getElementById('cardLogin');
+        const cardCadastro = document.getElementById('cardCadastro');
+        const cardReset = document.getElementById('cardReset');
+
+        document.getElementById('btnIrParaCadastro').onclick = () => { cardLogin.style.display = 'none'; cardCadastro.style.display = 'block'; };
+        document.getElementById('btnIrParaReset').onclick = () => { cardLogin.style.display = 'none'; cardReset.style.display = 'block'; };
+        document.getElementById('btnVoltarLogin1').onclick = () => { cardCadastro.style.display = 'none'; cardLogin.style.display = 'block'; };
+        document.getElementById('btnVoltarLogin2').onclick = () => { cardReset.style.display = 'none'; cardLogin.style.display = 'block'; };
+
+        // MONITORAR SESSÃO DE USUÁRIO
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                document.getElementById('loginScreen').style.display = 'none';
+                try {
+                    const uSnap = await getDoc(doc(db, "usuarios", user.uid));
+                    if (uSnap.exists()) {
+                        userData = uSnap.data();
+                    } else {
+                        userData = { nome: user.email.split('@')[0], email: user.email };
+                    }
+                } catch (e) {
+                    userData = { nome: user.email.split('@')[0], email: user.email };
+                }
+
+                document.getElementById('authOverlay').style.display = 'none';
+                document.getElementById('userSidebarName').innerText = userData.nome || 'Operador';
                 document.getElementById('userSidebarEmail').innerText = user.email;
-                document.getElementById('topbarUserLabel').innerText = `Operador: ${user.email}`;
+                document.getElementById('avatarLetra').innerText = (userData.nome || 'N')[0].toUpperCase();
+                document.getElementById('topbarUserLabel').innerText = `Operador: ${userData.nome} (${user.email})`;
                 iniciarEscutaBanco();
             } else {
                 currentUser = null;
-                document.getElementById('loginScreen').style.display = 'flex';
+                userData = null;
+                document.getElementById('authOverlay').style.display = 'flex';
+                cardCadastro.style.display = 'none';
+                cardReset.style.display = 'none';
+                cardLogin.style.display = 'block';
             }
         });
 
-        // FORMULÁRIO DE LOGIN
+        // 1. LOGIN
         document.getElementById('formLogin').onsubmit = async (e) => {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
+            const email = document.getElementById('loginEmail').value.trim();
             const pass = document.getElementById('loginPassword').value;
             const btn = document.getElementById('btnLoginSubmit');
             const errBox = document.getElementById('loginErrorMsg');
@@ -470,12 +546,68 @@
             }
         };
 
+        // 2. CADASTRO DE NOVO OPERADOR
+        document.getElementById('formCadastro').onsubmit = async (e) => {
+            e.preventDefault();
+            const nome = document.getElementById('cadNome').value.trim();
+            const email = document.getElementById('cadEmail').value.trim();
+            const pass = document.getElementById('cadPassword').value;
+            const btn = document.getElementById('btnCadSubmit');
+            const errBox = document.getElementById('cadErrorMsg');
+
+            btn.disabled = true;
+            btn.innerText = "Cadastrando...";
+            errBox.style.display = "none";
+
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                await setDoc(doc(db, "usuarios", cred.user.uid), {
+                    nome: nome,
+                    email: email,
+                    cargo: 'operador',
+                    criado_em: new Date().toISOString()
+                });
+            } catch (err) {
+                errBox.innerText = "Erro ao cadastrar: " + (err.code === 'auth/email-already-in-use' ? 'E-mail já está em uso.' : err.message);
+                errBox.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Criar Conta";
+            }
+        };
+
+        // 3. ALTERAÇÃO / RECUPERAÇÃO DE SENHA
+        document.getElementById('formReset').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('resetEmail').value.trim();
+            const btn = document.getElementById('btnResetSubmit');
+            const statusBox = document.getElementById('resetStatusMsg');
+
+            btn.disabled = true;
+            btn.innerText = "Enviando...";
+            statusBox.style.display = "none";
+
+            try {
+                await sendPasswordResetEmail(auth, email);
+                statusBox.style.color = "var(--success)";
+                statusBox.innerText = "Link de alteração enviado para seu e-mail!";
+                statusBox.style.display = "block";
+            } catch (err) {
+                statusBox.style.color = "var(--danger)";
+                statusBox.innerText = "Erro: e-mail não encontrado ou inválido.";
+                statusBox.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Enviar Link de Alteração";
+            }
+        };
+
         // LOGOUT
         const efetuarLogout = () => signOut(auth);
         document.getElementById('btnLogoutDesktop').onclick = efetuarLogout;
         document.getElementById('mNavLogout').onclick = efetuarLogout;
 
-        // ESCUTA EM TEMPO REAL
+        // BANCO DE DADOS EM TEMPO REAL
         function iniciarEscutaBanco() {
             onSnapshot(collection(db, "produtos"), (snapshot) => {
                 catalogo = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -688,6 +820,9 @@
             const isMobile = window.innerWidth <= 850;
             const metodo = isMobile ? document.getElementById('cxMetodoMobile').value : document.getElementById('cxMetodoDesktop').value;
 
+            const operadorNome = userData ? userData.nome : (currentUser ? currentUser.email : 'Anônimo');
+            const operadorEmail = currentUser ? currentUser.email : '';
+
             try {
                 for (const item of carrinho) {
                     await updateDoc(doc(db, "produtos", item.id), {
@@ -698,12 +833,13 @@
                 await addDoc(collection(db, "vendas"), {
                     valor_total: total,
                     forma_pagamento: metodo,
-                    operador_email: currentUser ? currentUser.email : 'anônimo',
+                    operador_nome: operadorNome,
+                    operador_email: operadorEmail,
                     operador_uid: currentUser ? currentUser.uid : null,
                     data_venda: new Date().toISOString()
                 });
 
-                alert(`✔️ Venda confirmada de ${total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}!`);
+                alert(`✔️ Venda confirmada de ${total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} por ${operadorNome}!`);
                 carrinho = [];
                 atualizarCarrinho();
                 document.getElementById('modalCarrinhoMobile').classList.remove('active');
@@ -735,7 +871,7 @@
             renderizarCatalogo(filtrados);
         };
 
-        // FECHAMENTO
+        // FECHAMENTO DE CAIXA
         async function carregarFechamento() {
             try {
                 const snapshot = await getDocs(collection(db, "vendas"));
