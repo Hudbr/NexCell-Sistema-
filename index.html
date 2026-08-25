@@ -227,7 +227,7 @@
             <p id="loginErrorMsg" style="font-size: 11.5px; color: var(--danger); margin-top: 10px; display: none;"></p>
         </div>
 
-        <!-- CARD 2: CADASTRO SEGURO (CARGO DEFINIDO PELO ADMIN APENAS) -->
+        <!-- CARD 2: CADASTRO SEGURO -->
         <div class="auth-card" id="cardCadastro" style="display:none;">
             <div class="auth-logo">👤</div>
             <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 4px;">Novo Colaborador</h2>
@@ -583,6 +583,7 @@
             doc, 
             setDoc, 
             getDoc, 
+            addDoc,
             updateDoc, 
             deleteDoc, 
             increment, 
@@ -635,7 +636,6 @@
                     if (uSnap.exists()) {
                         userData = uSnap.data();
                     } else {
-                        // Se não existir, define como comercial por padrão
                         userData = { nome: user.email.split('@')[0], email: user.email, cargo: 'comercial' };
                         await setDoc(doc(db, "usuarios", user.uid), userData);
                     }
@@ -842,7 +842,6 @@
             }
         };
 
-        // CADASTRO SEGURO (CARGO TRAVADO EM 'COMERCIAL')
         document.getElementById('formCadastro').onsubmit = async (e) => {
             e.preventDefault();
             const nome = document.getElementById('cadNome').value.trim();
@@ -860,7 +859,7 @@
                 await setDoc(doc(db, "usuarios", cred.user.uid), {
                     nome: nome,
                     email: email,
-                    cargo: 'comercial', // Cargo travado por segurança
+                    cargo: 'comercial',
                     criado_em: new Date().toISOString()
                 });
             } catch (err) {
