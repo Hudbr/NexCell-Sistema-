@@ -246,7 +246,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE CONFIRMAÇÃO CUSTOMIZADO (SUBSTITUI CONFIRM NATIVO) -->
+    <!-- MODAL DE CONFIRMAÇÃO CUSTOMIZADO -->
     <div id="customConfirmModal" class="custom-popup-overlay">
         <div class="custom-popup-box">
             <div class="popup-icon-wrapper popup-icon-warning">
@@ -525,12 +525,12 @@
             </div>
         </div>
 
-        <!-- ABA 3: FECHAMENTO FINANCEIRO -->
+        <!-- ABA 3: FECHAMENTO FINANCEIRO (LAYOUT CLÁSSICO E DIRETO) -->
         <div id="viewFechamento" class="view-content">
-            <div style="max-width:540px; background:#fff; padding:18px; border-radius:14px; border:1px solid var(--border); width:100%;">
+            <div style="max-width:440px; background:#fff; padding:18px; border-radius:14px; border:1px solid var(--border); width:100%;">
                 <h3 style="font-size:14px; margin-bottom:12px;">📊 Caixa em Nuvem (Financeiro)</h3>
                 <div id="balancoStream" style="display:flex; flex-direction:column; gap:8px;"></div>
-                <button class="btn-pay" style="margin-top:12px;" id="btnAtualizarFechamento">Atualizar Balanço</button>
+                <button class="btn-pay" style="margin-top:14px;" id="btnAtualizarFechamento">Atualizar Balanço</button>
             </div>
         </div>
 
@@ -694,7 +694,7 @@
             document.getElementById('customPopup').style.display = 'none';
         };
 
-        // SISTEMA DE CONFIRMAÇÃO CUSTOMIZADO (PROMISE)
+        // SISTEMA DE CONFIRMAÇÃO CUSTOMIZADO
         function showConfirm(msg) {
             return new Promise((resolve) => {
                 const modal = document.getElementById('customConfirmModal');
@@ -1346,6 +1346,7 @@
             renderizarCatalogo(filtrados);
         };
 
+        // FECHAMENTO DE CAIXA (CLÁSSICO E RÁPIDO)
         async function carregarFechamento() {
             try {
                 const snapshot = await getDocs(collection(db, "vendas"));
@@ -1356,25 +1357,29 @@
 
                 snapshot.docs.forEach(docSnap => {
                     const v = docSnap.data();
-                    balanco[v.forma_pagamento] = (balanco[v.forma_pagamento] || 0) + parseFloat(v.valor_total || 0);
+                    const metodo = v.forma_pagamento || 'Outros';
+                    balanco[metodo] = (balanco[metodo] || 0) + parseFloat(v.valor_total || 0);
                     totalGeral += parseFloat(v.valor_total || 0);
                 });
 
-                for (const [metodo, valor] of Object.entries(balanco)) {
+                const metodosFixos = ['PIX', 'Cartão de Crédito', 'Cartão de Débito', 'Dinheiro'];
+                
+                metodosFixos.forEach(metodo => {
+                    const valor = balanco[metodo] || 0;
                     stream.innerHTML += `
-                        <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid var(--border);">
+                        <div style="display:flex; justify-content:space-between; padding:10px 8px; border-bottom:1px solid var(--border); font-size:13px;">
                             <span><b>${metodo}</b></span>
-                            <b>R$ ${parseFloat(valor).toFixed(2).replace('.', ',')}</b>
+                            <b>${valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</b>
                         </div>`;
-                }
+                });
 
                 stream.innerHTML += `
-                    <div style="display:flex; justify-content:space-between; padding:12px 8px; font-weight:800; font-size:15px;">
-                        <span>TOTAL DIA:</span>
-                        <span style="color:var(--brand-orange);">R$ ${totalGeral.toFixed(2).replace('.', ',')}</span>
+                    <div style="display:flex; justify-content:space-between; padding:14px 8px 4px 8px; font-weight:800; font-size:16px;">
+                        <span>TOTAL DO DIA:</span>
+                        <span style="color:var(--brand-orange);">${totalGeral.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
                     </div>`;
             } catch (err) {
-                showPopup("Erro ao buscar fechamento: " + err.message, "danger");
+                showPopup("Erro ao buscar balanço: " + err.message, "danger");
             }
         }
 
