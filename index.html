@@ -205,6 +205,36 @@
         .role-estoque { background: #fef3c7; color: #b45309; }
         .role-financeiro { background: #e0e7ff; color: #4338ca; }
 
+        /* ESTILOS DO MÓDULO FINANCEIRO PRO */
+        .fin-kpi-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px;
+        }
+        .fin-kpi-card {
+            background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 16px;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .fin-kpi-title { font-size: 10.5px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+        .fin-kpi-val { font-size: 22px; font-weight: 900; color: var(--text-dark); margin: 4px 0; }
+        .fin-kpi-sub { font-size: 11px; color: var(--text-muted); }
+
+        .fin-actions-card {
+            background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 16px;
+            display: flex; flex-direction: column; justify-content: center; gap: 8px;
+        }
+        .btn-sangria {
+            background: var(--danger); color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer;
+        }
+        .btn-suprimento {
+            background: var(--success); color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer;
+        }
+
+        .fin-row-2 {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;
+        }
+        .fin-box-card {
+            background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 16px;
+        }
+
         .config-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; width: 100%;
         }
@@ -223,6 +253,7 @@
             .view-content { padding: 10px 10px 85px 10px !important; height: calc(100vh - 58px) !important; height: calc(100dvh - 58px) !important; }
             .products-grid { grid-template-columns: repeat(2, 1fr) !important; grid-auto-rows: 135px !important; }
             .table-box { padding: 10px !important; }
+            .fin-row-2 { grid-template-columns: 1fr !important; }
 
             #modalCarrinhoMobile.active {
                 display: flex !important; align-items: flex-end !important; padding: 0 !important;
@@ -317,6 +348,26 @@
             <div id="resetStatusMsg" style="display: none; margin-top: 14px; padding: 12px; border-radius: 10px; font-size: 11.5px; text-align: left; line-height: 1.4;"></div>
         </div>
 
+    </div>
+
+    <!-- MODAL DE SANGRIA / SUPRIMENTO -->
+    <div id="modalGaveta" class="modal-overlay">
+        <div class="modal-box" style="max-width:340px;">
+            <h3 id="gavetaModalTitulo" style="font-size:15px;">Movimentação de Gaveta</h3>
+            <input type="hidden" id="gavetaTipo">
+            <div>
+                <label style="font-size:11px; font-weight:700;">VALOR (R$)</label>
+                <input type="number" step="0.01" id="gavetaValor" class="input-field" placeholder="0,00" style="margin-top:4px; font-size:18px; font-weight:bold;">
+            </div>
+            <div>
+                <label style="font-size:11px; font-weight:700;">MOTIVO / OBSERVAÇÃO</label>
+                <input type="text" id="gavetaMotivo" class="input-field" placeholder="Ex: Pagamento fornecedor, troco inicial..." style="margin-top:4px;">
+            </div>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+                <button class="btn-pay" id="btnSalvarGaveta">Confirmar</button>
+                <button class="btn-sm" style="width:80px;" onclick="document.getElementById('modalGaveta').style.display='none'">Cancelar</button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL DE EDIÇÃO DE CARGO (ADMIN) -->
@@ -421,7 +472,7 @@
             <nav class="nav-list">
                 <div class="nav-btn" id="btnNavVender">🛒 Vender (PDV)</div>
                 <div class="nav-btn" id="btnNavProdutos">📦 Estoque & Produtos</div>
-                <div class="nav-btn" id="btnNavFechamento">📊 Fechamento Caixa</div>
+                <div class="nav-btn" id="btnNavFechamento">📊 Módulo Financeiro</div>
                 <div class="nav-btn" id="btnNavUsuarios">👥 Gestão de Usuários</div>
                 <div class="nav-btn" id="btnNavConfig">⚙️ Configurações</div>
             </nav>
@@ -433,7 +484,7 @@
     <div class="mobile-bottom-nav">
         <div class="m-nav-item" id="mNavVender"><span class="icon">🛒</span><span>PDV</span></div>
         <div class="m-nav-item" id="mNavProdutos"><span class="icon">📦</span><span>Estoque</span></div>
-        <div class="m-nav-item" id="mNavFechamento"><span class="icon">📊</span><span>Caixa</span></div>
+        <div class="m-nav-item" id="mNavFechamento"><span class="icon">📊</span><span>Finanças</span></div>
         <div class="m-nav-item" id="mNavUsuarios"><span class="icon">👥</span><span>Usuários</span></div>
         <div class="m-nav-item" id="mNavConfig"><span class="icon">⚙️</span><span>Ajustes</span></div>
         <div class="m-nav-item" id="mNavLogout" style="color:var(--danger);"><span class="icon">🚪</span><span>Sair</span></div>
@@ -525,13 +576,78 @@
             </div>
         </div>
 
-        <!-- ABA 3: FECHAMENTO FINANCEIRO (LAYOUT CLÁSSICO E DIRETO) -->
+        <!-- ABA 3: MÓDULO FINANCEIRO PRO (COMPLETO DO SEU PRINT) -->
         <div id="viewFechamento" class="view-content">
-            <div style="max-width:440px; background:#fff; padding:18px; border-radius:14px; border:1px solid var(--border); width:100%;">
-                <h3 style="font-size:14px; margin-bottom:12px;">📊 Caixa em Nuvem (Financeiro)</h3>
-                <div id="balancoStream" style="display:flex; flex-direction:column; gap:8px;"></div>
-                <button class="btn-pay" style="margin-top:14px;" id="btnAtualizarFechamento">Atualizar Balanço</button>
+            
+            <!-- LINHA 1: KPIS E AÇÕES DE GAVETA -->
+            <div class="fin-kpi-grid">
+                <div class="fin-kpi-card">
+                    <span class="fin-kpi-title">Faturamento Total</span>
+                    <div class="fin-kpi-val" id="finKpiTotal" style="color:var(--brand-orange);">R$ 0,00</div>
+                    <span class="fin-kpi-sub" id="finKpiTransacoes">0 transações no período</span>
+                </div>
+                <div class="fin-kpi-card">
+                    <span class="fin-kpi-title">Ticket Médio</span>
+                    <div class="fin-kpi-val" id="finKpiTicket">R$ 0,00</div>
+                    <span class="fin-kpi-sub">Média por cliente atendido</span>
+                </div>
+                <div class="fin-kpi-card">
+                    <span class="fin-kpi-title">Gaveta (Dinheiro Físico)</span>
+                    <div class="fin-kpi-val" id="finKpiGaveta" style="color:var(--success);">R$ 0,00</div>
+                    <span class="fin-kpi-sub">Saldo esperado em caixa</span>
+                </div>
+                <div class="fin-actions-card">
+                    <span class="fin-kpi-title">Ações de Gaveta</span>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn-sangria" style="flex:1;" id="btnAbrirSangria">- Sangria</button>
+                        <button class="btn-suprimento" style="flex:1;" id="btnAbrirSuprimento">+ Suprimento</button>
+                    </div>
+                </div>
             </div>
+
+            <!-- LINHA 2: MIX DE PAGAMENTOS E MOVIMENTAÇÕES DE GAVETA -->
+            <div class="fin-row-2">
+                <div class="fin-box-card">
+                    <h4 style="font-size:13px; font-weight:800; margin-bottom:12px;">💳 Mix de Meios de Pagamento</h4>
+                    <div id="finMixContainer" style="display:flex; flex-direction:column; gap:10px;"></div>
+                </div>
+                <div class="fin-box-card">
+                    <h4 style="font-size:13px; font-weight:800; margin-bottom:12px;">📥 Movimentações da Gaveta de Dinheiro</h4>
+                    <div id="finMovGavetaContainer" style="font-size:12px; color:var(--text-muted); display:flex; flex-direction:column; gap:8px;">
+                        Nenhuma sangria ou suprimento registrado.
+                    </div>
+                </div>
+            </div>
+
+            <!-- LINHA 3: EXTRATO DETALHADO DE VENDAS -->
+            <div class="table-box">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                    <h4 style="font-size:13px; font-weight:800;">📄 Extrato Detalhado de Vendas</h4>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <select id="finFiltroPeriodo" class="input-field" style="width:auto; padding:6px 12px; font-size:12px;">
+                            <option value="hoje">Hoje</option>
+                            <option value="todos">Todas as Vendas</option>
+                        </select>
+                        <button class="btn-pay" style="width:auto; padding:6px 14px; font-size:12px;" id="btnAtualizarFechamento">🔄 Atualizar</button>
+                    </div>
+                </div>
+                <div style="width:100%; overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data / Hora</th>
+                                <th>Operador</th>
+                                <th>Meio de Pagamento</th>
+                                <th>Detalhes</th>
+                                <th>Valor Total</th>
+                                <th>Status / Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaCorpoVendas"></tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
 
         <!-- ABA 4: GESTÃO DE USUÁRIOS (ADMIN) -->
@@ -642,6 +758,7 @@
             doc, 
             setDoc, 
             getDoc, 
+            addDoc,
             updateDoc, 
             deleteDoc, 
             increment, 
@@ -664,7 +781,7 @@
             experimentalForceLongPolling: true
         }, "default");
 
-        // SISTEMA DE POPUP MODAL CUSTOMIZADO
+        // SISTEMA DE POPUP CUSTOMIZADO
         function showPopup(msg, type = 'success') {
             const popup = document.getElementById('customPopup');
             const msgEl = document.getElementById('popupMsg');
@@ -694,7 +811,7 @@
             document.getElementById('customPopup').style.display = 'none';
         };
 
-        // SISTEMA DE CONFIRMAÇÃO CUSTOMIZADO
+        // CONFIRMAÇÃO CUSTOMIZADA
         function showConfirm(msg) {
             return new Promise((resolve) => {
                 const modal = document.getElementById('customConfirmModal');
@@ -1298,6 +1415,7 @@
 
             const operadorNome = userData ? userData.nome : (currentUser ? currentUser.email : 'Anônimo');
             const operadorEmail = currentUser ? currentUser.email : '';
+            const itensDesc = carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ');
 
             try {
                 for (const item of carrinho) {
@@ -1309,6 +1427,9 @@
                 await addDoc(collection(db, "vendas"), {
                     valor_total: total,
                     forma_pagamento: metodo,
+                    detalhes: itensDesc || 'Venda PDV',
+                    itens: carrinho.map(i => ({ id: i.id, nome: i.nome, qtd: i.qtd, preco: i.preco })),
+                    status: 'concluida',
                     operador_nome: operadorNome,
                     operador_email: operadorEmail,
                     operador_uid: currentUser ? currentUser.uid : null,
@@ -1346,44 +1467,219 @@
             renderizarCatalogo(filtrados);
         };
 
-        // FECHAMENTO DE CAIXA (CLÁSSICO E RÁPIDO)
+        // --- GESTÃO DE GAVETA (SANGRIA & SUPRIMENTO) ---
+        document.getElementById('btnAbrirSangria').onclick = () => {
+            document.getElementById('gavetaModalTitulo').innerText = "💸 Efetuar Sangria (Retirada)";
+            document.getElementById('gavetaTipo').value = "sangria";
+            document.getElementById('gavetaValor').value = "";
+            document.getElementById('gavetaMotivo').value = "";
+            document.getElementById('modalGaveta').style.display = "flex";
+        };
+
+        document.getElementById('btnAbrirSuprimento').onclick = () => {
+            document.getElementById('gavetaModalTitulo').innerText = "📥 Efetuar Suprimento (Entrada)";
+            document.getElementById('gavetaTipo').value = "suprimento";
+            document.getElementById('gavetaValor').value = "";
+            document.getElementById('gavetaMotivo').value = "";
+            document.getElementById('modalGaveta').style.display = "flex";
+        };
+
+        document.getElementById('btnSalvarGaveta').onclick = async () => {
+            const tipo = document.getElementById('gavetaTipo').value;
+            const valor = parseFloat(document.getElementById('gavetaValor').value);
+            const motivo = document.getElementById('gavetaMotivo').value.trim() || (tipo === 'sangria' ? 'Sangria de Caixa' : 'Suprimento de Caixa');
+            const btn = document.getElementById('btnSalvarGaveta');
+
+            if (!valor || valor <= 0) return showPopup("Insira um valor válido!", "warning");
+
+            btn.disabled = true;
+            btn.innerText = "Salvando...";
+
+            try {
+                await addDoc(collection(db, "gaveta"), {
+                    tipo: tipo,
+                    valor: valor,
+                    motivo: motivo,
+                    operador_nome: userData ? userData.nome : currentUser.email,
+                    data_hora: new Date().toISOString()
+                });
+                document.getElementById('modalGaveta').style.display = "none";
+                showPopup(`Movimentação de ${tipo.toUpperCase()} registrada com sucesso!`, "success");
+                carregarFechamento();
+            } catch (err) {
+                showPopup("Erro ao registrar na gaveta: " + err.message, "danger");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Confirmar";
+            }
+        };
+
+        // --- CARREGAMENTO DO MÓDULO FINANCEIRO PRO ---
         async function carregarFechamento() {
             try {
-                const snapshot = await getDocs(collection(db, "vendas"));
-                const stream = document.getElementById('balancoStream');
-                stream.innerHTML = '';
-                let totalGeral = 0;
-                const balanco = {};
-
-                snapshot.docs.forEach(docSnap => {
-                    const v = docSnap.data();
-                    const metodo = v.forma_pagamento || 'Outros';
-                    balanco[metodo] = (balanco[metodo] || 0) + parseFloat(v.valor_total || 0);
-                    totalGeral += parseFloat(v.valor_total || 0);
-                });
-
-                const metodosFixos = ['PIX', 'Cartão de Crédito', 'Cartão de Débito', 'Dinheiro'];
+                const vendasSnap = await getDocs(collection(db, "vendas"));
+                const gavetaSnap = await getDocs(collection(db, "gaveta"));
                 
-                metodosFixos.forEach(metodo => {
-                    const valor = balanco[metodo] || 0;
-                    stream.innerHTML += `
-                        <div style="display:flex; justify-content:space-between; padding:10px 8px; border-bottom:1px solid var(--border); font-size:13px;">
-                            <span><b>${metodo}</b></span>
-                            <b>${valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</b>
-                        </div>`;
+                let totalFaturamento = 0;
+                let totalVendasValidas = 0;
+                let totalDinheiroVendas = 0;
+                const mix = { 'PIX': 0, 'Cartão de Crédito': 0, 'Cartão de Débito': 0, 'Dinheiro': 0 };
+                const vendasLista = [];
+
+                const hojeStr = new Date().toISOString().split('T')[0];
+                const filtro = document.getElementById('finFiltroPeriodo').value;
+
+                vendasSnap.docs.forEach(docSnap => {
+                    const v = { id: docSnap.id, ...docSnap.data() };
+                    const dataVenda = v.data_venda ? v.data_venda.split('T')[0] : '';
+
+                    if (filtro === 'hoje' && dataVenda !== hojeStr) return;
+
+                    vendasLista.push(v);
+
+                    if (v.status !== 'cancelada') {
+                        const val = parseFloat(v.valor_total || 0);
+                        totalFaturamento += val;
+                        totalVendasValidas++;
+                        
+                        const metodo = v.forma_pagamento || 'Dinheiro';
+                        if (mix[metodo] !== undefined) {
+                            mix[metodo] += val;
+                        } else {
+                            mix[metodo] = (mix[metodo] || 0) + val;
+                        }
+
+                        if (metodo === 'Dinheiro') totalDinheiroVendas += val;
+                    }
                 });
 
-                stream.innerHTML += `
-                    <div style="display:flex; justify-content:space-between; padding:14px 8px 4px 8px; font-weight:800; font-size:16px;">
-                        <span>TOTAL DO DIA:</span>
-                        <span style="color:var(--brand-orange);">${totalGeral.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
-                    </div>`;
+                // Calcular Saldo de Gaveta Físico
+                let totalSangria = 0;
+                let totalSuprimento = 0;
+                const movsGaveta = [];
+
+                gavetaSnap.docs.forEach(d => {
+                    const g = d.data();
+                    const dataG = g.data_hora ? g.data_hora.split('T')[0] : '';
+                    if (filtro === 'hoje' && dataG !== hojeStr) return;
+                    
+                    movsGaveta.push(g);
+                    if (g.tipo === 'sangria') totalSangria += parseFloat(g.valor || 0);
+                    if (g.tipo === 'suprimento') totalSuprimento += parseFloat(g.valor || 0);
+                });
+
+                const saldoGaveta = (totalDinheiroVendas + totalSuprimento) - totalSangria;
+                const ticketMedio = totalVendasValidas > 0 ? (totalFaturamento / totalVendasValidas) : 0;
+
+                // Atualizar KPIs
+                document.getElementById('finKpiTotal').innerText = totalFaturamento.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                document.getElementById('finKpiTransacoes').innerText = `${totalVendasValidas} transações no período`;
+                document.getElementById('finKpiTicket').innerText = ticketMedio.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                document.getElementById('finKpiGaveta').innerText = saldoGaveta.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+                // Renderizar Mix de Pagamentos
+                const mixContainer = document.getElementById('finMixContainer');
+                mixContainer.innerHTML = '';
+                for (const [metodo, valor] of Object.entries(mix)) {
+                    const perc = totalFaturamento > 0 ? ((valor / totalFaturamento) * 100).toFixed(0) : 0;
+                    mixContainer.innerHTML += `
+                        <div>
+                            <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
+                                <span><b>${metodo} (${perc}%)</b></span>
+                                <b>${valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</b>
+                            </div>
+                            <div style="background:var(--bg-app); border-radius:10px; height:7px; overflow:hidden;">
+                                <div style="background:var(--brand-orange); width:${perc}%; height:100%;"></div>
+                            </div>
+                        </div>`;
+                }
+
+                // Renderizar Movimentações de Gaveta
+                const movContainer = document.getElementById('finMovGavetaContainer');
+                if (movsGaveta.length === 0) {
+                    movContainer.innerHTML = `Nenhuma sangria ou suprimento registrado no período.`;
+                } else {
+                    movContainer.innerHTML = movsGaveta.map(m => `
+                        <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding:5px 0;">
+                            <span><b>${m.tipo === 'sangria' ? '🔴 - Sangria' : '🟢 + Suprimento'}</b>: ${m.motivo || ''}</span>
+                            <b style="color:${m.tipo === 'sangria' ? 'var(--danger)' : 'var(--success)'};">
+                                ${parseFloat(m.valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            </b>
+                        </div>
+                    `).join('');
+                }
+
+                // Renderizar Tabela Extrato de Vendas
+                const tbody = document.getElementById('tabelaCorpoVendas');
+                tbody.innerHTML = '';
+
+                // Ordenar por data decrescente
+                vendasLista.sort((a,b) => new Date(b.data_venda) - new Date(a.data_venda));
+
+                vendasLista.forEach(v => {
+                    const tr = document.createElement('tr');
+                    const d = new Date(v.data_venda);
+                    const dataFormatada = `${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR')}`;
+                    const isCancelada = v.status === 'cancelada';
+
+                    tr.innerHTML = `
+                        <td>${dataFormatada}</td>
+                        <td><b>${v.operador_nome || 'Operador'}</b></td>
+                        <td><span class="badge-role" style="background:#f1f5f9; color:var(--text-dark);">${v.forma_pagamento || 'PIX'}</span></td>
+                        <td><span style="font-size:11px; color:var(--text-muted);">${v.detalhes || 'Venda Avulsa'}</span></td>
+                        <td><b>${parseFloat(v.valor_total || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</b></td>
+                        <td>
+                            ${isCancelada ? `<span style="color:var(--danger); font-weight:800;">Cancelada</span>` : `
+                                <button class="btn-sm btn-canc-venda" style="color:var(--danger);">Cancelar</button>
+                            `}
+                        </td>
+                    `;
+
+                    if (!isCancelada) {
+                        tr.querySelector('.btn-canc-venda').onclick = () => cancelarVenda(v);
+                    }
+
+                    tbody.appendChild(tr);
+                });
+
             } catch (err) {
-                showPopup("Erro ao buscar balanço: " + err.message, "danger");
+                showPopup("Erro ao carregar dados financeiros: " + err.message, "danger");
+            }
+        }
+
+        async function cancelarVenda(v) {
+            if (userData && userData.cargo !== 'admin' && userData.cargo !== 'financeiro') {
+                return showPopup("Apenas Administradores ou Financeiro podem estornar vendas!", "warning");
+            }
+
+            const confirmou = await showConfirm(`Deseja realmente cancelar esta venda de ${parseFloat(v.valor_total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}? Os itens retornarão ao estoque.`);
+            if (!confirmou) return;
+
+            try {
+                // Devolver estoque
+                if (v.itens && Array.isArray(v.itens)) {
+                    for (const item of v.itens) {
+                        if (item.id) {
+                            await updateDoc(doc(db, "produtos", item.id), {
+                                estoque: increment(item.qtd)
+                            });
+                        }
+                    }
+                }
+
+                await updateDoc(doc(db, "vendas", v.id), {
+                    status: 'cancelada'
+                });
+
+                showPopup("Venda cancelada e estoque estornado com sucesso!", "success");
+                carregarFechamento();
+            } catch (err) {
+                showPopup("Erro ao cancelar venda: " + err.message, "danger");
             }
         }
 
         document.getElementById('btnAtualizarFechamento').onclick = carregarFechamento;
+        document.getElementById('finFiltroPeriodo').onchange = carregarFechamento;
 
         document.querySelectorAll('#ribbonContainer .ribbon-btn').forEach(btn => {
             btn.onclick = () => {
