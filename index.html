@@ -244,6 +244,15 @@
         }
         .config-title { font-size: 13.5px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
 
+        /* PAINEIS DE PAGAMENTO (crédito/débito/dinheiro) */
+        .pag-extra-box { background: var(--bg-app); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; }
+        .pag-extra-box .discount-row { margin: 0 0 6px 0; }
+        .pag-extra-box select#credParcelasDesktop, .pag-extra-box select#credParcelasMobile { width: 68px; flex-shrink: 0; padding: 8px 6px; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; }
+        .pag-info-row { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-muted); padding: 2px 0; }
+        .pag-info-row b { color: var(--text-dark); font-size: 12.5px; }
+        .pag-info-row.troco-ok b, .pag-info-row.troco-ok span { color: var(--success); }
+        .pag-info-row.troco-falta b, .pag-info-row.troco-falta span { color: var(--danger); }
+
         /* DARK MODE */
         body.dark-mode {
             --bg-app: #0b0f19; --border: #232b3d; --text-dark: #e2e8f0; --text-muted: #8896ab;
@@ -490,6 +499,32 @@
                     <option value="Cartão de Débito">💳 Cartão de Débito</option>
                     <option value="Dinheiro">💵 Dinheiro</option>
                 </select>
+
+                <div id="pagCreditoMobile" class="pag-extra-box" style="display:none;">
+                    <div class="discount-row">
+                        <select id="credParcelasMobile"></select>
+                        <input type="number" id="credTaxaMobile" placeholder="Taxa da maquininha %" min="0" step="0.01">
+                    </div>
+                    <div class="pag-info-row"><span>Valor por parcela</span><b id="credValorParcelaMobile">R$ 0,00</b></div>
+                    <div class="pag-info-row"><span>Líquido a receber (após taxa)</span><b id="credValorLiquidoMobile">R$ 0,00</b></div>
+                </div>
+
+                <div id="pagDebitoMobile" class="pag-extra-box" style="display:none;">
+                    <div class="discount-row">
+                        <span class="discount-label">TAXA</span>
+                        <input type="number" id="debTaxaMobile" placeholder="Taxa da maquininha %" min="0" step="0.01">
+                    </div>
+                    <div class="pag-info-row"><span>Líquido a receber (após taxa)</span><b id="debValorLiquidoMobile">R$ 0,00</b></div>
+                </div>
+
+                <div id="pagDinheiroMobile" class="pag-extra-box" style="display:none;">
+                    <div class="discount-row">
+                        <span class="discount-label">RECEBIDO</span>
+                        <input type="number" id="dinRecebidoMobile" placeholder="Valor em dinheiro recebido" min="0" step="0.01">
+                    </div>
+                    <div class="pag-info-row" id="dinResultadoMobile"><span>Troco</span><b>R$ 0,00</b></div>
+                </div>
+
                 <button class="btn-pay" id="btnConcluirMobile">✔️ Finalizar Venda</button>
             </div>
         </div>
@@ -698,6 +733,32 @@
                             <option value="Cartão de Débito">💳 Cartão de Débito</option>
                             <option value="Dinheiro">💵 Dinheiro</option>
                         </select>
+
+                        <div id="pagCreditoDesktop" class="pag-extra-box" style="display:none;">
+                            <div class="discount-row">
+                                <select id="credParcelasDesktop"></select>
+                                <input type="number" id="credTaxaDesktop" placeholder="Taxa da maquininha %" min="0" step="0.01">
+                            </div>
+                            <div class="pag-info-row"><span>Valor por parcela</span><b id="credValorParcelaDesktop">R$ 0,00</b></div>
+                            <div class="pag-info-row"><span>Líquido a receber (após taxa)</span><b id="credValorLiquidoDesktop">R$ 0,00</b></div>
+                        </div>
+
+                        <div id="pagDebitoDesktop" class="pag-extra-box" style="display:none;">
+                            <div class="discount-row">
+                                <span class="discount-label">TAXA</span>
+                                <input type="number" id="debTaxaDesktop" placeholder="Taxa da maquininha %" min="0" step="0.01">
+                            </div>
+                            <div class="pag-info-row"><span>Líquido a receber (após taxa)</span><b id="debValorLiquidoDesktop">R$ 0,00</b></div>
+                        </div>
+
+                        <div id="pagDinheiroDesktop" class="pag-extra-box" style="display:none;">
+                            <div class="discount-row">
+                                <span class="discount-label">RECEBIDO</span>
+                                <input type="number" id="dinRecebidoDesktop" placeholder="Valor em dinheiro recebido" min="0" step="0.01">
+                            </div>
+                            <div class="pag-info-row" id="dinResultadoDesktop"><span>Troco</span><b>R$ 0,00</b></div>
+                        </div>
+
                         <button class="btn-pay" id="btnConcluirDesktop">✔️ Concluir Venda</button>
                     </div>
                 </div>
@@ -1753,6 +1814,9 @@
             document.getElementById('visorTotalMobile').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('badgeCartQtd').innerText = totalItens;
             document.getElementById('badgeCartTotal').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            recalcularPagamento('Desktop');
+            recalcularPagamento('Mobile');
         }
 
         window._alterarQtd = alterarQtd;
@@ -1762,16 +1826,126 @@
             if (el) el.addEventListener('input', atualizarCarrinho);
         });
 
+        // --- PAINÉIS DE PAGAMENTO (Crédito / Débito / Dinheiro) ---
+        ['credParcelasDesktop', 'credParcelasMobile'].forEach(id => {
+            const sel = document.getElementById(id);
+            if (!sel) return;
+            for (let i = 1; i <= 12; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.innerText = i + 'x';
+                sel.appendChild(opt);
+            }
+        });
+
+        function alternarPainelPagamento(suffix) {
+            const metodo = document.getElementById('cxMetodo' + suffix).value;
+            document.getElementById('pagCredito' + suffix).style.display = metodo === 'Cartão de Crédito' ? 'block' : 'none';
+            document.getElementById('pagDebito' + suffix).style.display = metodo === 'Cartão de Débito' ? 'block' : 'none';
+            document.getElementById('pagDinheiro' + suffix).style.display = metodo === 'Dinheiro' ? 'block' : 'none';
+            recalcularPagamento(suffix);
+        }
+
+        function calcularDetalhesPagamento(suffix) {
+            const { total } = calcularTotaisCarrinho();
+            const metodo = document.getElementById('cxMetodo' + suffix).value;
+            const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            const info = { metodo, total, ok: true };
+
+            if (metodo === 'Cartão de Crédito') {
+                const parcelas = parseInt(document.getElementById('credParcelas' + suffix).value) || 1;
+                const taxa = parseFloat(document.getElementById('credTaxa' + suffix).value) || 0;
+                info.parcelas = parcelas;
+                info.taxaMaquina = taxa;
+                info.valorParcela = total / parcelas;
+                info.valorLiquido = total * (1 - taxa / 100);
+            } else if (metodo === 'Cartão de Débito') {
+                const taxa = parseFloat(document.getElementById('debTaxa' + suffix).value) || 0;
+                info.taxaMaquina = taxa;
+                info.valorLiquido = total * (1 - taxa / 100);
+            } else if (metodo === 'Dinheiro') {
+                const recebido = parseFloat(document.getElementById('dinRecebido' + suffix).value) || 0;
+                info.valorRecebido = recebido;
+                info.troco = recebido - total;
+                info.ok = recebido >= total && total > 0;
+            }
+            return info;
+        }
+
+        function recalcularPagamento(suffix) {
+            const info = calcularDetalhesPagamento(suffix);
+            const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            if (info.metodo === 'Cartão de Crédito') {
+                document.getElementById('credValorParcela' + suffix).innerText = fmt(info.valorParcela || 0);
+                document.getElementById('credValorLiquido' + suffix).innerText = fmt(info.valorLiquido || 0);
+            } else if (info.metodo === 'Cartão de Débito') {
+                document.getElementById('debValorLiquido' + suffix).innerText = fmt(info.valorLiquido || 0);
+            } else if (info.metodo === 'Dinheiro') {
+                const linha = document.getElementById('dinResultado' + suffix);
+                const troco = info.troco || 0;
+                if (troco >= 0) {
+                    linha.className = 'pag-info-row troco-ok';
+                    linha.innerHTML = `<span>Troco a devolver</span><b>${fmt(troco)}</b>`;
+                } else {
+                    linha.className = 'pag-info-row troco-falta';
+                    linha.innerHTML = `<span>Falta receber</span><b>${fmt(Math.abs(troco))}</b>`;
+                }
+            }
+        }
+
+        ['Desktop', 'Mobile'].forEach(suffix => {
+            document.getElementById('cxMetodo' + suffix).addEventListener('change', () => alternarPainelPagamento(suffix));
+            [`credParcelas${suffix}`, `credTaxa${suffix}`, `debTaxa${suffix}`, `dinRecebido${suffix}`].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', () => recalcularPagamento(suffix));
+            });
+        });
+
+        function limparPainelPagamento(suffix) {
+            const credTaxa = document.getElementById('credTaxa' + suffix);
+            const debTaxa = document.getElementById('debTaxa' + suffix);
+            const dinRecebido = document.getElementById('dinRecebido' + suffix);
+            const credParcelas = document.getElementById('credParcelas' + suffix);
+            if (dinRecebido) dinRecebido.value = '';
+            if (credParcelas) credParcelas.value = '1';
+            // Mantém a taxa da maquininha salva (geralmente é fixa por operadora)
+            document.getElementById('cxMetodo' + suffix).value = 'PIX';
+            alternarPainelPagamento(suffix);
+        }
+
         async function finalizarVenda() {
             if (carrinho.length === 0) return showPopup('O carrinho está vazio!', 'warning');
             const { subtotal, descontoValor, total } = calcularTotaisCarrinho();
             const isMobile = window.innerWidth <= 850;
-            const metodo = isMobile ? document.getElementById('cxMetodoMobile').value : document.getElementById('cxMetodoDesktop').value;
+            const suffix = isMobile ? 'Mobile' : 'Desktop';
+            const metodo = document.getElementById('cxMetodo' + suffix).value;
+            const pag = calcularDetalhesPagamento(suffix);
+
+            if (metodo === 'Dinheiro' && !pag.ok) {
+                const faltaFmt = Math.abs(pag.troco || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                return showPopup(`Valor recebido insuficiente. Ainda falta ${faltaFmt} para concluir a venda.`, 'warning');
+            }
 
             const operadorNome = userData ? userData.nome : (currentUser ? currentUser.email : 'Anônimo');
             const operadorEmail = currentUser ? currentUser.email : '';
             const itensDesc = carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ');
             const itensVenda = carrinho.map(i => ({ id: i.id, nome: i.nome, qtd: i.qtd, preco: i.preco }));
+
+            const pagamentoDetalhes = {};
+            if (metodo === 'Cartão de Crédito') {
+                pagamentoDetalhes.parcelas = pag.parcelas;
+                pagamentoDetalhes.taxa_maquina = pag.taxaMaquina;
+                pagamentoDetalhes.valor_parcela = pag.valorParcela;
+                pagamentoDetalhes.valor_liquido = pag.valorLiquido;
+            } else if (metodo === 'Cartão de Débito') {
+                pagamentoDetalhes.taxa_maquina = pag.taxaMaquina;
+                pagamentoDetalhes.valor_liquido = pag.valorLiquido;
+            } else if (metodo === 'Dinheiro') {
+                pagamentoDetalhes.valor_recebido = pag.valorRecebido;
+                pagamentoDetalhes.troco = pag.troco;
+            }
 
             const btnDesk = document.getElementById('btnConcluirDesktop');
             const btnMob = document.getElementById('btnConcluirMobile');
@@ -1789,6 +1963,7 @@
                     subtotal: subtotal,
                     desconto: descontoValor,
                     forma_pagamento: metodo,
+                    pagamento: pagamentoDetalhes,
                     detalhes: itensDesc || 'Venda PDV',
                     itens: itensVenda,
                     status: 'concluida',
@@ -1802,11 +1977,14 @@
 
                 mostrarRecibo({
                     itens: itensVenda, subtotal, descontoValor, total, metodo, operadorNome,
+                    pagamento: pagamentoDetalhes,
                     data: new Date()
                 });
 
                 carrinho = [];
                 ['cxDescValorDesktop', 'cxDescValorMobile'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+                limparPainelPagamento('Desktop');
+                limparPainelPagamento('Mobile');
                 atualizarCarrinho();
                 document.getElementById('modalCarrinhoMobile').classList.remove('active');
             } catch (err) {
@@ -1828,6 +2006,16 @@
                     <span>${fmt(i.preco * i.qtd)}</span>
                 </div>`).join('');
 
+            const pag = venda.pagamento || {};
+            let linhaPagamentoExtra = '';
+            if (venda.metodo === 'Cartão de Crédito' && pag.parcelas) {
+                linhaPagamentoExtra = `<div class="r-row"><span>Parcelamento:</span><span>${pag.parcelas}x de ${fmt(pag.valor_parcela)}</span></div>`;
+            } else if (venda.metodo === 'Dinheiro' && pag.valor_recebido !== undefined) {
+                linhaPagamentoExtra = `
+                    <div class="r-row"><span>Recebido:</span><span>${fmt(pag.valor_recebido)}</span></div>
+                    <div class="r-row"><span>Troco:</span><span>${fmt(pag.troco)}</span></div>`;
+            }
+
             document.getElementById('reciboConteudo').innerHTML = `
                 <div class="r-center"><b>${escapeHtml(cfg.loja_nome || 'NexCell Store')}</b></div>
                 ${cfg.loja_doc ? `<div class="r-center">${escapeHtml(cfg.loja_doc)}</div>` : ''}
@@ -1842,6 +2030,7 @@
                 ${venda.descontoValor > 0 ? `<div class="r-row"><span>Desconto:</span><span>- ${fmt(venda.descontoValor)}</span></div>` : ''}
                 <div class="r-row r-total"><span>TOTAL:</span><span>${fmt(venda.total)}</span></div>
                 <div class="r-row"><span>Pagamento:</span><span>${escapeHtml(venda.metodo)}</span></div>
+                ${linhaPagamentoExtra}
                 ${cfg.loja_pix ? `<hr><div class="r-center">PIX: ${escapeHtml(cfg.loja_pix)}</div>` : ''}
                 <hr>
                 <div class="r-center">${escapeHtml(cfg.msg_rodape || 'Obrigado pela preferência!')}</div>
