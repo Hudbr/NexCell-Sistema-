@@ -256,6 +256,21 @@
         .pag-info-row.pag-total-cliente span { font-weight: 800; color: var(--text-dark); font-size: 11px; }
         .pag-info-row.pag-total-cliente b { font-size: 16px; color: var(--brand-blue); }
 
+        /* TOGGLE SWITCH DE PERMISSÕES */
+        .switch-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+        .switch-row:last-child { border-bottom: none; }
+        .switch-label { font-size: 12.5px; font-weight: 800; display: block; }
+        .switch-desc { font-size: 10px; color: var(--text-muted); display: block; margin-top: 1px; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 25px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .switch .slider { position: absolute; inset: 0; background: #cbd5e1; transition: .2s; border-radius: 999px; cursor: pointer; }
+        .switch .slider:before { position: absolute; content: ""; height: 19px; width: 19px; left: 3px; bottom: 3px; background: #fff; transition: .2s; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+        .switch input:checked + .slider { background: var(--brand-blue); }
+        .switch input:checked + .slider:before { transform: translateX(19px); }
+        .switch input:disabled + .slider { opacity: .45; cursor: not-allowed; }
+        body.dark-mode .switch .slider { background: #334155; }
+        #permissoesGranularesBox.desativado { opacity: .4; pointer-events: none; }
+
         /* DARK MODE */
         body.dark-mode {
             --bg-app: #0b0f19; --border: #232b3d; --text-dark: #e2e8f0; --text-muted: #8896ab;
@@ -453,23 +468,70 @@
         </div>
     </div>
 
-    <!-- MODAL DE EDIÇÃO DE CARGO (ADMIN) -->
+    <!-- MODAL DE PERMISSÕES DE ACESSO (ADMIN) -->
     <div id="modalEditarUsuario" class="modal-overlay">
-        <div class="modal-box" style="max-width:340px;">
-            <h3 style="font-size:15px;">👥 Editar Cargo do Usuário</h3>
-            <p id="editUsuarioNome" style="font-size:12px; color:var(--text-muted); word-break: break-all;"></p>
+        <div class="modal-box" style="max-width:380px;">
+            <h3 style="font-size:15px;">🔐 Permissões de Acesso</h3>
+            <p id="editUsuarioNome" style="font-size:12px; color:var(--text-muted); word-break: break-all; margin-bottom:6px;"></p>
             <input type="hidden" id="editUsuarioUid">
-            <div>
-                <label style="font-size:11px; font-weight:700;">CARGO / FUNÇÃO</label>
-                <select id="editUsuarioCargoSelect" class="input-field" style="margin-top:4px;">
-                    <option value="comercial">🛒 Comercial (Vendedor)</option>
-                    <option value="estoque">📦 Estoque (Almoxarifado)</option>
-                    <option value="financeiro">📊 Financeiro</option>
-                    <option value="admin">👑 Administrador</option>
-                </select>
+
+            <div class="switch-row">
+                <div>
+                    <span class="switch-label">👑 Administrador</span>
+                    <span class="switch-desc">Acesso total a todos os módulos, sem restrições</span>
+                </div>
+                <label class="switch"><input type="checkbox" id="permAdmin"><span class="slider"></span></label>
             </div>
-            <div style="display:flex; gap:8px; margin-top:8px;">
-                <button class="btn-pay" id="btnSalvarCargoUsuario">Salvar Cargo</button>
+
+            <div id="permissoesGranularesBox">
+                <div class="switch-row">
+                    <div>
+                        <span class="switch-label">🏠 Dashboard</span>
+                        <span class="switch-desc">Ver visão geral, KPIs e atividade recente</span>
+                    </div>
+                    <label class="switch"><input type="checkbox" id="permDashboard"><span class="slider"></span></label>
+                </div>
+                <div class="switch-row">
+                    <div>
+                        <span class="switch-label">🛒 PDV (Vender)</span>
+                        <span class="switch-desc">Registrar vendas no caixa</span>
+                    </div>
+                    <label class="switch"><input type="checkbox" id="permVender"><span class="slider"></span></label>
+                </div>
+                <div class="switch-row">
+                    <div>
+                        <span class="switch-label">📦 Ver Estoque</span>
+                        <span class="switch-desc">Consultar produtos e quantidades</span>
+                    </div>
+                    <label class="switch"><input type="checkbox" id="permEstoqueVer"><span class="slider"></span></label>
+                </div>
+                <div class="switch-row">
+                    <div>
+                        <span class="switch-label">✏️ Editar Estoque</span>
+                        <span class="switch-desc">Cadastrar, editar, excluir e repor produtos</span>
+                    </div>
+                    <label class="switch"><input type="checkbox" id="permEstoqueEditar"><span class="slider"></span></label>
+                </div>
+                <div class="switch-row">
+                    <div>
+                        <span class="switch-label">📊 Financeiro</span>
+                        <span class="switch-desc">Ver fechamento de caixa e extrato de vendas</span>
+                    </div>
+                    <label class="switch"><input type="checkbox" id="permFinanceiro"><span class="slider"></span></label>
+                </div>
+                <div class="switch-row">
+                    <div>
+                        <span class="switch-label">❌ Cancelar Vendas</span>
+                        <span class="switch-desc">Estornar vendas e devolver ao estoque</span>
+                    </div>
+                    <label class="switch"><input type="checkbox" id="permCancelarVenda"><span class="slider"></span></label>
+                </div>
+            </div>
+
+            <p style="font-size:10px; color:var(--text-muted); margin-top:8px;">🔒 Por segurança, gerenciar usuários e as configurações da loja continua exclusivo de Administradores.</p>
+
+            <div style="display:flex; gap:8px; margin-top:10px;">
+                <button class="btn-pay" id="btnSalvarCargoUsuario">Salvar Permissões</button>
                 <button class="btn-sm" style="width:80px;" onclick="document.getElementById('modalEditarUsuario').style.display='none'">Cancelar</button>
             </div>
         </div>
@@ -1168,7 +1230,7 @@
                 document.getElementById('cfgMeuNome').value = userData.nome || '';
                 document.getElementById('cfgMeuEmail').value = user.email;
 
-                aplicarPermissoes(userData.cargo || 'comercial');
+                aplicarPermissoes(userData);
                 iniciarEscutaBanco();
                 carregarConfiguracoesGlobais();
             } else {
@@ -1181,7 +1243,30 @@
             }
         });
 
-        function aplicarPermissoes(cargo) {
+        // --- SISTEMA DE PERMISSÕES GRANULARES ---
+        // Admin sempre tem acesso total. Para os demais, as permissões vêm de usuarios/{uid}.permissoes.
+        // Usuários antigos (cargo fixo: comercial/estoque/financeiro) recebem um valor padrão de migração
+        // na primeira vez, até o admin ajustar manualmente pela tela de Permissões.
+        function permissoesEfetivas(u) {
+            const vazio = { dashboard: false, vender: false, estoque_ver: false, estoque_editar: false, financeiro: false, cancelar_venda: false };
+            if (!u) return vazio;
+            if (u.cargo === 'admin') {
+                return { dashboard: true, vender: true, estoque_ver: true, estoque_editar: true, financeiro: true, cancelar_venda: true };
+            }
+            if (u.permissoes) {
+                return { ...vazio, ...u.permissoes };
+            }
+            // Migração de cargos antigos (sem campo "permissoes" ainda definido)
+            if (u.cargo === 'estoque') return { ...vazio, estoque_ver: true, estoque_editar: true };
+            if (u.cargo === 'financeiro') return { ...vazio, financeiro: true, estoque_ver: true };
+            return { ...vazio, vender: true, estoque_ver: true }; // comercial (padrão)
+        }
+
+        function temPermissao(chave) {
+            return userData && userData.cargo === 'admin' ? true : !!permissoesEfetivas(userData)[chave];
+        }
+
+        function aplicarPermissoes(u) {
             const btnNavDashboard = document.getElementById('btnNavDashboard');
             const btnNavVender = document.getElementById('btnNavVender');
             const btnNavProdutos = document.getElementById('btnNavProdutos');
@@ -1196,6 +1281,9 @@
             const mNavUsuarios = document.getElementById('mNavUsuarios');
             const mNavConfig = document.getElementById('mNavConfig');
 
+            const isAdmin = u && u.cargo === 'admin';
+            const p = permissoesEfetivas(u);
+
             [btnNavDashboard, btnNavVender, btnNavProdutos, btnNavFechamento, btnNavUsuarios, btnNavConfig].forEach(el => el.style.display = 'none');
             [mNavDashboard, mNavVender, mNavProdutos, mNavFechamento, mNavUsuarios, mNavConfig].forEach(el => el.style.display = 'none');
 
@@ -1203,32 +1291,23 @@
             mNavConfig.style.display = 'flex';
 
             const adminCards = document.querySelectorAll('.config-admin-only');
-            adminCards.forEach(c => c.style.display = (cargo === 'admin') ? 'flex' : 'none');
+            adminCards.forEach(c => c.style.display = isAdmin ? 'flex' : 'none');
 
-            if (cargo === 'admin') {
-                [btnNavDashboard, btnNavVender, btnNavProdutos, btnNavFechamento, btnNavUsuarios].forEach(el => el.style.display = 'flex');
-                [mNavDashboard, mNavVender, mNavProdutos, mNavFechamento, mNavUsuarios].forEach(el => el.style.display = 'flex');
-                ativarAbaPadrao('dashboard', btnNavDashboard, mNavDashboard);
-            } else if (cargo === 'comercial') {
-                btnNavVender.style.display = 'flex';
-                mNavVender.style.display = 'flex';
-                btnNavProdutos.style.display = 'flex';
-                mNavProdutos.style.display = 'flex';
-                document.getElementById('btnAbrirNovoProd').style.display = 'none';
-                ativarAbaPadrao('vender', btnNavVender, mNavVender);
-            } else if (cargo === 'estoque') {
-                btnNavProdutos.style.display = 'flex';
-                mNavProdutos.style.display = 'flex';
-                document.getElementById('btnAbrirNovoProd').style.display = 'inline-block';
-                ativarAbaPadrao('produtos', btnNavProdutos, mNavProdutos);
-            } else if (cargo === 'financeiro') {
-                btnNavFechamento.style.display = 'flex';
-                mNavFechamento.style.display = 'flex';
-                btnNavProdutos.style.display = 'flex';
-                mNavProdutos.style.display = 'flex';
-                document.getElementById('btnAbrirNovoProd').style.display = 'none';
-                ativarAbaPadrao('fechamento', btnNavFechamento, mNavFechamento);
-            }
+            if (p.dashboard) { btnNavDashboard.style.display = 'flex'; mNavDashboard.style.display = 'flex'; }
+            if (p.vender) { btnNavVender.style.display = 'flex'; mNavVender.style.display = 'flex'; }
+            if (p.estoque_ver) { btnNavProdutos.style.display = 'flex'; mNavProdutos.style.display = 'flex'; }
+            if (p.financeiro) { btnNavFechamento.style.display = 'flex'; mNavFechamento.style.display = 'flex'; }
+            // Usuários (gerenciar contas e permissões) continua exclusivo de Administradores, por segurança
+            if (isAdmin) { btnNavUsuarios.style.display = 'flex'; mNavUsuarios.style.display = 'flex'; }
+
+            document.getElementById('btnAbrirNovoProd').style.display = p.estoque_editar ? 'inline-block' : 'none';
+
+            // Escolhe a primeira aba disponível como padrão, seguindo prioridade
+            if (p.dashboard) ativarAbaPadrao('dashboard', btnNavDashboard, mNavDashboard);
+            else if (p.vender) ativarAbaPadrao('vender', btnNavVender, mNavVender);
+            else if (p.estoque_ver) ativarAbaPadrao('produtos', btnNavProdutos, mNavProdutos);
+            else if (p.financeiro) ativarAbaPadrao('fechamento', btnNavFechamento, mNavFechamento);
+            else ativarAbaPadrao('config', btnNavConfig, mNavConfig);
         }
 
         function ativarAbaPadrao(aba, btnDesk, btnMob) {
@@ -1486,7 +1565,7 @@
                     <td class="cell-email">${escapeHtml(u.email || '')}</td>
                     <td><span class="badge-role role-${role}">${role.toUpperCase()}</span></td>
                     <td>
-                        <button class="btn-sm btn-edit-user" style="color:var(--brand-blue);">✏️ Alterar Cargo</button>
+                        <button class="btn-sm btn-edit-user" style="color:var(--brand-blue);">🔐 Permissões</button>
                     </td>`;
                 
                 tr.querySelector('.btn-edit-user').onclick = () => abrirModalEditarUsuario(u);
@@ -1497,31 +1576,63 @@
         function abrirModalEditarUsuario(u) {
             document.getElementById('editUsuarioUid').value = u.uid;
             document.getElementById('editUsuarioNome').innerText = `${u.nome} (${u.email})`;
-            document.getElementById('editUsuarioCargoSelect').value = u.cargo || 'comercial';
+
+            const isAdmin = u.cargo === 'admin';
+            const p = permissoesEfetivas(u);
+
+            document.getElementById('permAdmin').checked = isAdmin;
+            document.getElementById('permDashboard').checked = p.dashboard;
+            document.getElementById('permVender').checked = p.vender;
+            document.getElementById('permEstoqueVer').checked = p.estoque_ver;
+            document.getElementById('permEstoqueEditar').checked = p.estoque_editar;
+            document.getElementById('permFinanceiro').checked = p.financeiro;
+            document.getElementById('permCancelarVenda').checked = p.cancelar_venda;
+
+            document.getElementById('permissoesGranularesBox').classList.toggle('desativado', isAdmin);
             document.getElementById('modalEditarUsuario').style.display = 'flex';
         }
 
+        document.getElementById('permAdmin').addEventListener('change', (e) => {
+            document.getElementById('permissoesGranularesBox').classList.toggle('desativado', e.target.checked);
+        });
+
         document.getElementById('btnSalvarCargoUsuario').onclick = async () => {
             const uid = document.getElementById('editUsuarioUid').value;
-            const novoCargo = document.getElementById('editUsuarioCargoSelect').value;
+            const ehAdminAgora = document.getElementById('permAdmin').checked;
             const btn = document.getElementById('btnSalvarCargoUsuario');
+
+            const novasPermissoes = {
+                dashboard: document.getElementById('permDashboard').checked,
+                vender: document.getElementById('permVender').checked,
+                estoque_ver: document.getElementById('permEstoqueVer').checked,
+                estoque_editar: document.getElementById('permEstoqueEditar').checked,
+                financeiro: document.getElementById('permFinanceiro').checked,
+                cancelar_venda: document.getElementById('permCancelarVenda').checked
+            };
 
             btn.disabled = true;
             btn.innerText = "Salvando...";
 
             try {
                 await updateDoc(doc(db, "usuarios", uid), {
-                    cargo: novoCargo
+                    cargo: ehAdminAgora ? 'admin' : 'comercial',
+                    permissoes: novasPermissoes
                 });
                 const uAlvo = usuariosLista.find(u => u.uid === uid);
-                registrarAtividade('cargo', `Cargo de "${uAlvo ? uAlvo.nome : uid}" alterado para ${novoCargo.toUpperCase()}`);
-                showPopup("Cargo do colaborador atualizado com sucesso!", "success");
+                registrarAtividade('cargo', `Permissões de "${uAlvo ? uAlvo.nome : uid}" foram atualizadas`);
+                showPopup("Permissões atualizadas com sucesso!", "success");
                 document.getElementById('modalEditarUsuario').style.display = 'none';
+
+                // Se o admin alterou as próprias permissões, reaplica na hora
+                if (currentUser && uid === currentUser.uid) {
+                    userData = { ...userData, cargo: ehAdminAgora ? 'admin' : 'comercial', permissoes: novasPermissoes };
+                    aplicarPermissoes(userData);
+                }
             } catch (err) {
-                showPopup("Erro ao alterar cargo: " + err.message, "danger");
+                showPopup("Erro ao salvar permissões: " + err.message, "danger");
             } finally {
                 btn.disabled = false;
-                btn.innerText = "Salvar Cargo";
+                btn.innerText = "Salvar Permissões";
             }
         };
 
@@ -1616,7 +1727,7 @@
             const tbody = document.getElementById('tabelaCorpoProdutos');
             if (!tbody) return;
             tbody.innerHTML = '';
-            const podeEditar = userData && (userData.cargo === 'admin' || userData.cargo === 'estoque');
+            const podeEditar = temPermissao('estoque_editar');
 
             itens.forEach(p => {
                 const isLow = (p.estoque || 0) <= limiteEstoqueBaixo;
@@ -1651,6 +1762,7 @@
         }
 
         document.getElementById('btnConfirmarRepor').onclick = async () => {
+            if (!temPermissao('estoque_editar')) return showPopup("Você não tem permissão para repor estoque.", "warning");
             const id = document.getElementById('reporProdId').value;
             const qtd = parseInt(document.getElementById('reporQtdInput').value);
             try {
@@ -1694,6 +1806,7 @@
         }
 
         document.getElementById('btnSalvarProd').onclick = async () => {
+            if (!temPermissao('estoque_editar')) return showPopup("Você não tem permissão para editar o estoque.", "warning");
             const btn = document.getElementById('btnSalvarProd');
             btn.disabled = true;
             btn.innerText = "Salvando...";
@@ -1729,6 +1842,7 @@
         };
 
         async function excluirProduto(id) {
+            if (!temPermissao('estoque_editar')) return showPopup("Você não tem permissão para excluir produtos.", "warning");
             const confirmou = await showConfirm('Deseja realmente excluir este produto do Firestore?');
             if (!confirmou) return;
 
@@ -2418,13 +2532,15 @@
                         <td><span style="font-size:11px; color:var(--text-muted);">${escapeHtml(v.detalhes || 'Venda Avulsa')}</span></td>
                         <td><b>${parseFloat(v.valor_total || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</b></td>
                         <td>
-                            ${isCancelada ? `<span style="color:var(--danger); font-weight:800;">Cancelada</span>` : `
-                                <button class="btn-sm btn-canc-venda" style="color:var(--danger);">Cancelar</button>
-                            `}
+                            ${isCancelada ? `<span style="color:var(--danger); font-weight:800;">Cancelada</span>` : (
+                                temPermissao('cancelar_venda')
+                                    ? `<button class="btn-sm btn-canc-venda" style="color:var(--danger);">Cancelar</button>`
+                                    : `<span style="font-size:10.5px; color:var(--text-muted);">—</span>`
+                            )}
                         </td>
                     `;
 
-                    if (!isCancelada) {
+                    if (!isCancelada && temPermissao('cancelar_venda')) {
                         tr.querySelector('.btn-canc-venda').onclick = () => cancelarVenda(v);
                     }
 
@@ -2437,8 +2553,8 @@
         }
 
         async function cancelarVenda(v) {
-            if (userData && userData.cargo !== 'admin' && userData.cargo !== 'financeiro') {
-                return showPopup("Apenas Administradores ou Financeiro podem estornar vendas!", "warning");
+            if (!temPermissao('cancelar_venda')) {
+                return showPopup("Você não tem permissão para cancelar vendas. Fale com um administrador.", "warning");
             }
 
             const confirmou = await showConfirm(`Deseja realmente cancelar esta venda de ${parseFloat(v.valor_total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}? Os itens retornarão ao estoque.`);
@@ -2472,6 +2588,14 @@
         document.getElementById('finFiltroPeriodo').onchange = carregarFechamento;
 
         function mudarAba(aba) {
+            const mapaPermissao = { dashboard: 'dashboard', vender: 'vender', produtos: 'estoque_ver', fechamento: 'financeiro' };
+            if (mapaPermissao[aba] && !temPermissao(mapaPermissao[aba])) {
+                return showPopup('Você não tem permissão para acessar esse módulo.', 'warning');
+            }
+            if (aba === 'usuarios' && !(userData && userData.cargo === 'admin')) {
+                return showPopup('Apenas Administradores podem acessar esta área.', 'warning');
+            }
+
             document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
             if (aba === 'dashboard') {
                 document.getElementById('viewDashboard').classList.add('active');
