@@ -16,9 +16,9 @@
             --border: #e2e8f0;
             --text-dark: #0f172a;
             --text-muted: #64748b;
-            --brand-orange: #ff7a00;
-            --brand-orange-hover: #ea6c00;
-            --brand-orange-light: rgba(255, 122, 0, 0.12);
+            --brand-blue: #2454e8;
+            --brand-blue-hover: #1a3fc4;
+            --brand-blue-light: rgba(36, 84, 232, 0.12);
             --danger: #ef4444;
             --success: #10b981;
             --info: #3b82f6;
@@ -44,7 +44,7 @@
         }
         .popup-icon-success { background: #ecfdf5; color: var(--success); }
         .popup-icon-danger { background: #fef2f2; color: var(--danger); }
-        .popup-icon-warning { background: #fffbeb; color: var(--brand-orange); }
+        .popup-icon-warning { background: #fffbeb; color: var(--brand-blue); }
         .popup-icon-info { background: #eff6ff; color: var(--info); }
         .popup-msg-text { font-size: 13.5px; font-weight: 600; color: var(--text-dark); line-height: 1.4; word-break: break-word; }
 
@@ -61,12 +61,12 @@
             border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); text-align: center;
         }
         .auth-logo {
-            width: 50px; height: 50px; border-radius: 12px; background: var(--brand-orange);
+            width: 50px; height: 50px; border-radius: 12px; background: var(--brand-blue);
             color: #fff; display: inline-flex; align-items: center; justify-content: center;
             font-weight: 800; font-size: 20px; margin-bottom: 12px;
         }
         .auth-toggle-btn {
-            background: none; border: none; color: var(--brand-orange);
+            background: none; border: none; color: var(--brand-blue);
             font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: underline; margin-top: 10px;
         }
 
@@ -81,7 +81,7 @@
         }
         .store-avatar {
             width: 36px; height: 36px; border-radius: 8px;
-            background: var(--brand-orange); color: #fff;
+            background: var(--brand-blue); color: #fff;
             display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px;
         }
         .nav-list { display: flex; flex-direction: column; gap: 4px; }
@@ -91,7 +91,7 @@
             cursor: pointer; transition: all 0.15s;
         }
         .nav-btn:hover { background: var(--bg-sidebar-hover); color: #fff; }
-        .nav-btn.active { background: var(--brand-orange); color: #fff; font-weight: 700; }
+        .nav-btn.active { background: var(--brand-blue); color: #fff; font-weight: 700; }
         .btn-logout {
             display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 8px;
             color: var(--danger); font-size: 12px; font-weight: 700; cursor: pointer; background: rgba(239, 68, 68, 0.1); border: none; width: 100%; margin-top: 10px;
@@ -108,7 +108,7 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             color: var(--text-muted); font-size: 9.5px; font-weight: 700; gap: 2px; flex: 1; height: 100%; cursor: pointer;
         }
-        .m-nav-item.active { color: var(--brand-orange); }
+        .m-nav-item.active { color: var(--brand-blue); }
         .m-nav-item .icon { font-size: 18px; }
 
         main { flex: 1; display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; width: 100%; }
@@ -124,7 +124,7 @@
 
         .scanner-input-bar {
             display: flex; align-items: center; gap: 8px;
-            background: #fff; border: 2px solid var(--brand-orange);
+            background: #fff; border: 2px solid var(--brand-blue);
             border-radius: 12px; padding: 6px 12px;
         }
         .scanner-input-bar input { flex: 1; border: none; outline: none; font-size: 14px; font-weight: 600; color: var(--text-dark); background: transparent; }
@@ -148,8 +148,8 @@
             padding: 10px; display: flex; flex-direction: column; justify-content: space-between;
             cursor: pointer; transition: transform 0.1s ease;
         }
-        .prod-card:active { transform: scale(0.96); border-color: var(--brand-orange); }
-        .badge-brand { background: var(--brand-orange-light); color: var(--brand-orange); font-size: 9px; font-weight: 800; padding: 2px 5px; border-radius: 4px; text-transform: uppercase; }
+        .prod-card:active { transform: scale(0.96); border-color: var(--brand-blue); }
+        .badge-brand { background: var(--brand-blue-light); color: var(--brand-blue); font-size: 9px; font-weight: 800; padding: 2px 5px; border-radius: 4px; text-transform: uppercase; }
         .prod-title { font-size: 11.5px; font-weight: 700; color: var(--text-dark); line-height: 1.2; margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .prod-model { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
         .prod-price { font-size: 13.5px; font-weight: 800; color: var(--text-dark); }
@@ -164,16 +164,16 @@
         .cart-row { background: var(--bg-app); border-radius: 10px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; }
         .qty-btn { width: 28px; height: 28px; background: #fff; border: 1px solid var(--border); border-radius: 6px; font-weight: 800; cursor: pointer; }
         .btn-pay {
-            background: var(--brand-orange); color: #fff; border: none;
+            background: var(--brand-blue); color: #fff; border: none;
             border-radius: 10px; padding: 13px; font-size: 14px; font-weight: 800; cursor: pointer; width: 100%;
         }
-        .btn-pay:active { background: var(--brand-orange-hover); }
+        .btn-pay:active { background: var(--brand-blue-hover); }
 
         .mobile-floating-cart {
             display: none; position: fixed; bottom: 70px; left: 12px; right: 12px;
-            background: var(--brand-orange); color: #fff; border-radius: 14px;
+            background: var(--brand-blue); color: #fff; border-radius: 14px;
             padding: 14px 18px; justify-content: space-between; align-items: center;
-            box-shadow: 0 8px 24px rgba(255, 122, 0, 0.4); z-index: 800; cursor: pointer;
+            box-shadow: 0 8px 24px rgba(36, 84, 232, 0.4); z-index: 800; cursor: pointer;
             font-weight: 800; font-size: 14px;
         }
 
@@ -608,7 +608,7 @@
         <div id="viewDashboard" class="view-content">
             <div class="dash-kpi-grid">
                 <div class="dash-kpi-card">
-                    <div class="dash-kpi-icon" style="background:var(--brand-orange-light); color:var(--brand-orange);">💰</div>
+                    <div class="dash-kpi-icon" style="background:var(--brand-blue-light); color:var(--brand-blue);">💰</div>
                     <div>
                         <div class="dash-kpi-title">Vendas Hoje</div>
                         <div class="dash-kpi-val" id="dashVendasHoje">R$ 0,00</div>
@@ -745,7 +745,7 @@
             <div class="fin-kpi-grid">
                 <div class="fin-kpi-card">
                     <span class="fin-kpi-title">Faturamento Total</span>
-                    <div class="fin-kpi-val" id="finKpiTotal" style="color:var(--brand-orange);">R$ 0,00</div>
+                    <div class="fin-kpi-val" id="finKpiTotal" style="color:var(--brand-blue);">R$ 0,00</div>
                     <span class="fin-kpi-sub" id="finKpiTransacoes">0 transações no período</span>
                 </div>
                 <div class="fin-kpi-card">
@@ -1396,7 +1396,7 @@
                 return;
             }
 
-            const cores = { cancelamento: 'var(--danger)', produto: 'var(--info)', estoque: 'var(--success)', cargo: 'var(--brand-orange)' };
+            const cores = { cancelamento: 'var(--danger)', produto: 'var(--info)', estoque: 'var(--success)', cargo: 'var(--brand-blue)' };
             container.innerHTML = atividadesLista.slice(0, 15).map(a => {
                 const d = new Date(a.data);
                 const dataFmt = isNaN(d) ? '' : `${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR')}`;
@@ -1422,7 +1422,7 @@
                     <td class="cell-email">${escapeHtml(u.email || '')}</td>
                     <td><span class="badge-role role-${role}">${role.toUpperCase()}</span></td>
                     <td>
-                        <button class="btn-sm btn-edit-user" style="color:var(--brand-orange);">✏️ Alterar Cargo</button>
+                        <button class="btn-sm btn-edit-user" style="color:var(--brand-blue);">✏️ Alterar Cargo</button>
                     </td>`;
                 
                 tr.querySelector('.btn-edit-user').onclick = () => abrirModalEditarUsuario(u);
@@ -1564,7 +1564,7 @@
                     <td><b style="color:${isLow ? 'var(--danger)' : 'var(--text-dark)'};">${p.estoque || 0} un</b></td>
                     <td>
                         ${podeEditar ? `
-                            <button class="btn-sm btn-repor" style="color:var(--brand-orange);">+ Repor</button>
+                            <button class="btn-sm btn-repor" style="color:var(--brand-blue);">+ Repor</button>
                             <button class="btn-sm btn-edit">✏️</button>
                             <button class="btn-sm btn-del" style="color:var(--danger);">🗑️</button>
                         ` : `<span style="font-size:11px; color:var(--text-muted);">Apenas Consulta</span>`}
@@ -1970,7 +1970,7 @@
             const max = Math.max(...dias.map(d => d.total), 1);
             const isDark = document.body.classList.contains('dark-mode');
             const corTexto = isDark ? '#8896ab' : '#64748b';
-            const corBarra = '#ff7a00';
+            const corBarra = '#2454e8';
             const padBottom = 26, padTop = 14;
             const barW = (W / dias.length) * 0.5;
             const gap = (W / dias.length);
@@ -2019,7 +2019,7 @@
                         <b>${valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</b>
                     </div>
                     <div style="background:var(--bg-app); border-radius:10px; height:7px; overflow:hidden;">
-                        <div style="background:var(--brand-orange); width:${(valor / maxVal) * 100}%; height:100%;"></div>
+                        <div style="background:var(--brand-blue); width:${(valor / maxVal) * 100}%; height:100%;"></div>
                     </div>
                 </div>`).join('');
         }
@@ -2168,7 +2168,7 @@
                                 <b>${valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</b>
                             </div>
                             <div style="background:var(--bg-app); border-radius:10px; height:7px; overflow:hidden;">
-                                <div style="background:var(--brand-orange); width:${perc}%; height:100%;"></div>
+                                <div style="background:var(--brand-blue); width:${perc}%; height:100%;"></div>
                             </div>
                         </div>`;
                 }
