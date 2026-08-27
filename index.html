@@ -252,6 +252,9 @@
         .pag-info-row b { color: var(--text-dark); font-size: 12.5px; }
         .pag-info-row.troco-ok b, .pag-info-row.troco-ok span { color: var(--success); }
         .pag-info-row.troco-falta b, .pag-info-row.troco-falta span { color: var(--danger); }
+        .pag-info-row.pag-total-cliente { border-top: 1px dashed var(--border); margin-top: 4px; padding-top: 6px; }
+        .pag-info-row.pag-total-cliente span { font-weight: 800; color: var(--text-dark); font-size: 11px; }
+        .pag-info-row.pag-total-cliente b { font-size: 16px; color: var(--brand-blue); }
 
         /* DARK MODE */
         body.dark-mode {
@@ -506,7 +509,7 @@
                         <input type="number" id="credTaxaMobile" placeholder="Taxa da maquininha %" min="0" step="0.01">
                     </div>
                     <div class="pag-info-row"><span>Valor por parcela</span><b id="credValorParcelaMobile">R$ 0,00</b></div>
-                    <div class="pag-info-row"><span>Líquido a receber (após taxa)</span><b id="credValorLiquidoMobile">R$ 0,00</b></div>
+                    <div class="pag-info-row pag-total-cliente"><span>TOTAL A COBRAR DO CLIENTE</span><b id="credValorLiquidoMobile">R$ 0,00</b></div>
                 </div>
 
                 <div id="pagDebitoMobile" class="pag-extra-box" style="display:none;">
@@ -514,7 +517,7 @@
                         <span class="discount-label">TAXA</span>
                         <input type="number" id="debTaxaMobile" placeholder="Taxa da maquininha %" min="0" step="0.01">
                     </div>
-                    <div class="pag-info-row"><span>Líquido a receber (após taxa)</span><b id="debValorLiquidoMobile">R$ 0,00</b></div>
+                    <div class="pag-info-row pag-total-cliente"><span>TOTAL A COBRAR DO CLIENTE</span><b id="debValorLiquidoMobile">R$ 0,00</b></div>
                 </div>
 
                 <div id="pagDinheiroMobile" class="pag-extra-box" style="display:none;">
@@ -740,7 +743,7 @@
                                 <input type="number" id="credTaxaDesktop" placeholder="Taxa da maquininha %" min="0" step="0.01">
                             </div>
                             <div class="pag-info-row"><span>Valor por parcela</span><b id="credValorParcelaDesktop">R$ 0,00</b></div>
-                            <div class="pag-info-row"><span>Líquido a receber (após taxa)</span><b id="credValorLiquidoDesktop">R$ 0,00</b></div>
+                            <div class="pag-info-row pag-total-cliente"><span>TOTAL A COBRAR DO CLIENTE</span><b id="credValorLiquidoDesktop">R$ 0,00</b></div>
                         </div>
 
                         <div id="pagDebitoDesktop" class="pag-extra-box" style="display:none;">
@@ -748,7 +751,7 @@
                                 <span class="discount-label">TAXA</span>
                                 <input type="number" id="debTaxaDesktop" placeholder="Taxa da maquininha %" min="0" step="0.01">
                             </div>
-                            <div class="pag-info-row"><span>Líquido a receber (após taxa)</span><b id="debValorLiquidoDesktop">R$ 0,00</b></div>
+                            <div class="pag-info-row pag-total-cliente"><span>TOTAL A COBRAR DO CLIENTE</span><b id="debValorLiquidoDesktop">R$ 0,00</b></div>
                         </div>
 
                         <div id="pagDinheiroDesktop" class="pag-extra-box" style="display:none;">
@@ -1849,21 +1852,23 @@
         function calcularDetalhesPagamento(suffix) {
             const { total } = calcularTotaisCarrinho();
             const metodo = document.getElementById('cxMetodo' + suffix).value;
-            const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-            const info = { metodo, total, ok: true };
+            const info = { metodo, total, valorFinal: total, ok: true };
 
             if (metodo === 'Cartão de Crédito') {
                 const parcelas = parseInt(document.getElementById('credParcelas' + suffix).value) || 1;
                 const taxa = parseFloat(document.getElementById('credTaxa' + suffix).value) || 0;
                 info.parcelas = parcelas;
                 info.taxaMaquina = taxa;
-                info.valorParcela = total / parcelas;
-                info.valorLiquido = total * (1 - taxa / 100);
+                // A taxa da maquininha é repassada ao cliente: o valor cobrado AUMENTA
+                info.valorFinal = total * (1 + taxa / 100);
+                info.valorTaxa = info.valorFinal - total;
+                info.valorParcela = info.valorFinal / parcelas;
             } else if (metodo === 'Cartão de Débito') {
                 const taxa = parseFloat(document.getElementById('debTaxa' + suffix).value) || 0;
                 info.taxaMaquina = taxa;
-                info.valorLiquido = total * (1 - taxa / 100);
+                info.valorFinal = total * (1 + taxa / 100);
+                info.valorTaxa = info.valorFinal - total;
             } else if (metodo === 'Dinheiro') {
                 const recebido = parseFloat(document.getElementById('dinRecebido' + suffix).value) || 0;
                 info.valorRecebido = recebido;
@@ -1879,9 +1884,9 @@
 
             if (info.metodo === 'Cartão de Crédito') {
                 document.getElementById('credValorParcela' + suffix).innerText = fmt(info.valorParcela || 0);
-                document.getElementById('credValorLiquido' + suffix).innerText = fmt(info.valorLiquido || 0);
+                document.getElementById('credValorLiquido' + suffix).innerText = fmt(info.valorFinal || 0);
             } else if (info.metodo === 'Cartão de Débito') {
-                document.getElementById('debValorLiquido' + suffix).innerText = fmt(info.valorLiquido || 0);
+                document.getElementById('debValorLiquido' + suffix).innerText = fmt(info.valorFinal || 0);
             } else if (info.metodo === 'Dinheiro') {
                 const linha = document.getElementById('dinResultado' + suffix);
                 const troco = info.troco || 0;
@@ -1938,14 +1943,16 @@
                 pagamentoDetalhes.parcelas = pag.parcelas;
                 pagamentoDetalhes.taxa_maquina = pag.taxaMaquina;
                 pagamentoDetalhes.valor_parcela = pag.valorParcela;
-                pagamentoDetalhes.valor_liquido = pag.valorLiquido;
+                pagamentoDetalhes.valor_acrescimo = pag.valorTaxa;
             } else if (metodo === 'Cartão de Débito') {
                 pagamentoDetalhes.taxa_maquina = pag.taxaMaquina;
-                pagamentoDetalhes.valor_liquido = pag.valorLiquido;
+                pagamentoDetalhes.valor_acrescimo = pag.valorTaxa;
             } else if (metodo === 'Dinheiro') {
                 pagamentoDetalhes.valor_recebido = pag.valorRecebido;
                 pagamentoDetalhes.troco = pag.troco;
             }
+
+            const valorCobrado = pag.valorFinal;
 
             const btnDesk = document.getElementById('btnConcluirDesktop');
             const btnMob = document.getElementById('btnConcluirMobile');
@@ -1959,7 +1966,7 @@
                 }
 
                 await addDoc(collection(db, "vendas"), {
-                    valor_total: total,
+                    valor_total: valorCobrado,
                     subtotal: subtotal,
                     desconto: descontoValor,
                     forma_pagamento: metodo,
@@ -1973,10 +1980,10 @@
                     data_venda: new Date().toISOString()
                 });
 
-                showPopup(`Venda confirmada de ${total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} por ${operadorNome}!`, "success");
+                showPopup(`Venda confirmada de ${valorCobrado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} por ${operadorNome}!`, "success");
 
                 mostrarRecibo({
-                    itens: itensVenda, subtotal, descontoValor, total, metodo, operadorNome,
+                    itens: itensVenda, subtotal, descontoValor, total: valorCobrado, metodo, operadorNome,
                     pagamento: pagamentoDetalhes,
                     data: new Date()
                 });
@@ -2016,6 +2023,10 @@
                     <div class="r-row"><span>Troco:</span><span>${fmt(pag.troco)}</span></div>`;
             }
 
+            const linhaAcrescimo = (pag.valor_acrescimo && pag.valor_acrescimo > 0)
+                ? `<div class="r-row"><span>Acréscimo maquininha (${pag.taxa_maquina}%):</span><span>+ ${fmt(pag.valor_acrescimo)}</span></div>`
+                : '';
+
             document.getElementById('reciboConteudo').innerHTML = `
                 <div class="r-center"><b>${escapeHtml(cfg.loja_nome || 'NexCell Store')}</b></div>
                 ${cfg.loja_doc ? `<div class="r-center">${escapeHtml(cfg.loja_doc)}</div>` : ''}
@@ -2028,6 +2039,7 @@
                 <hr>
                 <div class="r-row"><span>Subtotal:</span><span>${fmt(venda.subtotal)}</span></div>
                 ${venda.descontoValor > 0 ? `<div class="r-row"><span>Desconto:</span><span>- ${fmt(venda.descontoValor)}</span></div>` : ''}
+                ${linhaAcrescimo}
                 <div class="r-row r-total"><span>TOTAL:</span><span>${fmt(venda.total)}</span></div>
                 <div class="r-row"><span>Pagamento:</span><span>${escapeHtml(venda.metodo)}</span></div>
                 ${linhaPagamentoExtra}
