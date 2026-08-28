@@ -256,6 +256,13 @@
         .pag-info-row.pag-total-cliente span { font-weight: 800; color: var(--text-dark); font-size: 11px; }
         .pag-info-row.pag-total-cliente b { font-size: 16px; color: var(--brand-blue); }
 
+        /* TABELA DE ESTOQUE - ORDENAÇÃO */
+        .th-sort { cursor: pointer; user-select: none; }
+        .th-sort:hover { color: var(--brand-blue); }
+        .th-sort .sort-arrow { font-size: 9px; margin-left: 3px; opacity: .5; }
+        .th-sort.sort-asc .sort-arrow::after { content: '▲'; opacity: 1; color: var(--brand-blue); }
+        .th-sort.sort-desc .sort-arrow::after { content: '▼'; opacity: 1; color: var(--brand-blue); }
+
         /* TOGGLE SWITCH DE PERMISSÕES */
         .switch-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
         .switch-row:last-child { border-bottom: none; }
@@ -546,6 +553,7 @@
             </div>
             <div id="listaCarrinhoMobile" class="cart-list" style="max-height: 220px;"></div>
             <div>
+                <input type="text" id="cxClienteMobile" class="input-field" placeholder="👤 Cliente (opcional)" style="margin-bottom:8px;">
                 <div class="discount-row">
                     <span class="discount-label">DESCONTO</span>
                     <select id="cxDescTipoMobile">
@@ -590,7 +598,10 @@
                     <div class="pag-info-row" id="dinResultadoMobile"><span>Troco</span><b>R$ 0,00</b></div>
                 </div>
 
-                <button class="btn-pay" id="btnConcluirMobile">✔️ Finalizar Venda</button>
+                <div style="display:flex; gap:6px;">
+                    <button class="btn-sm" id="btnOrcamentoMobile" style="flex:1; color:var(--brand-blue);">💾 Orçamento</button>
+                    <button class="btn-pay" id="btnConcluirMobile" style="flex:2;">✔️ Finalizar Venda</button>
+                </div>
             </div>
         </div>
     </div>
@@ -645,6 +656,26 @@
                 <button class="btn-pay" id="btnConfirmarRepor">Confirmar</button>
                 <button class="btn-sm" style="width:80px;" onclick="document.getElementById('modalReporEstoque').style.display='none'">Cancelar</button>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL HISTÓRICO DE MOVIMENTAÇÃO DO PRODUTO -->
+    <div id="modalHistoricoProd" class="modal-overlay">
+        <div class="modal-box" style="max-width:400px;">
+            <h3 style="font-size:15px;">📜 Histórico do Produto</h3>
+            <p id="histNomeProd" style="font-size:12px; color:var(--text-muted); margin-bottom:6px;"></p>
+            <div id="histListaProd" style="max-height:360px; overflow-y:auto;"></div>
+            <button class="btn-sm" style="width:100%; margin-top:8px;" onclick="document.getElementById('modalHistoricoProd').style.display='none'">Fechar</button>
+        </div>
+    </div>
+
+    <!-- MODAL LISTA DE ORÇAMENTOS -->
+    <div id="modalOrcamentos" class="modal-overlay">
+        <div class="modal-box" style="max-width:420px;">
+            <h3 style="font-size:15px;">📋 Orçamentos Salvos</h3>
+            <p style="font-size:11px; color:var(--text-muted); margin-bottom:6px;">Carrinhos salvos sem baixar estoque. Retome quando o cliente fechar.</p>
+            <div id="listaOrcamentosSalvos" style="max-height:400px; overflow-y:auto;"></div>
+            <button class="btn-sm" style="width:100%; margin-top:8px;" onclick="document.getElementById('modalOrcamentos').style.display='none'">Fechar</button>
         </div>
     </div>
 
@@ -761,6 +792,7 @@
                     <div class="scanner-input-bar">
                         <span>🔍</span>
                         <input type="text" id="barcodeReader" placeholder="Buscar modelo, marca ou código...">
+                        <button class="icon-btn" id="btnAbrirOrcamentos" title="Ver orçamentos salvos" style="flex-shrink:0;">📋</button>
                     </div>
 
                     <div class="filter-ribbon" id="ribbonContainer">
@@ -780,6 +812,7 @@
                         <div id="listaCarrinhoDesktop" class="cart-list"></div>
                     </div>
                     <div style="border-top:1px solid var(--border); padding-top:10px;">
+                        <input type="text" id="cxClienteDesktop" class="input-field" placeholder="👤 Cliente (opcional)" style="margin-bottom:8px;">
                         <div class="discount-row">
                             <span class="discount-label">DESCONTO</span>
                             <select id="cxDescTipoDesktop">
@@ -824,7 +857,10 @@
                             <div class="pag-info-row" id="dinResultadoDesktop"><span>Troco</span><b>R$ 0,00</b></div>
                         </div>
 
-                        <button class="btn-pay" id="btnConcluirDesktop">✔️ Concluir Venda</button>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn-sm" id="btnOrcamentoDesktop" style="flex:1; color:var(--brand-blue);">💾 Orçamento</button>
+                            <button class="btn-pay" id="btnConcluirDesktop" style="flex:2;">✔️ Concluir Venda</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -845,22 +881,26 @@
             <div class="table-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
                     <h3 style="font-size:14px;">📦 Estoque Sincronizado (Firestore)</h3>
-                    <button class="btn-pay" style="width:auto; padding:6px 12px; font-size:12px;" id="btnAbrirNovoProd">+ Produto</button>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <input type="text" id="buscaEstoqueInput" class="input-field" placeholder="🔎 Buscar por nome, marca, modelo..." style="width:220px; padding:7px 10px; font-size:12px;">
+                        <button class="btn-pay" style="width:auto; padding:6px 12px; font-size:12px;" id="btnAbrirNovoProd">+ Produto</button>
+                    </div>
                 </div>
                 <div style="width:100%; overflow-x:auto;">
                     <table>
                         <thead>
                             <tr>
-                                <th>Produto / Modelo</th>
-                                <th>Marca</th>
-                                <th>Preço</th>
-                                <th>Estoque</th>
+                                <th class="th-sort" data-campo="nome">Produto / Modelo <span class="sort-arrow"></span></th>
+                                <th class="th-sort" data-campo="marca">Marca <span class="sort-arrow"></span></th>
+                                <th class="th-sort" data-campo="preco">Preço <span class="sort-arrow"></span></th>
+                                <th class="th-sort" data-campo="estoque">Estoque <span class="sort-arrow"></span></th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody id="tabelaCorpoProdutos"></tbody>
                     </table>
                 </div>
+                <div id="estoqueEmptyState" style="display:none;"></div>
             </div>
         </div>
 
@@ -1159,11 +1199,12 @@
         }
 
         // Registra uma atividade no log (cancelamentos, edições, reposições, cargo)
-        async function registrarAtividade(tipo, mensagem) {
+        async function registrarAtividade(tipo, mensagem, produtoId = null) {
             try {
                 await addDoc(collection(db, "atividades"), {
                     tipo,
                     mensagem,
+                    produtoId,
                     usuario: userData ? userData.nome : (currentUser ? currentUser.email : 'Sistema'),
                     data: new Date().toISOString()
                 });
@@ -1402,7 +1443,7 @@
                 limiteEstoqueBaixo = qtdAlerta;
                 lojaConfigAtual.msg_rodape = msgRodape;
                 renderizarCatalogo(catalogo);
-                renderizarTabelaEstoque(catalogo);
+                atualizarTabelaEstoque();
                 renderizarEstoqueBaixo();
                 showPopup("Parâmetros operacionais salvos!", "success");
             } catch (err) {
@@ -1499,16 +1540,28 @@
         document.getElementById('mNavLogout').onclick = efetuarLogout;
 
         let atividadesLista = [];
+        let orcamentosLista = [];
 
         function iniciarEscutaBanco() {
             onSnapshot(collection(db, "produtos"), (snapshot) => {
                 catalogo = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderizarCatalogo(catalogo);
-                renderizarTabelaEstoque(catalogo);
+                atualizarTabelaEstoque();
                 renderizarEstoqueBaixo();
             }, (error) => {
                 console.error("Erro no Firestore:", error);
             });
+
+            if (temPermissao('vender')) {
+                onSnapshot(collection(db, "orcamentos"), (snapshot) => {
+                    orcamentosLista = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+                        .sort((a, b) => new Date(b.data) - new Date(a.data));
+                    const modalAberto = document.getElementById('modalOrcamentos').style.display === 'flex';
+                    if (modalAberto) renderizarListaOrcamentos();
+                }, (error) => {
+                    console.error("Erro ao escutar orçamentos:", error);
+                });
+            }
 
             if (userData && userData.cargo === 'admin') {
                 onSnapshot(collection(db, "usuarios"), (snapshot) => {
@@ -1728,6 +1781,12 @@
             if (!tbody) return;
             tbody.innerHTML = '';
             const podeEditar = temPermissao('estoque_editar');
+            const podeVerHistorico = userData && userData.cargo === 'admin';
+
+            if (itens.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><span class="es-icon">📦</span><span class="es-title">Nenhum produto encontrado</span><span class="es-sub">Tente outro termo de busca</span></div></td></tr>`;
+                return;
+            }
 
             itens.forEach(p => {
                 const isLow = (p.estoque || 0) <= limiteEstoqueBaixo;
@@ -1738,13 +1797,13 @@
                     <td><b>R$ ${parseFloat(p.preco || 0).toFixed(2).replace('.', ',')}</b></td>
                     <td><b style="color:${isLow ? 'var(--danger)' : 'var(--text-dark)'};">${p.estoque || 0} un</b></td>
                     <td>
-                        ${podeEditar ? `
-                            <button class="btn-sm btn-repor" style="color:var(--brand-blue);">+ Repor</button>
-                            <button class="btn-sm btn-edit">✏️</button>
-                            <button class="btn-sm btn-del" style="color:var(--danger);">🗑️</button>
-                        ` : `<span style="font-size:11px; color:var(--text-muted);">Apenas Consulta</span>`}
+                        ${podeEditar ? `<button class="btn-sm btn-repor" style="color:var(--brand-blue);">+ Repor</button><button class="btn-sm btn-edit">✏️</button>` : ''}
+                        ${podeVerHistorico ? `<button class="btn-sm btn-hist" title="Histórico">📜</button>` : ''}
+                        ${podeEditar ? `<button class="btn-sm btn-del" style="color:var(--danger);">🗑️</button>` : ''}
+                        ${!podeEditar && !podeVerHistorico ? `<span style="font-size:11px; color:var(--text-muted);">Apenas Consulta</span>` : ''}
                     </td>`;
                 
+                if (podeVerHistorico) tr.querySelector('.btn-hist').onclick = () => abrirHistoricoProduto(p);
                 if (podeEditar) {
                     tr.querySelector('.btn-repor').onclick = () => abrirModalRepor(p.id);
                     tr.querySelector('.btn-edit').onclick = () => abrirModalEdicao(p.id);
@@ -1752,6 +1811,77 @@
                 }
                 tbody.appendChild(tr);
             });
+        }
+
+        // --- BUSCA E ORDENAÇÃO DA TABELA DE ESTOQUE ---
+        let estoqueSortCampo = null;
+        let estoqueSortDir = 'asc';
+
+        function atualizarTabelaEstoque() {
+            const termo = (document.getElementById('buscaEstoqueInput').value || '').trim().toLowerCase();
+            let lista = catalogo.filter(p =>
+                !termo ||
+                (p.nome || '').toLowerCase().includes(termo) ||
+                (p.modelo || '').toLowerCase().includes(termo) ||
+                (p.marca || '').toLowerCase().includes(termo) ||
+                (p.codigo || '').toLowerCase().includes(termo)
+            );
+
+            if (estoqueSortCampo) {
+                lista = [...lista].sort((a, b) => {
+                    let va = a[estoqueSortCampo], vb = b[estoqueSortCampo];
+                    if (estoqueSortCampo === 'preco' || estoqueSortCampo === 'estoque') {
+                        va = parseFloat(va) || 0; vb = parseFloat(vb) || 0;
+                        return estoqueSortDir === 'asc' ? va - vb : vb - va;
+                    }
+                    va = (va || '').toString().toLowerCase();
+                    vb = (vb || '').toString().toLowerCase();
+                    return estoqueSortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+                });
+            }
+
+            renderizarTabelaEstoque(lista);
+        }
+
+        document.getElementById('buscaEstoqueInput').addEventListener('input', atualizarTabelaEstoque);
+
+        document.querySelectorAll('.th-sort').forEach(th => {
+            th.addEventListener('click', () => {
+                const campo = th.dataset.campo;
+                if (estoqueSortCampo === campo) {
+                    estoqueSortDir = estoqueSortDir === 'asc' ? 'desc' : 'asc';
+                } else {
+                    estoqueSortCampo = campo;
+                    estoqueSortDir = 'asc';
+                }
+                document.querySelectorAll('.th-sort').forEach(t => t.classList.remove('sort-asc', 'sort-desc'));
+                th.classList.add(estoqueSortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+                atualizarTabelaEstoque();
+            });
+        });
+
+        // --- HISTÓRICO DE MOVIMENTAÇÃO POR PRODUTO ---
+        function abrirHistoricoProduto(p) {
+            document.getElementById('histNomeProd').innerText = `${p.nome} — ${p.modelo || ''}`;
+            const container = document.getElementById('histListaProd');
+            const registros = (atividadesLista || []).filter(a => a.produtoId === p.id);
+
+            if (registros.length === 0) {
+                container.innerHTML = `<div class="empty-state"><span class="es-icon">📜</span><span class="es-title">Sem histórico registrado</span><span class="es-sub">Movimentações futuras aparecerão aqui</span></div>`;
+            } else {
+                const cores = { produto: 'var(--info)', estoque: 'var(--success)' };
+                container.innerHTML = registros.map(a => {
+                    const d = new Date(a.data);
+                    const dataFmt = isNaN(d) ? '' : `${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR')}`;
+                    return `
+                        <div class="activity-item">
+                            <span class="activity-dot" style="background:${cores[a.tipo] || 'var(--text-muted)'};"></span>
+                            <span style="flex:1;">${escapeHtml(a.mensagem)} <span style="color:var(--text-muted);">— ${escapeHtml(a.usuario)}</span></span>
+                            <span style="color:var(--text-muted); white-space:nowrap;">${dataFmt}</span>
+                        </div>`;
+                }).join('');
+            }
+            document.getElementById('modalHistoricoProd').style.display = 'flex';
         }
 
         function abrirModalRepor(id) {
@@ -1770,7 +1900,7 @@
                 await updateDoc(doc(db, "produtos", id), {
                     estoque: increment(qtd)
                 });
-                registrarAtividade('estoque', `Reposição de ${qtd} un. em "${prodRef ? prodRef.nome : id}"`);
+                registrarAtividade('estoque', `Reposição de ${qtd} un. em "${prodRef ? prodRef.nome : id}"`, id);
                 document.getElementById('modalReporEstoque').style.display = 'none';
                 showPopup("Estoque reposto com sucesso!", "success");
             } catch (err) {
@@ -1825,11 +1955,11 @@
             try {
                 if (id) {
                     await updateDoc(doc(db, "produtos", id), payload);
-                    registrarAtividade('produto', `Produto "${payload.nome}" foi editado`);
+                    registrarAtividade('produto', `Produto "${payload.nome}" foi editado`, id);
                     showPopup("Produto atualizado com sucesso!", "success");
                 } else {
-                    await addDoc(collection(db, "produtos"), payload);
-                    registrarAtividade('produto', `Novo produto "${payload.nome}" cadastrado`);
+                    const novoRef = await addDoc(collection(db, "produtos"), payload);
+                    registrarAtividade('produto', `Novo produto "${payload.nome}" cadastrado`, novoRef.id);
                     showPopup("Novo produto cadastrado!", "success");
                 }
                 document.getElementById('modalEditarProduto').style.display = 'none';
@@ -1849,7 +1979,7 @@
             try {
                 const prodRef = catalogo.find(p => p.id === id);
                 await deleteDoc(doc(db, "produtos", id));
-                registrarAtividade('produto', `Produto "${prodRef ? prodRef.nome : id}" foi excluído`);
+                registrarAtividade('produto', `Produto "${prodRef ? prodRef.nome : id}" foi excluído`, id);
                 showPopup("Produto removido com sucesso!", "success");
             } catch (err) {
                 showPopup("Erro ao excluir: " + err.message, "danger");
@@ -2033,6 +2163,123 @@
             document.getElementById('cxMetodo' + suffix).value = 'PIX';
             alternarPainelPagamento(suffix);
         }
+
+        // --- ORÇAMENTOS (carrinho salvo sem baixar estoque) ---
+        async function salvarComoOrcamento() {
+            if (carrinho.length === 0) return showPopup('O carrinho está vazio!', 'warning');
+            const isMobile = window.innerWidth <= 850;
+            const suffix = isMobile ? 'Mobile' : 'Desktop';
+            const clienteInput = document.getElementById('cxCliente' + suffix);
+            const cliente = (clienteInput.value || '').trim() || 'Cliente Balcão';
+            const { subtotal, descontoValor, total } = calcularTotaisCarrinho();
+            const itensVenda = carrinho.map(i => ({ id: i.id, nome: i.nome, qtd: i.qtd, preco: i.preco }));
+            const operadorNome = userData ? userData.nome : (currentUser ? currentUser.email : 'Anônimo');
+
+            try {
+                await addDoc(collection(db, "orcamentos"), {
+                    cliente, itens: itensVenda, subtotal, desconto: descontoValor, total,
+                    operador_nome: operadorNome,
+                    operador_uid: currentUser ? currentUser.uid : null,
+                    status: 'aberto',
+                    data: new Date().toISOString()
+                });
+
+                showPopup(`Orçamento de "${cliente}" salvo! Total: ${total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`, 'success');
+
+                carrinho = [];
+                clienteInput.value = '';
+                ['cxDescValorDesktop', 'cxDescValorMobile'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+                limparPainelPagamento('Desktop');
+                limparPainelPagamento('Mobile');
+                atualizarCarrinho();
+                document.getElementById('modalCarrinhoMobile').classList.remove('active');
+            } catch (err) {
+                showPopup("Erro ao salvar orçamento: " + err.message, "danger");
+            }
+        }
+
+        function abrirListaOrcamentos() {
+            renderizarListaOrcamentos();
+            document.getElementById('modalOrcamentos').style.display = 'flex';
+        }
+
+        function renderizarListaOrcamentos() {
+            const container = document.getElementById('listaOrcamentosSalvos');
+            const abertos = (orcamentosLista || []).filter(o => o.status !== 'convertido');
+
+            if (abertos.length === 0) {
+                container.innerHTML = `<div class="empty-state"><span class="es-icon">📋</span><span class="es-title">Nenhum orçamento salvo</span><span class="es-sub">Monte o carrinho no PDV e toque em "Orçamento"</span></div>`;
+                return;
+            }
+
+            container.innerHTML = abertos.map(o => {
+                const d = new Date(o.data);
+                const dataFmt = isNaN(d) ? '' : `${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR')}`;
+                const qtdItens = (o.itens || []).length;
+                return `
+                    <div style="border:1px solid var(--border); border-radius:10px; padding:10px; margin-bottom:8px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <b style="font-size:13px;">👤 ${escapeHtml(o.cliente || 'Cliente Balcão')}</b>
+                            <b style="color:var(--brand-blue); font-size:14px;">${parseFloat(o.total || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</b>
+                        </div>
+                        <div style="font-size:10.5px; color:var(--text-muted); margin:2px 0 8px;">${qtdItens} ${qtdItens === 1 ? 'item' : 'itens'} · ${escapeHtml(o.operador_nome || '')} · ${dataFmt}</div>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn-pay" style="flex:1; padding:7px; font-size:12px;" data-id="${o.id}" data-action="retomar">▶️ Retomar no Carrinho</button>
+                            <button class="btn-sm" style="color:var(--danger); width:38px;" data-id="${o.id}" data-action="excluir">🗑️</button>
+                        </div>
+                    </div>`;
+            }).join('');
+
+            container.querySelectorAll('[data-action="retomar"]').forEach(btn => {
+                btn.onclick = () => retomarOrcamento(btn.dataset.id);
+            });
+            container.querySelectorAll('[data-action="excluir"]').forEach(btn => {
+                btn.onclick = () => excluirOrcamento(btn.dataset.id);
+            });
+        }
+
+        async function retomarOrcamento(id) {
+            const o = orcamentosLista.find(x => x.id === id);
+            if (!o) return;
+
+            if (carrinho.length > 0) {
+                const confirmou = await showConfirm('O carrinho atual será substituído pelo orçamento. Deseja continuar?');
+                if (!confirmou) return;
+            }
+
+            carrinho = (o.itens || []).map(i => ({ ...i }));
+            atualizarCarrinho();
+
+            const isMobile = window.innerWidth <= 850;
+            const clienteInput = document.getElementById('cxCliente' + (isMobile ? 'Mobile' : 'Desktop'));
+            clienteInput.value = (o.cliente && o.cliente !== 'Cliente Balcão') ? o.cliente : '';
+
+            try {
+                await deleteDoc(doc(db, "orcamentos", id));
+            } catch (err) {
+                console.error("Erro ao remover orçamento retomado:", err);
+            }
+
+            document.getElementById('modalOrcamentos').style.display = 'none';
+            if (isMobile) document.getElementById('modalCarrinhoMobile').classList.add('active');
+            showPopup('Orçamento retomado no carrinho! Finalize a venda para dar baixa no estoque.', 'success');
+        }
+
+        async function excluirOrcamento(id) {
+            const confirmou = await showConfirm('Excluir este orçamento salvo? Essa ação não pode ser desfeita.');
+            if (!confirmou) return;
+
+            try {
+                await deleteDoc(doc(db, "orcamentos", id));
+                showPopup('Orçamento excluído.', 'success');
+            } catch (err) {
+                showPopup("Erro ao excluir orçamento: " + err.message, "danger");
+            }
+        }
+
+        document.getElementById('btnOrcamentoDesktop').onclick = salvarComoOrcamento;
+        document.getElementById('btnOrcamentoMobile').onclick = salvarComoOrcamento;
+        document.getElementById('btnAbrirOrcamentos').onclick = abrirListaOrcamentos;
 
         async function finalizarVenda() {
             if (carrinho.length === 0) return showPopup('O carrinho está vazio!', 'warning');
