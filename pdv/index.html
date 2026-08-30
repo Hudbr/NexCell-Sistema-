@@ -1,735 +1,222 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
+  <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexCell • Sistema de Gestão & PDV</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#111827">
+    <title>NexCell PDV</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-sidebar: #111622;
-            --bg-sidebar-hover: #1c2436;
-            --sidebar-text: #94a3b8;
-            --bg-app: #f4f7fa;
-            --border: #e2e8f0;
-            --text-dark: #0f172a;
-            --text-muted: #64748b;
-            --brand-orange: #ff7a00;
-            --brand-orange-hover: #ea6c00;
-            --brand-orange-light: rgba(255, 122, 0, 0.1);
-            --danger: #ef4444;
-            --success: #10b981;
-        }
-
-        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; }
-        body { display: flex; height: 100vh; overflow: hidden; background: var(--bg-app); color: var(--text-dark); }
-
-        aside { width: 250px; background: var(--bg-sidebar); display: flex; flex-direction: column; justify-content: space-between; border-right: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
-        .store-profile { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 12px; margin-bottom: 20px; }
-        .store-avatar { width: 36px; height: 36px; border-radius: 8px; background: var(--brand-orange); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; }
-        .nav-list { display: flex; flex-direction: column; gap: 4px; }
-        .nav-btn { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; color: var(--sidebar-text); font-size: 13.5px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
-        .nav-btn:hover { background: var(--bg-sidebar-hover); color: #fff; }
-        .nav-btn.active { background: var(--brand-orange); color: #fff; font-weight: 700; }
-
-        main { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        .topbar { background: #fff; border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; }
-        .view-content { display: none; padding: 18px 24px; height: calc(100vh - 65px); overflow-y: auto; }
-        .view-content.active { display: block; }
-
-        /* PDV */
-        .pdv-layout { display: grid; grid-template-columns: 1fr 380px; gap: 20px; height: 100%; }
-        .catalog-section { display: flex; flex-direction: column; gap: 14px; height: 100%; overflow: hidden; }
-        .scanner-input-bar { display: flex; align-items: center; gap: 10px; background: #fff; border: 2px solid var(--brand-orange); border-radius: 12px; padding: 6px 14px; box-shadow: 0 4px 12px rgba(255, 122, 0, 0.06); }
-        .scanner-input-bar input { flex: 1; border: none; outline: none; padding: 8px 0; font-size: 14px; font-weight: 600; }
-        .filter-ribbon { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
-        .ribbon-btn { background: #fff; border: 1px solid var(--border); padding: 7px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; white-space: nowrap; }
-        .ribbon-btn.active { background: var(--text-dark); color: #fff; border-color: var(--text-dark); }
-        .products-grid { flex: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); grid-auto-rows: 145px; gap: 12px; overflow-y: auto; padding-right: 4px; }
-        
-        .prod-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; transition: all 0.15s ease; }
-        .prod-card:hover { border-color: var(--brand-orange); transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.06); }
-        .badge-brand { background: var(--brand-orange-light); color: var(--brand-orange); font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
-        .prod-title { font-size: 13px; font-weight: 700; color: var(--text-dark); line-height: 1.25; margin-bottom: 2px; }
-        .prod-price { font-size: 15px; font-weight: 800; color: var(--text-dark); }
-        .prod-stock-tag { font-size: 10px; font-weight: 800; color: var(--success); background: #ecfdf5; padding: 2px 6px; border-radius: 4px; }
-        .prod-stock-tag.low { color: var(--danger); background: #fef2f2; }
-
-        .checkout-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-        .cart-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
-        .cart-row { background: var(--bg-app); border-radius: 10px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; }
-        .qty-btn { width: 24px; height: 24px; background: #fff; border: 1px solid var(--border); border-radius: 6px; font-weight: 800; cursor: pointer; }
-        .btn-pay { background: var(--brand-orange); color: #fff; border: none; border-radius: 10px; padding: 14px; font-size: 15px; font-weight: 800; cursor: pointer; width: 100%; transition: background 0.15s; }
-        .btn-pay:hover { background: var(--brand-orange-hover); }
-
-        /* TABELAS & CARDS */
-        .table-box { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; margin-top: 12px; }
-        th { padding: 12px; border-bottom: 2px solid var(--border); color: var(--text-muted); font-size: 11px; text-transform: uppercase; }
-        td { padding: 12px; border-bottom: 1px solid var(--border); }
-        .btn-sm { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: #fff; font-weight: 700; cursor: pointer; font-size: 12px; }
-        .btn-sm:hover { background: var(--bg-app); }
-
-        /* MODAIS */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-box { background: #fff; padding: 24px; border-radius: 16px; width: 460px; display: flex; flex-direction: column; gap: 12px; }
-        .input-field { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; font-size: 14px; }
-        .input-field:focus { border-color: var(--brand-orange); }
-    </style>
-</head>
-<body>
-
-    <!-- MODAL DE LOGIN -->
-    <div id="modalLogin" class="modal-overlay" style="display: flex;">
-        <div class="modal-box" style="width: 340px;">
-            <h3 style="font-weight:800; font-size:18px;">📱 NexCell PDV</h3>
-            <p style="font-size:12px; color:var(--text-muted);">Acesso dos Operadores</p>
-            <div><label style="font-size:11px; font-weight:700;">E-MAIL</label><input type="email" id="logEmail" class="input-field" value="admin@celular.com"></div>
-            <div><label style="font-size:11px; font-weight:700;">SENHA</label><input type="password" id="logSenha" class="input-field" value="123"></div>
-            <button class="btn-pay" onclick="efetuarLogin()">Entrar no Terminal</button>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/workspace.css">
+  </head>
+  <body class="workspace-body">
+    <section class="auth-screen" id="authScreen">
+      <div class="auth-card">
+        <div class="auth-brand">
+          <span class="brand-mark">NC</span>
+          <span class="brand-copy"><strong>NexCell PDV</strong><span>Frente de caixa</span></span>
         </div>
+
+        <form class="auth-view" id="loginView">
+          <div>
+            <h1>Entrar no caixa</h1>
+            <p>Use sua credencial de colaborador.</p>
+          </div>
+          <div class="field"><label for="loginEmail">E-mail</label><input class="input" id="loginEmail" type="email" required autocomplete="email"></div>
+          <div class="field"><label for="loginPassword">Senha</label><input class="input" id="loginPassword" type="password" required autocomplete="current-password"></div>
+          <button class="btn btn-primary btn-block" id="loginButton" type="submit">Entrar no PDV</button>
+          <div class="auth-links">
+            <button class="text-button" type="button" data-auth-view="requestView">Solicitar acesso</button>
+            <button class="text-button" type="button" data-auth-view="resetView">Esqueci a senha</button>
+          </div>
+          <div class="auth-message" id="loginMessage"></div>
+        </form>
+
+        <form class="auth-view" id="requestView" hidden>
+          <div>
+            <h1>Solicitar acesso</h1>
+            <p>Seu cadastro ficará pendente até um administrador liberar as funções necessárias.</p>
+          </div>
+          <div class="field"><label for="requestName">Nome completo</label><input class="input" id="requestName" required autocomplete="name"></div>
+          <div class="field"><label for="requestEmail">E-mail</label><input class="input" id="requestEmail" type="email" required autocomplete="email"></div>
+          <div class="field"><label for="requestPassword">Senha</label><input class="input" id="requestPassword" type="password" minlength="6" required autocomplete="new-password"></div>
+          <button class="btn btn-primary btn-block" id="requestButton" type="submit">Enviar solicitação</button>
+          <button class="text-button" type="button" data-auth-view="loginView">← Voltar ao login</button>
+          <div class="auth-message" id="requestMessage"></div>
+        </form>
+
+        <form class="auth-view" id="resetView" hidden>
+          <div>
+            <h1>Redefinir senha</h1>
+            <p>Enviaremos o link de alteração para o e-mail cadastrado.</p>
+          </div>
+          <div class="field"><label for="resetEmail">E-mail</label><input class="input" id="resetEmail" type="email" required autocomplete="email"></div>
+          <button class="btn btn-primary btn-block" id="resetButton" type="submit">Enviar link</button>
+          <button class="text-button" type="button" data-auth-view="loginView">← Voltar ao login</button>
+          <div class="auth-message" id="resetMessage"></div>
+        </form>
+
+        <div class="auth-view" id="pendingView" hidden>
+          <div>
+            <h1>Acesso em análise</h1>
+            <p>Sua conta foi criada, mas ainda precisa ser aprovada no NexCell Control.</p>
+          </div>
+          <div class="auth-message show">Peça a um administrador para abrir Control → Equipe e aprovar sua solicitação.</div>
+          <button class="btn btn-secondary btn-block" id="pendingLogout" type="button">Sair</button>
+        </div>
+
+        <div class="auth-view" id="deniedView" hidden>
+          <div>
+            <h1>Sem permissão para vender</h1>
+            <p>Seu acesso existe, mas o módulo PDV não foi liberado para este perfil.</p>
+          </div>
+          <button class="btn btn-secondary btn-block" id="deniedLogout" type="button">Sair</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="workspace" id="workspace">
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <span class="brand-mark">NC</span>
+          <span class="sidebar-brand-copy"><strong>NexCell PDV</strong><span>Frente de caixa</span></span>
+        </div>
+        <div class="sidebar-user">
+          <span class="user-avatar" id="userAvatar">N</span>
+          <div><strong id="userName">Operador</strong><span id="userRole">Colaborador</span></div>
+        </div>
+        <nav class="side-nav" aria-label="Navegação do PDV">
+          <span class="nav-label">Operação</span>
+          <button class="side-link active" type="button" data-view="sale"><span>🛒</span>Nova venda</button>
+          <button class="side-link" type="button" data-view="saved"><span>📋</span>Orçamentos salvos</button>
+          <button class="side-link" type="button" data-view="profile"><span>👤</span>Meu acesso</button>
+        </nav>
+        <div class="sidebar-footer">
+          <a class="side-link" id="controlLink" href="../control/" hidden><span>⚙️</span>Abrir Control</a>
+          <a class="side-link" href="../"><span>🏪</span>Ver Store</a>
+          <button class="side-link" id="logoutButton" type="button"><span>↪</span>Sair</button>
+        </div>
+      </aside>
+
+      <main class="workspace-main">
+        <header class="workspace-topbar">
+          <div class="topbar-title"><h1 id="viewTitle">Nova venda</h1><p id="viewSubtitle">Selecione os produtos e finalize o pagamento.</p></div>
+          <div class="topbar-actions">
+            <span class="clock-pill"><span class="status-dot online"></span><span id="liveClock">--:--:--</span></span>
+            <button class="btn btn-secondary" id="mobileLogout" type="button">Sair</button>
+          </div>
+        </header>
+
+        <div class="workspace-content">
+          <section class="workspace-view active" id="view-sale">
+            <div class="pdv-grid">
+              <div class="pdv-catalog">
+                <div class="pdv-search-row">
+                  <label class="scanner-field">
+                    <span aria-hidden="true">▥</span>
+                    <input class="input" id="scannerInput" placeholder="Leia o código ou digite o SKU" autocomplete="off">
+                  </label>
+                  <input class="input" id="productSearch" type="search" placeholder="Buscar por nome, marca ou modelo">
+                </div>
+                <div class="filter-strip" id="pdvCategories"><button class="filter-chip active" type="button" data-category="Todos">Todos</button></div>
+                <div class="pdv-products" id="pdvProducts">
+                  <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+                </div>
+              </div>
+
+              <aside class="card checkout-panel" id="checkoutPanel">
+                <div class="card-head">
+                  <div><h3>Venda atual</h3><span class="stock-label" id="saleItemCount">0 itens</span></div>
+                  <button class="btn-mini" id="closeMobileCart" type="button">Fechar</button>
+                </div>
+                <div class="checkout-cart" id="saleCart"></div>
+                <div class="checkout-summary">
+                  <div class="summary-line"><span>Subtotal</span><strong id="saleSubtotal">R$ 0,00</strong></div>
+                  <div class="summary-line total"><span>Total</span><strong id="saleTotal">R$ 0,00</strong></div>
+                  <div class="checkout-actions">
+                    <button class="btn btn-secondary" id="saveBudget" type="button">Salvar</button>
+                    <button class="btn btn-primary" id="openPayment" type="button">Receber</button>
+                  </div>
+                </div>
+              </aside>
+            </div>
+            <button class="mobile-cart-bar" id="openMobileCart" type="button"><span id="mobileCartCount">0 itens</span><strong id="mobileCartTotal">R$ 0,00</strong></button>
+          </section>
+
+          <section class="workspace-view" id="view-saved">
+            <div class="view-head"><div><h2>Orçamentos salvos</h2><p>Retome um carrinho sem ter baixado o estoque.</p></div></div>
+            <div class="card"><div class="card-body" id="savedBudgets"></div></div>
+          </section>
+
+          <section class="workspace-view" id="view-profile">
+            <div class="view-head"><div><h2>Meu acesso</h2><p>Dados da sessão e permissões liberadas.</p></div></div>
+            <div class="content-grid">
+              <article class="card"><div class="card-head"><h3>Perfil</h3></div><div class="card-body" id="profileSummary"></div></article>
+              <article class="card"><div class="card-head"><h3>Atalhos</h3></div><div class="card-body" style="display:grid;gap:8px;"><a class="btn btn-secondary btn-block" href="../">Abrir NexCell Store</a><a class="btn btn-primary btn-block" id="profileControlLink" href="../control/" hidden>Abrir NexCell Control</a></div></article>
+            </div>
+          </section>
+        </div>
+
+        <nav class="mobile-nav" aria-label="Navegação móvel">
+          <button class="mobile-link active" type="button" data-view="sale"><span>🛒</span><span>Vender</span></button>
+          <button class="mobile-link" type="button" data-view="saved"><span>📋</span><span>Salvos</span></button>
+          <button class="mobile-link" type="button" data-view="profile"><span>👤</span><span>Perfil</span></button>
+        </nav>
+      </main>
     </div>
 
-    <!-- MODAL DE EDIÇÃO / CADASTRO DE PRODUTO -->
-    <div id="modalEditarProduto" class="modal-overlay">
-        <div class="modal-box">
-            <h3 id="modalProdTitulo" style="font-size:16px;">✏️ Produto / Atalho</h3>
-            <input type="hidden" id="editProdId">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <div><label style="font-size:11px; font-weight:700;">CÓDIGO / EAN</label><input type="text" id="editCodigo" class="input-field"></div>
-                <div><label style="font-size:11px; font-weight:700;">CATEGORIA</label><input type="text" id="editCategoria" class="input-field"></div>
-            </div>
-            <div><label style="font-size:11px; font-weight:700;">NOME DO PRODUTO</label><input type="text" id="editNome" class="input-field"></div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <div><label style="font-size:11px; font-weight:700;">MARCA</label><input type="text" id="editMarca" class="input-field"></div>
-                <div><label style="font-size:11px; font-weight:700;">MODELO COMPATÍVEL</label><input type="text" id="editModelo" class="input-field"></div>
-            </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <div><label style="font-size:11px; font-weight:700;">PREÇO (R$)</label><input type="number" step="0.01" id="editPreco" class="input-field"></div>
-                <div><label style="font-size:11px; font-weight:700;">ESTOQUE ATUAL</label><input type="number" id="editEstoque" class="input-field"></div>
-            </div>
-            <div style="display:flex; gap:8px; margin-top:8px;">
-                <button class="btn-pay" onclick="salvarAlteracaoProduto()">Salvar Produto</button>
-                <button class="btn-sm" style="background:#f1f5f9; width:100px;" onclick="document.getElementById('modalEditarProduto').style.display='none'">Cancelar</button>
-            </div>
-        </div>
+    <div class="modal" id="variantModal">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="variantTitle">
+        <div class="modal-header"><h2 id="variantTitle">Escolha a variação</h2><button class="icon-btn" type="button" data-close-modal="variantModal">×</button></div>
+        <div class="modal-body"><div class="variant-list" id="pdvVariantList"></div></div>
+      </div>
     </div>
 
-    <!-- MODAL REPOSIÇÃO RÁPIDA DE ESTOQUE -->
-    <div id="modalReporEstoque" class="modal-overlay">
-        <div class="modal-box" style="width:360px;">
-            <h3>📦 Repor Entrada de Estoque</h3>
-            <p id="reporNomeProd" style="font-size:13px; color:var(--text-muted);"></p>
-            <input type="hidden" id="reporProdId">
-            <div>
-                <label style="font-size:11px; font-weight:700;">QUANTIDADE ADICIONAL CHEGADA</label>
-                <input type="number" id="reporQtdInput" class="input-field" style="font-size:18px; font-weight:bold;" value="10">
-            </div>
-            <div style="display:flex; gap:8px; margin-top:8px;">
-                <button class="btn-pay" onclick="confirmarReposicao()">Confirmar Entrada</button>
-                <button class="btn-sm" style="background:#f1f5f9; width:100px;" onclick="document.getElementById('modalReporEstoque').style.display='none'">Cancelar</button>
-            </div>
-        </div>
+    <div class="modal" id="budgetModal">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="budgetTitle">
+        <div class="modal-header"><h2 id="budgetTitle">Salvar orçamento</h2><button class="icon-btn" type="button" data-close-modal="budgetModal">×</button></div>
+        <form id="budgetForm">
+          <div class="modal-body"><div class="field"><label for="budgetName">Cliente ou referência</label><input class="input" id="budgetName" required maxlength="80" placeholder="Ex: João — capa e película"></div><div class="auth-message show">O estoque só será baixado quando a venda for concluída.</div></div>
+          <div class="modal-footer"><button class="btn btn-secondary" type="button" data-close-modal="budgetModal">Cancelar</button><button class="btn btn-primary" type="submit">Salvar orçamento</button></div>
+        </form>
+      </div>
     </div>
 
-    <!-- MODAL DE USUÁRIOS -->
-    <div id="modalUsuario" class="modal-overlay">
-        <div class="modal-box" style="width: 380px;">
-            <h3 id="modalUserTitulo">👤 Cadastrar Usuário</h3>
-            <input type="hidden" id="userIdEdit">
-            <div><label style="font-size:11px; font-weight:700;">NOME COMPLETO</label><input type="text" id="userNome" class="input-field"></div>
-            <div><label style="font-size:11px; font-weight:700;">E-MAIL DE LOGIN</label><input type="email" id="userEmail" class="input-field"></div>
-            <div>
-                <label style="font-size:11px; font-weight:700;">CARGO / PERMISSÃO</label>
-                <select id="userCargo" class="input-field">
-                    <option value="vendedor">Vendedor (Apenas PDV)</option>
-                    <option value="admin">Administrador (Total)</option>
-                </select>
+    <div class="modal" id="paymentModal">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="paymentTitle">
+        <div class="modal-header"><h2 id="paymentTitle">Receber venda</h2><button class="icon-btn" type="button" data-close-modal="paymentModal">×</button></div>
+        <form id="paymentForm">
+          <div class="modal-body">
+            <div class="field-row">
+              <div class="field"><label for="paymentMethod">Forma de pagamento</label><select class="select" id="paymentMethod"><option>PIX</option><option>Dinheiro</option><option>Cartão de Débito</option><option>Cartão de Crédito</option></select></div>
+              <div class="field"><label for="saleDiscount">Desconto (R$)</label><input class="input" id="saleDiscount" type="number" min="0" step="0.01" value="0"></div>
             </div>
-            <div><label style="font-size:11px; font-weight:700;">SENHA (Deixe em branco para manter)</label><input type="password" id="userSenha" class="input-field"></div>
-            <div style="display:flex; gap:8px; margin-top:8px;">
-                <button class="btn-pay" onclick="salvarUsuarioSQL()">Salvar Usuário</button>
-                <button class="btn-sm" style="background:#f1f5f9; width:100px;" onclick="document.getElementById('modalUsuario').style.display='none'">Cancelar</button>
+            <div class="field-row" id="cashFields" hidden>
+              <div class="field"><label for="cashReceived">Valor recebido</label><input class="input" id="cashReceived" type="number" min="0" step="0.01"></div>
+              <div class="field"><label>Troco</label><output class="input" id="cashChange" style="display:flex;align-items:center;">R$ 0,00</output></div>
             </div>
-        </div>
+            <div class="field" id="installmentField" hidden><label for="installments">Parcelas</label><select class="select" id="installments"><option value="1">1x</option><option value="2">2x</option><option value="3">3x</option><option value="4">4x</option><option value="5">5x</option><option value="6">6x</option><option value="10">10x</option><option value="12">12x</option></select></div>
+            <div class="order-summary" id="paymentSummary"></div>
+          </div>
+          <div class="modal-footer"><button class="btn btn-secondary" type="button" data-close-modal="paymentModal">Cancelar</button><button class="btn btn-primary" id="finishSale" type="submit">Concluir venda</button></div>
+        </form>
+      </div>
     </div>
 
-    <!-- SIDEBAR -->
-    <aside>
-        <div style="padding:18px 16px;">
-            <div class="store-profile">
-                <div class="store-avatar" id="avatarLetra">NC</div>
-                <div>
-                    <div style="font-weight:800; color:#fff; font-size:13px;" id="sideStoreName">NexCell Store</div>
-                    <div style="font-size:11px; color:var(--sidebar-text);" id="lblUserRole">Admin</div>
-                </div>
-            </div>
+    <div class="modal" id="receiptModal">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="receiptTitle">
+        <div class="modal-header"><h2 id="receiptTitle">Venda concluída</h2><button class="icon-btn" type="button" data-close-modal="receiptModal">×</button></div>
+        <div class="modal-body"><div class="receipt" id="receiptContent"></div></div>
+        <div class="modal-footer"><button class="btn btn-secondary" type="button" data-close-modal="receiptModal">Fechar</button><button class="btn btn-primary" id="printReceipt" type="button">Imprimir comprovante</button></div>
+      </div>
+    </div>
 
-            <nav class="nav-list">
-                <div class="nav-btn active" onclick="mudarAba('vender', this)">🛒 Vender (PDV)</div>
-                <div class="nav-btn" onclick="mudarAba('produtos', this)">📦 Estoque & Produtos</div>
-                <div class="nav-btn" onclick="mudarAba('usuarios', this)">👥 Equipe & Usuários</div>
-                <div class="nav-btn" onclick="mudarAba('fechamento', this)">📊 Fechamento Caixa</div>
-                <div class="nav-btn" onclick="mudarAba('config', this)">⚙️ Configurações</div>
-            </nav>
-        </div>
-
-        <div style="padding:16px;">
-            <div class="nav-btn" style="color:var(--danger);" onclick="efetuarLogout()">🚪 Sair</div>
-        </div>
-    </aside>
-
-    <!-- MAIN -->
-    <main>
-        <div class="topbar">
-            <h3 style="font-size:16px; font-weight:800;" id="pageTitle">🛒 Balcão de Vendas Rápido</h3>
-            <span style="font-size:12px; font-weight:600; color:var(--text-muted);" id="liveClock"></span>
-        </div>
-
-        <!-- ABA 1: PDV -->
-        <div id="viewVender" class="view-content active">
-            <div class="pdv-layout">
-                <div class="catalog-section">
-                    <div class="scanner-input-bar">
-                        <span>⚡</span>
-                        <input type="text" id="barcodeReader" placeholder="🔍 Passe o leitor ou digite o modelo..." onkeydown="biparProduto(event)" oninput="filtrarPorTexto(this.value)">
-                    </div>
-
-                    <div class="filter-ribbon">
-                        <button class="ribbon-btn active" onclick="filtrarMarca('TODOS', this)">🔥 Todos</button>
-                        <button class="ribbon-btn" onclick="filtrarMarca('Apple', this)">🍏 Apple</button>
-                        <button class="ribbon-btn" onclick="filtrarMarca('Samsung', this)">📱 Samsung</button>
-                        <button class="ribbon-btn" onclick="filtrarMarca('Motorola', this)">Ⓜ️ Motorola</button>
-                        <button class="ribbon-btn" onclick="filtrarMarca('Xiaomi', this)">🟠 Xiaomi</button>
-                    </div>
-
-                    <div class="products-grid" id="gridProdutos"></div>
-                </div>
-
-                <div class="checkout-card">
-                    <div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:8px; border-bottom:1px solid var(--border);">
-                            <span style="font-size:13px; font-weight:800;">CARRINHO</span>
-                            <button onclick="limparCarrinho()" style="background:none; border:none; color:var(--danger); font-size:11px; font-weight:700; cursor:pointer;">Limpar</button>
-                        </div>
-                        <div id="listaCarrinho" class="cart-list"></div>
-                    </div>
-
-                    <div style="border-top:1px solid var(--border); padding-top:10px;">
-                        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
-                            <span style="font-size:12px; color:var(--text-muted); font-weight:700;">TOTAL</span>
-                            <span style="font-size:24px; font-weight:900;" id="visorTotal">R$ 0,00</span>
-                        </div>
-                        <select id="cxMetodo" class="input-field" style="margin-bottom:8px;">
-                            <option value="PIX">📱 PIX Instantâneo</option>
-                            <option value="Cartão de Crédito">💳 Cartão de Crédito</option>
-                            <option value="Cartão de Débito">💳 Cartão de Débito</option>
-                            <option value="Dinheiro">💵 Dinheiro</option>
-                        </select>
-                        <button class="btn-pay" onclick="finalizarVenda()">✔️ Concluir Venda</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ABA 2: PRODUTOS E ESTOQUE -->
-        <div id="viewProdutos" class="view-content">
-            <div class="table-box">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h3 style="font-size:16px;">📦 Catálogo & Controle de Estoque</h3>
-                    <button class="btn-pay" style="width:auto; padding:8px 16px; font-size:13px;" onclick="abrirModalNovoProduto()">+ Cadastrar Produto</button>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Produto / Modelo</th>
-                            <th>Marca / Categoria</th>
-                            <th>Preço</th>
-                            <th>Estoque Atual</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaCorpoProdutos"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- ABA 3: USUÁRIOS E PERMISSÕES -->
-        <div id="viewUsuarios" class="view-content">
-            <div class="table-box">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h3 style="font-size:16px;">👥 Gestão de Usuários & Vendedores</h3>
-                    <button class="btn-pay" style="width:auto; padding:8px 16px; font-size:13px;" onclick="abrirModalNovoUsuario()">+ Novo Usuário</button>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>E-mail</th>
-                            <th>Cargo / Nível</th>
-                            <th>Criado Em</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaCorpoUsuarios"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- ABA 4: FECHAMENTO DE CAIXA -->
-        <div id="viewFechamento" class="view-content">
-            <div style="max-width:500px; background:#fff; padding:24px; border-radius:14px; border:1px solid var(--border);">
-                <h3 style="font-size:16px; margin-bottom:14px;">📊 Resumo do Caixa de Hoje</h3>
-                <div id="balancoStream" style="display:flex; flex-direction:column; gap:8px;"></div>
-                <button class="btn-pay" style="margin-top:14px;" onclick="carregarFechamento()">Atualizar Balanço</button>
-                <button class="btn-sm" style="margin-top:8px; width:100%; color:var(--danger); border-color:var(--danger);" onclick="zerarVendasTeste()">🗑️ Zerar Vendas de Teste</button>
-            </div>
-        </div>
-
-        <!-- ABA 5: CONFIGURAÇÕES -->
-        <div id="viewConfig" class="view-content">
-            <div style="max-width:520px; background:#fff; padding:24px; border-radius:14px; border:1px solid var(--border);">
-                <h3 style="font-size:16px; margin-bottom:16px;">⚙️ Configurações Gerais da Loja</h3>
-                <div style="display:flex; flex-direction:column; gap:12px;">
-                    <div><label style="font-size:11px; font-weight:700;">NOME FANTASIA DA LOJA</label><input type="text" id="cfgNomeLoja" class="input-field"></div>
-                    <div><label style="font-size:11px; font-weight:700;">WHATSAPP COMERCIAL (DDI+DDD+NUM)</label><input type="text" id="cfgWhatsApp" class="input-field"></div>
-                    <div><label style="font-size:11px; font-weight:700;">CHAVE PIX DA EMPRESA</label><input type="text" id="cfgChavePix" class="input-field"></div>
-                    <div><label style="font-size:11px; font-weight:700;">MENSAGEM DE GARANTIA NO RECIBO</label><input type="text" id="cfgGarantia" class="input-field"></div>
-                    <button class="btn-pay" onclick="salvarConfigEmpresa()">Salvar Configurações</button>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <script>
-        let catalogo = [];
-        let carrinho = [];
-        let usuarioLogado = null;
-        let marcaFiltro = 'TODOS';
-
-        setInterval(() => { document.getElementById('liveClock').innerText = new Date().toLocaleTimeString('pt-BR'); }, 1000);
-
-        async function checarSessao() {
-            const res = await fetch('api.php?acao=sessao');
-            const data = await res.json();
-            if (data.logado) {
-                usuarioLogado = data.usuario;
-                document.getElementById('modalLogin').style.display = 'none';
-                document.getElementById('lblUserRole').innerText = `${usuarioLogado.nome} (${usuarioLogado.cargo.toUpperCase()})`;
-                document.getElementById('avatarLetra').innerText = usuarioLogado.nome.substring(0, 2).toUpperCase();
-                carregarCatalogo();
-                carregarConfigEmpresa();
-            } else {
-                document.getElementById('modalLogin').style.display = 'flex';
-            }
-        }
-
-        async function efetuarLogin() {
-            const email = document.getElementById('logEmail').value;
-            const senha = document.getElementById('logSenha').value;
-            const res = await fetch('api.php?acao=login', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({email, senha})
-            });
-            const data = await res.json();
-            if (data.status === 'success') checarSessao();
-            else alert(data.msg);
-        }
-
-        async function efetuarLogout() {
-            await fetch('api.php?acao=logout');
-            location.reload();
-        }
-
-        async function carregarCatalogo() {
-            const res = await fetch('api.php?acao=listar_produtos');
-            const data = await res.json();
-            catalogo = data.produtos || [];
-            renderizarCatalogo(catalogo);
-            renderizarTabelaEstoque(catalogo);
-        }
-
-        function renderizarCatalogo(itens) {
-            const grid = document.getElementById('gridProdutos');
-            grid.innerHTML = '';
-            let filtrados = marcaFiltro === 'TODOS' ? itens : itens.filter(p => p.marca.toLowerCase() === marcaFiltro.toLowerCase());
-            filtrados.forEach(p => {
-                const isLow = p.estoque <= 3;
-                grid.innerHTML += `
-                    <div class="prod-card" onclick="addCarrinho(${p.id})">
-                        <div>
-                            <div style="display:flex; justify-content:space-between;">
-                                <span class="badge-brand">${p.marca}</span>
-                                <span style="font-size:10px; color:var(--text-muted); font-weight:700;">${p.categoria}</span>
-                            </div>
-                            <div style="margin-top:4px;">
-                                <div class="prod-title">${p.nome}</div>
-                                <div style="font-size:11px; color:var(--text-muted);">${p.modelo}</div>
-                            </div>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:6px;">
-                            <span class="prod-price">R$ ${parseFloat(p.preco).toFixed(2).replace('.', ',')}</span>
-                            <span class="prod-stock-tag ${isLow ? 'low' : ''}">${p.estoque} un</span>
-                        </div>
-                    </div>`;
-            });
-        }
-
-        function renderizarTabelaEstoque(itens) {
-            const tbody = document.getElementById('tabelaCorpoProdutos');
-            tbody.innerHTML = '';
-            itens.forEach(p => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><b>${p.codigo || '--'}</b></td>
-                        <td><b>${p.nome}</b><br><span style="font-size:11px; color:var(--text-muted);">${p.modelo}</span></td>
-                        <td>${p.marca} • ${p.categoria}</td>
-                        <td><b>R$ ${parseFloat(p.preco).toFixed(2).replace('.', ',')}</b></td>
-                        <td><b style="color:${p.estoque <= 3 ? 'var(--danger)' : 'var(--text-dark)'};">${p.estoque} un</b></td>
-                        <td>
-                            <button class="btn-sm" style="color:var(--brand-orange);" onclick="abrirModalRepor(${p.id})">+ Repor</button>
-                            <button class="btn-sm" onclick="abrirModalEdicao(${p.id})">✏️</button>
-                            <button class="btn-sm" style="color:var(--danger);" onclick="excluirProduto(${p.id})">🗑️</button>
-                        </td>
-                    </tr>`;
-            });
-        }
-
-        function abrirModalRepor(id) {
-            const p = catalogo.find(i => i.id == id);
-            document.getElementById('reporProdId').value = p.id;
-            document.getElementById('reporNomeProd').innerText = `${p.nome} (${p.modelo}) - Atual: ${p.estoque} un`;
-            document.getElementById('modalReporEstoque').style.display = 'flex';
-        }
-
-        async function confirmarReposicao() {
-            const id = document.getElementById('reporProdId').value;
-            const qtd = document.getElementById('reporQtdInput').value;
-            const res = await fetch('api.php?acao=repor_estoque', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({id, qtd})
-            });
-            const data = await res.json();
-            if (data.status === 'success') {
-                document.getElementById('modalReporEstoque').style.display = 'none';
-                carregarCatalogo();
-            }
-        }
-
-        function abrirModalNovoProduto() {
-            document.getElementById('modalProdTitulo').innerText = "📦 Cadastrar Produto";
-            document.getElementById('editProdId').value = "";
-            document.getElementById('editCodigo').value = "";
-            document.getElementById('editCategoria').value = "";
-            document.getElementById('editNome').value = "";
-            document.getElementById('editMarca').value = "";
-            document.getElementById('editModelo').value = "";
-            document.getElementById('editPreco').value = "";
-            document.getElementById('editEstoque').value = "10";
-            document.getElementById('modalEditarProduto').style.display = 'flex';
-        }
-
-        function abrirModalEdicao(id) {
-            const p = catalogo.find(item => item.id == id);
-            document.getElementById('modalProdTitulo').innerText = "✏️ Editar Produto";
-            document.getElementById('editProdId').value = p.id;
-            document.getElementById('editCodigo').value = p.codigo || '';
-            document.getElementById('editCategoria').value = p.categoria;
-            document.getElementById('editNome').value = p.nome;
-            document.getElementById('editMarca').value = p.marca;
-            document.getElementById('editModelo').value = p.modelo;
-            document.getElementById('editPreco').value = p.preco;
-            document.getElementById('editEstoque').value = p.estoque;
-            document.getElementById('modalEditarProduto').style.display = 'flex';
-        }
-
-        async function salvarAlteracaoProduto() {
-            const payload = {
-                id: document.getElementById('editProdId').value || null,
-                codigo: document.getElementById('editCodigo').value,
-                categoria: document.getElementById('editCategoria').value,
-                nome: document.getElementById('editNome').value,
-                marca: document.getElementById('editMarca').value,
-                modelo: document.getElementById('editModelo').value,
-                preco: parseFloat(document.getElementById('editPreco').value),
-                estoque: parseInt(document.getElementById('editEstoque').value)
-            };
-            const res = await fetch('api.php?acao=salvar_produto', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-            if (data.status === 'success') {
-                document.getElementById('modalEditarProduto').style.display = 'none';
-                carregarCatalogo();
-            } else alert(data.msg);
-        }
-
-        async function excluirProduto(id) {
-            if (!confirm('Excluir produto permanentemente?')) return;
-            const res = await fetch(`api.php?acao=excluir_produto&id=${id}`);
-            const data = await res.json();
-            if (data.status === 'success') carregarCatalogo();
-            else alert(data.msg);
-        }
-
-        /* GESTÃO DE USUÁRIOS */
-        async function carregarUsuarios() {
-            const res = await fetch('api.php?acao=listar_usuarios');
-            const data = await res.json();
-            const tbody = document.getElementById('tabelaCorpoUsuarios');
-            tbody.innerHTML = '';
-            (data.usuarios || []).forEach(u => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>#${u.id}</td>
-                        <td><b>${u.nome}</b></td>
-                        <td>${u.email}</td>
-                        <td><span class="badge-brand">${u.cargo.toUpperCase()}</span></td>
-                        <td>${new Date(u.criado_em).toLocaleDateString('pt-BR')}</td>
-                        <td>
-                            <button class="btn-sm" onclick="abrirModalEdicaoUsuario(${JSON.stringify(u).replace(/"/g, '&quot;')})">✏️</button>
-                            <button class="btn-sm" style="color:var(--danger);" onclick="excluirUsuario(${u.id})">🗑️</button>
-                        </td>
-                    </tr>`;
-            });
-        }
-
-        function abrirModalNovoUsuario() {
-            document.getElementById('modalUserTitulo').innerText = "👤 Novo Usuário";
-            document.getElementById('userIdEdit').value = "";
-            document.getElementById('userNome').value = "";
-            document.getElementById('userEmail').value = "";
-            document.getElementById('userCargo').value = "vendedor";
-            document.getElementById('userSenha').value = "";
-            document.getElementById('modalUsuario').style.display = 'flex';
-        }
-
-        function abrirModalEdicaoUsuario(u) {
-            document.getElementById('modalUserTitulo').innerText = "👤 Editar Usuário";
-            document.getElementById('userIdEdit').value = u.id;
-            document.getElementById('userNome').value = u.nome;
-            document.getElementById('userEmail').value = u.email;
-            document.getElementById('userCargo').value = u.cargo;
-            document.getElementById('userSenha').value = "";
-            document.getElementById('modalUsuario').style.display = 'flex';
-        }
-
-        async function salvarUsuarioSQL() {
-            const payload = {
-                id: document.getElementById('userIdEdit').value || null,
-                nome: document.getElementById('userNome').value,
-                email: document.getElementById('userEmail').value,
-                cargo: document.getElementById('userCargo').value,
-                senha: document.getElementById('userSenha').value
-            };
-            const res = await fetch('api.php?acao=salvar_usuario', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-            if (data.status === 'success') {
-                document.getElementById('modalUsuario').style.display = 'none';
-                carregarUsuarios();
-            } else alert(data.msg);
-        }
-
-        async function excluirUsuario(id) {
-            if (!confirm('Deseja excluir este usuário?')) return;
-            const res = await fetch(`api.php?acao=excluir_usuario&id=${id}`);
-            const data = await res.json();
-            if (data.status === 'success') carregarUsuarios();
-            else alert(data.msg);
-        }
-
-        /* CONFIGURAÇÃO DA LOJA */
-        async function carregarConfigEmpresa() {
-            const res = await fetch('api.php?acao=obter_config');
-            const data = await res.json();
-            if (data.config) {
-                document.getElementById('cfgNomeLoja').value = data.config.nome_loja;
-                document.getElementById('cfgWhatsApp').value = data.config.telefone_whatsapp;
-                document.getElementById('cfgChavePix').value = data.config.chave_pix;
-                document.getElementById('cfgGarantia').value = data.config.msg_garantia;
-                document.getElementById('sideStoreName').innerText = data.config.nome_loja;
-            }
-        }
-
-        async function salvarConfigEmpresa() {
-            const payload = {
-                nome_loja: document.getElementById('cfgNomeLoja').value,
-                telefone_whatsapp: document.getElementById('cfgWhatsApp').value,
-                chave_pix: document.getElementById('cfgChavePix').value,
-                msg_garantia: document.getElementById('cfgGarantia').value
-            };
-            const res = await fetch('api.php?acao=salvar_config', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-            if (data.status === 'success') {
-                alert('Configurações da empresa salvas!');
-                carregarConfigEmpresa();
-            } else alert(data.msg);
-        }
-
-        /* FUNÇÕES DE CARRINHO & PDV */
-        function biparProduto(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                const code = event.target.value.trim();
-                const p = catalogo.find(item => item.codigo === code);
-                if (p) { addCarrinho(p.id); event.target.value = ''; }
-            }
-        }
-
-        function filtrarPorTexto(busca) {
-            const b = busca.toLowerCase();
-            const filtrados = catalogo.filter(p => p.nome.toLowerCase().includes(b) || p.modelo.toLowerCase().includes(b) || p.marca.toLowerCase().includes(b) || (p.codigo && p.codigo.includes(b)));
-            renderizarCatalogo(filtrados);
-        }
-
-        function filtrarMarca(marca, btn) {
-            document.querySelectorAll('.ribbon-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            marcaFiltro = marca;
-            renderizarCatalogo(catalogo);
-        }
-
-        function addCarrinho(id) {
-            const prod = catalogo.find(p => p.id == id);
-            if (prod.estoque <= 0) return alert('Sem estoque!');
-            const idx = carrinho.findIndex(i => i.id == id);
-            if (idx >= 0) {
-                if (carrinho[idx].qtd + 1 > prod.estoque) return alert('Limite de estoque atingido!');
-                carrinho[idx].qtd += 1;
-            } else {
-                carrinho.push({...prod, qtd: 1});
-            }
-            atualizarCarrinho();
-        }
-
-        function alterarQtd(idx, delta) {
-            const item = carrinho[idx];
-            const prod = catalogo.find(p => p.id == item.id);
-            if (item.qtd + delta > prod.estoque) return alert('Estoque insuficiente!');
-            item.qtd += delta;
-            if (item.qtd <= 0) carrinho.splice(idx, 1);
-            atualizarCarrinho();
-        }
-
-        function limparCarrinho() { carrinho = []; atualizarCarrinho(); }
-
-        function atualizarCarrinho() {
-            const lista = document.getElementById('listaCarrinho');
-            lista.innerHTML = '';
-            let total = 0;
-            if (carrinho.length === 0) lista.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:12px; margin:auto 0;">Carrinho vazio</div>`;
-            carrinho.forEach((item, idx) => {
-                const subtotal = parseFloat(item.preco) * item.qtd;
-                total += subtotal;
-                lista.innerHTML += `
-                    <div class="cart-row">
-                        <div style="flex:1;">
-                            <span style="font-size:12px; font-weight:700;">${item.nome}</span>
-                            <span style="font-size:10px; color:var(--text-muted); display:block;">${item.modelo}</span>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:4px; margin:0 6px;">
-                            <button class="qty-btn" onclick="alterarQtd(${idx}, -1)">-</button>
-                            <span style="font-size:12px; font-weight:800; min-width:16px; text-align:center;">${item.qtd}</span>
-                            <button class="qty-btn" onclick="alterarQtd(${idx}, 1)">+</button>
-                        </div>
-                        <span style="font-weight:800; font-size:12px;">R$ ${subtotal.toFixed(2).replace('.', ',')}</span>
-                    </div>`;
-            });
-            document.getElementById('visorTotal').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-        }
-
-        async function finalizarVenda() {
-            if (carrinho.length === 0) return alert('Carrinho vazio!');
-            const total = carrinho.reduce((acc, cur) => acc + (parseFloat(cur.preco) * cur.qtd), 0);
-            const metodo = document.getElementById('cxMetodo').value;
-            const res = await fetch('api.php?acao=registrar_venda', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ itens: carrinho, valor_total: total, metodo: metodo })
-            });
-            const data = await res.json();
-            if (data.status === 'success') {
-                alert(`✔️ Venda confirmada no valor de ${total.toLocaleString('pt-BR', {style:'currency', currency:'BRL'})}!`);
-                carrinho = [];
-                atualizarCarrinho();
-                carregarCatalogo();
-            } else alert(data.msg);
-        }
-
-        async function carregarFechamento() {
-            const res = await fetch('api.php?acao=fechamento_caixa');
-            const data = await res.json();
-            const stream = document.getElementById('balancoStream');
-            stream.innerHTML = '';
-            let totalGeral = 0;
-            (data.balanco || []).forEach(b => {
-                totalGeral += parseFloat(b.montante);
-                stream.innerHTML += `
-                    <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid var(--border);">
-                        <span><b>${b.forma_pagamento}</b> (${b.total_vendas} vendas)</span>
-                        <b>R$ ${parseFloat(b.montante).toFixed(2).replace('.', ',')}</b>
-                    </div>`;
-            });
-            stream.innerHTML += `
-                <div style="display:flex; justify-content:space-between; padding:12px 8px; font-weight:800; font-size:16px;">
-                    <span>TOTAL DIA:</span>
-                    <span style="color:var(--brand-orange);">R$ ${totalGeral.toFixed(2).replace('.', ',')}</span>
-                </div>`;
-        }
-
-        async function zerarVendasTeste() {
-            if (!confirm('Deseja realmente apagar todas as vendas registradas de teste?')) return;
-            const res = await fetch('api.php?acao=limpar_vendas_teste');
-            const data = await res.json();
-            if (data.status === 'success') {
-                alert('Caixa zerado!');
-                carregarFechamento();
-            }
-        }
-
-        function mudarAba(aba, el) {
-            document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            if (el) el.classList.add('active');
-
-            if (aba === 'vender') {
-                document.getElementById('viewVender').classList.add('active');
-                document.getElementById('pageTitle').innerText = '🛒 Balcão de Vendas Rápido';
-            } else if (aba === 'produtos') {
-                document.getElementById('viewProdutos').classList.add('active');
-                document.getElementById('pageTitle').innerText = '📦 Estoque & Produtos';
-            } else if (aba === 'usuarios') {
-                document.getElementById('viewUsuarios').classList.add('active');
-                document.getElementById('pageTitle').innerText = '👥 Gestão de Usuários';
-                carregarUsuarios();
-            } else if (aba === 'fechamento') {
-                document.getElementById('viewFechamento').classList.add('active');
-                document.getElementById('pageTitle').innerText = '📊 Fechamento de Caixa';
-                carregarFechamento();
-            } else if (aba === 'config') {
-                document.getElementById('viewConfig').classList.add('active');
-                document.getElementById('pageTitle').innerText = '⚙️ Configurações da Empresa';
-                carregarConfigEmpresa();
-            }
-        }
-
-        window.onload = checarSessao;
-    </script>
-</body>
+    <div id="toastHost" class="toast-host" aria-live="polite"></div>
+    <script type="module" src="./app.js"></script>
+  </body>
 </html>

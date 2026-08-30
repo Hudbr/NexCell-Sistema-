@@ -1,0 +1,121 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function hasProfile() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid));
+    }
+
+    function profile() {
+      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data;
+    }
+
+    function activeProfile() {
+      return hasProfile()
+        && (!("status" in profile()) || profile().status == "ativo");
+    }
+
+    function isAdmin() {
+      return activeProfile() && profile().cargo == "admin";
+    }
+
+    function hasPermission(permission) {
+      return activeProfile()
+        && (
+          profile().cargo == "admin"
+          || (
+            "permissoes" in profile()
+            && permission in profile().permissoes
+            && profile().permissoes[permission] == true
+          )
+        );
+    }
+
+    match /produtos/{productId} {
+      allow read: if true;
+      allow create, delete: if isAdmin() || hasPermission("estoque_editar");
+      allow update: if isAdmin()
+        || hasPermission("estoque_editar")
+        || (
+          hasPermission("vender")
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(["estoque", "variacoes", "atualizado_em"])
+        );
+    }
+
+    match /usuarios/{userId} {
+      allow read: if signedIn() && (request.auth.uid == userId || isAdmin());
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.cargo == "colaborador"
+        && request.resource.data.status == "pendente"
+        && request.resource.data.permissoes.vender == false
+        && request.resource.data.permissoes.estoque_editar == false
+        && request.resource.data.permissoes.financeiro == false;
+      allow update: if isAdmin()
+        || (
+          signedIn()
+          && request.auth.uid == userId
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(["nome", "atualizado_em"])
+        );
+      allow delete: if isAdmin() && request.auth.uid != userId;
+    }
+
+    match /vendas/{saleId} {
+      allow create: if hasPermission("vender")
+        && request.resource.data.operador_uid == request.auth.uid
+        && request.resource.data.status == "concluida"
+        && request.resource.data.total >= 0;
+      allow read: if isAdmin()
+        || hasPermission("financeiro")
+        || (signedIn() && resource.data.operador_uid == request.auth.uid);
+      allow update: if isAdmin() || hasPermission("cancelar_venda");
+      allow delete: if false;
+    }
+
+    match /pedidos/{orderId} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          "codigo",
+          "cliente",
+          "cliente_uid",
+          "entrega",
+          "pagamento",
+          "itens",
+          "total",
+          "status",
+          "origem",
+          "criado_em"
+        ])
+        && request.resource.data.cliente_uid == request.auth.uid
+        && request.resource.data.status == "novo"
+        && request.resource.data.origem == "store"
+        && request.resource.data.total >= 0
+        && request.resource.data.itens.size() > 0
+        && request.resource.data.itens.size() <= 40;
+      allow read, update: if isAdmin();
+      allow delete: if false;
+    }
+
+    match /configuracoes/{configId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /atividades/{activityId} {
+      allow create: if activeProfile();
+      allow read: if isAdmin() || hasPermission("dashboard");
+      allow update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

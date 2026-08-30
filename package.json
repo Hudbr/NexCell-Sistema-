@@ -1,0 +1,9 @@
+{
+  "name": "nexcell-suite",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "python3 -m http.server 4173",
+    "check": "node --check assets/js/firebase.js && node --check assets/js/utils.js && node --check assets/js/cart.js && node --check assets/js/store.js && node --check assets/js/product.js && node --check pdv/app.js && node --check control/app.js"
+  }
+}
