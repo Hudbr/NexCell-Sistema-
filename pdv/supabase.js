@@ -87,6 +87,52 @@ function schedulePdvPolicy() {
   else run();
 }
 
+let manualRegisterOpenUntil = 0;
+
+function isAdminViewer(profile) {
+  return Boolean(
+    profile?.is_root_owner
+    || ["owner", "admin"].includes(String(profile?.role || "").toLowerCase())
+    || profile?.permissions?.["*"] === true
+  );
+}
+
+function scheduleAdminViewerPolicy() {
+  if (typeof document === "undefined") return;
+
+  document.addEventListener("click", (event) => {
+    if (event.target.closest("[data-open-register],#openRegisterButton")) {
+      manualRegisterOpenUntil = Date.now() + 8000;
+    }
+  }, true);
+
+  const dismissAutomaticOpenForAdmin = async () => {
+    const modal = document.getElementById("registerModal");
+    if (!modal?.classList.contains("open") || Date.now() < manualRegisterOpenUntil) return;
+    try {
+      const profile = await getOperationalProfile();
+      if (!isAdminViewer(profile) || Date.now() < manualRegisterOpenUntil) return;
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden", "true");
+      const root = document.getElementById("registerStatus");
+      if (root && !root.querySelector("[data-admin-viewer-note]")) {
+        root.insertAdjacentHTML("afterbegin", `<div data-admin-viewer-note class="auth-message show" style="margin-bottom:12px;"><strong>Modo ADM · visualização liberada.</strong><br>Você pode acompanhar o caixa mesmo quando estiver fechado. A abertura continua sendo uma ação separada.</div>`);
+      }
+    } catch (_) {
+      // Sem sessão/perfil ainda: o próximo evento de interface tenta novamente.
+    }
+  };
+
+  const start = () => {
+    if (!document.body) return setTimeout(start, 50);
+    const observer = new MutationObserver(() => dismissAutomaticOpenForAdmin());
+    observer.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
+    setTimeout(dismissAutomaticOpenForAdmin, 0);
+  };
+
+  start();
+}
+
 let pendingRegisterCloseReceipt = null;
 let registerCloseObserver = null;
 
@@ -176,6 +222,7 @@ function armRegisterCloseReceipt(data) {
 
 applyStoreBranding();
 schedulePdvPolicy();
+scheduleAdminViewerPolicy();
 
 let activeUserId = null;
 let cachedProfile = null;
