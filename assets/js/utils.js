@@ -1,3 +1,27 @@
+const NEXCELL_ICON = "https://phhncvufnufroyifaghe.supabase.co/functions/v1/nexcell-logo";
+
+function ensureNexcellFavicon() {
+  if (typeof document === "undefined") return;
+  let icon = document.querySelector('link[rel="icon"]');
+  if (!icon) {
+    icon = document.createElement("link");
+    icon.rel = "icon";
+    document.head.appendChild(icon);
+  }
+  icon.type = "image/webp";
+  icon.href = NEXCELL_ICON;
+
+  let apple = document.querySelector('link[rel="apple-touch-icon"]');
+  if (!apple) {
+    apple = document.createElement("link");
+    apple.rel = "apple-touch-icon";
+    document.head.appendChild(apple);
+  }
+  apple.href = NEXCELL_ICON;
+}
+
+ensureNexcellFavicon();
+
 const money = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
