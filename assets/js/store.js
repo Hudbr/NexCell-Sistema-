@@ -140,13 +140,13 @@ function productCard(product) {
 
   return `
     <article class="product-card" data-product-id="${product.id}">
-      <a class="product-media" href="./produto/?id=${encodeURIComponent(product.id)}">
+      <a class="product-media" href="../produto/?id=${encodeURIComponent(product.id)}">
         ${image}
         ${product.destaque ? '<span class="badge product-badge">Destaque</span>' : ""}
       </a>
       <div class="product-info">
         <span class="product-brand">${escapeHtml(product.marca || product.categoria || "NexCell")}</span>
-        <a href="./produto/?id=${encodeURIComponent(product.id)}">
+        <a href="../produto/?id=${encodeURIComponent(product.id)}">
           <h3 class="product-name">${escapeHtml(product.nome || "Produto")}</h3>
         </a>
         <span class="product-model">${escapeHtml(product.modelo || "Compatibilidade não informada")}</span>
@@ -193,7 +193,7 @@ function addProduct(product) {
     return;
   }
   if (availableVariants.length > 1) {
-    window.location.href = `./produto/?id=${encodeURIComponent(product.id)}`;
+    window.location.href = `../produto/?id=${encodeURIComponent(product.id)}`;
     return;
   }
   const variant = availableVariants[0];
