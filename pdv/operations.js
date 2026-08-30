@@ -14,6 +14,7 @@ const canCancelSales = () => {
     || ["owner", "admin"].includes(profile?.role)
     || permissions["*"] === true
     || permissions["pdv.sales.cancel"] === true
+    || permissions["finance.write"] === true
   );
 };
 
@@ -65,7 +66,7 @@ function mountViews() {
         <form id="cancelSaleForm">
           <input id="cancelSaleId" type="hidden">
           <div class="modal-body">
-            <div class="auth-message show">O cancelamento só é permitido antes da venda entrar em uma sangria. O estoque será devolvido automaticamente.</div>
+            <div class="auth-message show">ADM e Financeiro podem cancelar uma venda mesmo após a sangria. O estoque é estornado quando aplicável e o cancelamento fica registrado na auditoria.</div>
             <div class="field"><label for="cancelSaleReason">Motivo do cancelamento</label><textarea class="input" id="cancelSaleReason" rows="4" minlength="3" required placeholder="Ex.: venda lançada em duplicidade"></textarea></div>
           </div>
           <div class="modal-footer"><button class="btn btn-secondary" type="button" data-ops-close="cancelSaleModal">Voltar</button><button class="btn btn-primary" id="confirmCancelSale" type="submit">Confirmar cancelamento</button></div>
@@ -132,7 +133,7 @@ function renderSales() {
   root.innerHTML = `<div class="pdv-sales-list">${sales.map((sale) => {
     const canceled = sale.status === "canceled";
     const pending = sale.settlement_status === "pending";
-    const mayCancel = canCancelSales() && !canceled && pending && Boolean(sale.code);
+    const mayCancel = canCancelSales() && !canceled && Boolean(sale.code);
     return `<article class="card pdv-sale-card"><div class="card-body">
       <div class="pdv-sale-head"><div><span class="badge ${canceled ? "badge-danger" : pending ? "badge-warning" : "badge-success"}">${canceled ? "Cancelada" : pending ? "Sangria pendente" : "Acertada"}</span><h3>Venda ${sale.code ? `#${escapeHtml(sale.code)}` : "online"}</h3><small>${formatDate(sale.created_at)}</small></div><strong class="pdv-sale-total">${formatMoney(sale.total || 0)}</strong></div>
       <div class="pdv-sale-meta"><span><b>Operador:</b> ${sale.operator_code ? `#${escapeHtml(sale.operator_code)} · ` : ""}${escapeHtml(sale.seller || "—")}</span><span><b>Pagamento:</b> ${escapeHtml(sale.payment_method || "—")}</span><span><b>Cliente:</b> ${escapeHtml(sale.customer_name || "Cliente Balcão")}</span></div>
@@ -194,9 +195,9 @@ function wireOperations() {
     if (reason.length < 3) return toast("Informe o motivo do cancelamento.", "error");
     setBusy(button, true, "Cancelando…");
     try {
-      await cancelSale($("cancelSaleId").value, reason);
+      const result = await cancelSale($("cancelSaleId").value, reason);
       closeOpsModal("cancelSaleModal");
-      toast("Venda cancelada e estoque devolvido.", "success");
+      toast(result?.test_mode ? "Cancelamento simulado. Nada foi gravado." : "Venda cancelada e estoque estornado.", "success");
       await Promise.all([loadSales(true), loadDashboard(true)]);
     } catch (error) {
       toast(error.message || "Não foi possível cancelar a venda.", "error");
