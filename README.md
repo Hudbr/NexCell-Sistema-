@@ -2,15 +2,16 @@
 
 Sistema integrado da NexCell dividido por responsabilidade:
 
-- **Store (`/`)**: catálogo público, busca, categorias, página individual, carrossel, cores, carrinho e pedido pelo WhatsApp.
-- **PDV (`/pdv/`)**: autenticação da equipe, leitura de código/SKU, venda por variação, orçamentos, pagamentos, baixa atômica de estoque e comprovante.
+- **Store (`/store/`)**: catálogo público, busca, categorias, página individual, carrossel, cores, carrinho e pedido pelo WhatsApp.
+- **PDV (`/`, com entrada em `/pdv/`)**: autenticação da equipe, leitura de código/SKU, venda por variação, orçamentos, pagamentos, baixa atômica de estoque e comprovante.
 - **Control (`/control/`)**: dashboard administrativo, produtos, cores e estoque, pedidos da Store, vendas, cancelamentos, equipe, permissões e configurações.
 
 ## Estrutura
 
 ```text
 /
-├── index.html                 # NexCell Store
+├── index.html                 # Entrada principal do PDV
+├── store/                     # Catálogo público
 ├── produto/                   # Página individual do produto
 ├── pdv/                       # Frente de caixa
 ├── control/                   # Administração

@@ -75,7 +75,7 @@ function renderProduct(product) {
           <button class="btn btn-primary" id="addDetailToCart" type="button" ${!selectedVariant || selectedVariant.estoque <= 0 ? "disabled" : ""}>
             Adicionar ao carrinho
           </button>
-          <a class="btn btn-secondary" href="../">Continuar comprando</a>
+          <a class="btn btn-secondary" href="../store/">Continuar comprando</a>
         </div>
       </div>
     </article>
@@ -117,7 +117,7 @@ function bindProductEvents(images, variants) {
     });
     updateCartCount();
     toast("Produto adicionado. Abrindo seu carrinho…", "success");
-    window.setTimeout(() => { window.location.href = "../?carrinho=1"; }, 450);
+    window.setTimeout(() => { window.location.href = "../store/?carrinho=1"; }, 450);
   });
 
   document.querySelectorAll("[data-gallery]").forEach((button) => {
@@ -138,7 +138,7 @@ function bindProductEvents(images, variants) {
 
 async function loadProduct() {
   if (!productId) {
-    detailHost.innerHTML = `<div class="empty-state"><strong>Produto não informado</strong><span>Volte à loja e escolha um item do catálogo.</span><a class="btn btn-primary" href="../">Voltar à loja</a></div>`;
+    detailHost.innerHTML = `<div class="empty-state"><strong>Produto não informado</strong><span>Volte à loja e escolha um item do catálogo.</span><a class="btn btn-primary" href="../store/">Voltar à loja</a></div>`;
     return;
   }
   try {
@@ -148,12 +148,12 @@ async function loadProduct() {
     renderProduct(currentProduct);
   } catch (error) {
     console.error(error);
-    detailHost.innerHTML = `<div class="empty-state"><strong>Produto não encontrado</strong><span>Ele pode ter sido removido ou estar temporariamente indisponível.</span><a class="btn btn-primary" href="../">Ver outros produtos</a></div>`;
+    detailHost.innerHTML = `<div class="empty-state"><strong>Produto não encontrado</strong><span>Ele pode ter sido removido ou estar temporariamente indisponível.</span><a class="btn btn-primary" href="../store/">Ver outros produtos</a></div>`;
   }
 }
 
 document.getElementById("productCartButton").addEventListener("click", () => {
-  window.location.href = "../?carrinho=1";
+  window.location.href = "../store/?carrinho=1";
 });
 window.addEventListener("nexcell:cart", updateCartCount);
 updateCartCount();
