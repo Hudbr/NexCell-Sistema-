@@ -87,6 +87,93 @@ function schedulePdvPolicy() {
   else run();
 }
 
+let pendingRegisterCloseReceipt = null;
+let registerCloseObserver = null;
+
+function escapePdvHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  }[char]));
+}
+
+function formatPdvMoney(value) {
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(value) || 0);
+}
+
+function formatPdvDay(value) {
+  const parts = String(value || "").split("-");
+  return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : String(value || "hoje");
+}
+
+function operatorTotalsHtml(operators) {
+  const rows = Array.isArray(operators) ? operators : [];
+  if (!rows.length) return '<div style="padding:8px 0;color:#667085;">Nenhuma venda registrada.</div>';
+  return rows.map((item) => `
+    <div style="display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #eee;">
+      <span><strong>#${escapePdvHtml(item.operator_code || "—")}</strong> · ${Number(item.sales_count || 0)} venda(s)</span>
+      <strong>${formatPdvMoney(item.total)}</strong>
+    </div>`).join("");
+}
+
+function presentRegisterCloseReceipt(data) {
+  if (typeof document === "undefined" || !data) return false;
+  const modal = document.getElementById("receiptModal");
+  const root = document.getElementById("receiptContent");
+  const title = document.getElementById("receiptTitle");
+  if (!modal || !root || !title) return false;
+
+  document.getElementById("registerModal")?.classList.remove("open");
+  document.getElementById("registerModal")?.setAttribute("aria-hidden", "true");
+
+  const register = data.register_summary || {};
+  const day = data.day_summary || {};
+  title.textContent = "Fechamento do caixa";
+  root.innerHTML = `
+    <div style="text-align:center;">
+      <strong>Caixa #${escapePdvHtml(data.code || "")}</strong>
+      <p>Fechamento concluído</p>
+    </div>
+    <hr>
+    <section>
+      <strong style="display:block;margin-bottom:7px;">Vendas deste caixa</strong>
+      ${operatorTotalsHtml(register.operators)}
+      <div style="display:flex;justify-content:space-between;gap:12px;padding-top:10px;font-size:15px;">
+        <span>Total do caixa · ${Number(register.sales_count || 0)} venda(s)</span>
+        <strong>${formatPdvMoney(register.total)}</strong>
+      </div>
+    </section>
+    <hr>
+    <section>
+      <strong style="display:block;margin-bottom:7px;">Geral do dia · ${escapePdvHtml(formatPdvDay(day.date))}</strong>
+      ${operatorTotalsHtml(day.operators)}
+      <div style="display:flex;justify-content:space-between;gap:12px;padding-top:12px;font-size:17px;border-top:2px solid #111;margin-top:5px;">
+        <span><strong>TOTAL GERAL DO DIA</strong><br><small>${Number(day.sales_count || 0)} venda(s), somando toda a equipe</small></span>
+        <strong>${formatPdvMoney(day.total)}</strong>
+      </div>
+    </section>`;
+
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+  pendingRegisterCloseReceipt = null;
+  return true;
+}
+
+function armRegisterCloseReceipt(data) {
+  if (typeof document === "undefined" || !data) return;
+  pendingRegisterCloseReceipt = data;
+  if (!registerCloseObserver && document.body) {
+    registerCloseObserver = new MutationObserver((mutations) => {
+      if (!pendingRegisterCloseReceipt) return;
+      const registerOpened = mutations.some((mutation) => mutation.target?.id === "registerModal" && mutation.target.classList?.contains("open"));
+      if (registerOpened) presentRegisterCloseReceipt(pendingRegisterCloseReceipt);
+    });
+    registerCloseObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
+  }
+  setTimeout(() => {
+    if (pendingRegisterCloseReceipt) presentRegisterCloseReceipt(pendingRegisterCloseReceipt);
+  }, 1800);
+}
+
 applyStoreBranding();
 schedulePdvPolicy();
 
@@ -269,7 +356,9 @@ export async function closeOperatorCash({ targetCode, cash, pix, credit, debit, 
 export async function closeRegister(actorCode, notes = "") {
   const client = await getSupabase();
   const { data, error } = await client.rpc("close_pdv_register", { p_actor_code: String(actorCode || "").trim(), p_notes: String(notes || "").trim() || null });
-  fail(error); return data;
+  fail(error);
+  armRegisterCloseReceipt(data);
+  return data;
 }
 
 export async function listOnlineOrders(includeResolved = false) {
