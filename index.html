@@ -2,190 +2,27 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#ffffff">
-    <meta
-      name="description"
-      content="NexCell Store: acessórios, proteção e tecnologia para o seu dia a dia."
-    >
-    <title>NexCell Store</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    >
-    <link rel="stylesheet" href="./assets/css/base.css">
-    <link rel="stylesheet" href="./assets/css/store.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#111827">
+    <meta name="robots" content="noindex">
+    <title>NexCell PDV</title>
+    <meta http-equiv="refresh" content="0; url=./pdv/">
+    <script>
+      const target = new URL("./pdv/", window.location.href);
+      target.search = window.location.search;
+      target.hash = window.location.hash;
+      window.location.replace(target.href);
+    </script>
+    <style>
+      body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: #f7f8fa; color: #111827; font: 600 15px system-ui, sans-serif; }
+      main { text-align: center; }
+      a { color: #2557e8; }
+    </style>
   </head>
-  <body class="store-body">
-    <header class="store-header">
-      <div class="container store-header-inner">
-        <a class="store-logo" href="./" aria-label="Voltar para o início da NexCell Store">
-          <span class="brand-mark" aria-hidden="true">NC</span>
-          <span class="brand-copy">
-            <strong id="storeNameHeader">NexCell Store</strong>
-            <span>Acessórios & tecnologia</span>
-          </span>
-        </a>
-
-        <label class="store-search">
-          <span class="sr-only">Buscar produtos</span>
-          <input id="storeSearch" type="search" placeholder="Buscar capinhas, cabos, fones…" autocomplete="off">
-          <span aria-hidden="true">⌕</span>
-        </label>
-
-        <div class="header-actions">
-          <a class="btn btn-secondary support-link" id="supportLink" href="#" target="_blank" rel="noreferrer">
-            Atendimento
-          </a>
-          <button class="cart-trigger" id="openCart" type="button" aria-label="Abrir carrinho">
-            <span aria-hidden="true">🛒</span>
-            <span class="cart-trigger-label">Carrinho</span>
-            <span class="cart-count" id="cartCount">0</span>
-          </button>
-        </div>
-      </div>
-    </header>
-
+  <body>
     <main>
-      <section class="hero">
-        <div class="container hero-card">
-          <div class="hero-copy">
-            <span class="hero-eyebrow">● Compra rápida e segura</span>
-            <h1>Seu celular, do seu jeito.</h1>
-            <p>
-              Acessórios escolhidos para proteger, carregar e completar sua rotina.
-              Consulte as cores disponíveis e finalize direto com a NexCell.
-            </p>
-            <div class="hero-actions">
-              <a class="btn btn-primary" href="#catalogo">Ver produtos</a>
-              <a class="btn btn-secondary" id="heroSupportLink" href="#" target="_blank" rel="noreferrer">
-                Falar com a loja
-              </a>
-            </div>
-          </div>
-          <div class="hero-visual" aria-hidden="true">
-            <div class="phone-orbit"></div>
-            <div class="phone-mock"><span>NC</span></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="container benefits" aria-label="Benefícios">
-        <article class="benefit">
-          <span class="benefit-icon" aria-hidden="true">⚡</span>
-          <div><strong>Atendimento ágil</strong><span>Finalize o pedido sem formulários intermináveis.</span></div>
-        </article>
-        <article class="benefit">
-          <span class="benefit-icon" aria-hidden="true">🎨</span>
-          <div><strong>Cores de verdade</strong><span>Veja a disponibilidade de cada variação antes de comprar.</span></div>
-        </article>
-        <article class="benefit">
-          <span class="benefit-icon" aria-hidden="true">📦</span>
-          <div><strong>Estoque conectado</strong><span>Produtos sincronizados com o PDV e o NexCell Control.</span></div>
-        </article>
-      </section>
-
-      <section class="catalog" id="catalogo">
-        <div class="container">
-          <div class="section-head">
-            <div>
-              <h2>Escolha seu próximo acessório</h2>
-              <p id="catalogStatus">Carregando produtos disponíveis…</p>
-            </div>
-            <div class="category-strip" id="categoryStrip" aria-label="Categorias">
-              <button class="category-pill active" type="button" data-category="Todos">Todos</button>
-            </div>
-          </div>
-
-          <div class="product-grid" id="productGrid" aria-live="polite">
-            <div class="skeleton"></div>
-            <div class="skeleton"></div>
-            <div class="skeleton"></div>
-            <div class="skeleton"></div>
-          </div>
-        </div>
-      </section>
+      <p>Abrindo o NexCell PDV…</p>
+      <a href="./pdv/">Entrar no PDV</a>
     </main>
-
-    <footer class="store-footer">
-      <div class="container footer-inner">
-        <div>
-          <strong id="storeNameFooter">NexCell Store</strong>
-          <p id="storeFooterMessage">Tecnologia que acompanha sua rotina.</p>
-        </div>
-        <nav class="footer-links" aria-label="Links da loja">
-          <a href="#catalogo">Produtos</a>
-          <a id="footerSupportLink" href="#" target="_blank" rel="noreferrer">Atendimento</a>
-        </nav>
-      </div>
-    </footer>
-
-    <aside class="cart-drawer" id="cartDrawer" aria-hidden="true">
-      <div class="cart-panel" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
-        <div class="cart-head">
-          <div>
-            <h2 id="cartTitle">Seu carrinho</h2>
-            <span class="stock-label" id="cartSubtitle">0 itens selecionados</span>
-          </div>
-          <button class="icon-btn" id="closeCart" type="button" aria-label="Fechar carrinho">×</button>
-        </div>
-        <div class="cart-items" id="cartItems"></div>
-        <div class="cart-foot">
-          <div class="cart-total"><span>Total estimado</span><strong id="cartTotal">R$ 0,00</strong></div>
-          <button class="btn btn-primary btn-block" id="startCheckout" type="button">Continuar pedido</button>
-          <button class="btn btn-secondary btn-block" id="keepShopping" type="button">Continuar comprando</button>
-        </div>
-      </div>
-    </aside>
-
-    <div class="modal" id="checkoutModal" aria-hidden="true">
-      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
-        <div class="modal-header">
-          <h2 id="checkoutTitle">Finalizar pedido</h2>
-          <button class="icon-btn" id="closeCheckout" type="button" aria-label="Fechar">×</button>
-        </div>
-        <form id="checkoutForm">
-          <div class="modal-body checkout-grid">
-            <div class="field">
-              <label for="customerName">Nome</label>
-              <input class="input" id="customerName" name="customerName" required autocomplete="name">
-            </div>
-            <div class="field">
-              <label for="customerPhone">WhatsApp</label>
-              <input class="input" id="customerPhone" name="customerPhone" inputmode="tel" required autocomplete="tel">
-            </div>
-            <div class="field">
-              <label for="deliveryType">Recebimento</label>
-              <select class="select" id="deliveryType" name="deliveryType">
-                <option value="Retirada na loja">Retirada na loja</option>
-                <option value="Entrega">Entrega</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="paymentMethod">Pagamento</label>
-              <select class="select" id="paymentMethod" name="paymentMethod">
-                <option>PIX</option>
-                <option>Cartão</option>
-                <option>Dinheiro</option>
-              </select>
-            </div>
-            <div class="field" id="addressField" hidden>
-              <label for="customerAddress">Endereço de entrega</label>
-              <textarea class="textarea" id="customerAddress" name="customerAddress"></textarea>
-            </div>
-            <div class="order-summary" id="checkoutSummary"></div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" id="cancelCheckout" type="button">Voltar</button>
-            <button class="btn btn-primary" id="submitOrder" type="submit">Enviar pedido</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <div id="toastHost" class="toast-host" aria-live="polite"></div>
-    <script type="module" src="./assets/js/store.js"></script>
   </body>
 </html>
