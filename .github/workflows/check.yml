@@ -26,6 +26,7 @@ jobs:
           server_pid=$!
           trap 'kill "$server_pid"' EXIT
           curl --retry 3 --retry-connrefused --retry-delay 0 --fail http://127.0.0.1:4173/
+          curl --fail http://127.0.0.1:4173/store/
           curl --fail 'http://127.0.0.1:4173/produto/?id=teste'
           curl --fail http://127.0.0.1:4173/pdv/
           curl --fail http://127.0.0.1:4173/control/
