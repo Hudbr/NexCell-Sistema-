@@ -27,7 +27,68 @@ function applyStoreBranding() {
   });
 }
 
+function sanitizeReceiptIdentity(root) {
+  if (!root) return;
+  root.querySelectorAll("span").forEach((label) => {
+    if (label.textContent.trim() !== "Operador") return;
+    const strong = label.parentElement?.querySelector("strong");
+    const match = strong?.textContent?.match(/#\s*([A-Za-z0-9_-]+)/);
+    if (!match) return;
+    const safeLabel = `#${match[1]}`;
+    if (strong.textContent !== safeLabel) strong.textContent = safeLabel;
+  });
+  root.querySelectorAll("p").forEach((paragraph) => {
+    const current = paragraph.textContent || "";
+    const match = current.match(/^(.*?Operador\s*#\s*[A-Za-z0-9_-]+)/);
+    if (match && current !== match[1]) paragraph.textContent = match[1];
+  });
+}
+
+function applySangriaPolicy() {
+  if (typeof document === "undefined") return;
+  const actorInput = document.getElementById("cashActorCode");
+  const targetInput = document.getElementById("cashTargetCode");
+  if (actorInput && !document.getElementById("cashPassword")) {
+    const actorField = actorInput.closest(".field");
+    const row = actorInput.closest(".field-row");
+    actorInput.required = false;
+    actorInput.type = "hidden";
+    actorInput.value = "";
+    if (actorField) actorField.style.display = "none";
+    const passwordField = document.createElement("div");
+    passwordField.className = "field";
+    passwordField.innerHTML = `<label for="cashPassword">Senha de quem está fazendo a sangria</label><input class="input" id="cashPassword" type="password" required autocomplete="current-password" placeholder="Digite sua senha"><small>A senha confirma a identidade da conta que está logada no PDV.</small>`;
+    if (row) row.appendChild(passwordField);
+    else targetInput?.closest(".field")?.insertAdjacentElement("afterend", passwordField);
+  }
+
+  const fiscalInput = document.getElementById("fiscalDocument");
+  if (fiscalInput) {
+    fiscalInput.required = false;
+    fiscalInput.type = "hidden";
+    fiscalInput.value = "";
+    const fiscalField = fiscalInput.closest(".field");
+    if (fiscalField) fiscalField.style.display = "none";
+  }
+
+  const receiptRoot = document.getElementById("receiptContent");
+  if (receiptRoot && receiptRoot.dataset.identityPrivacy !== "1") {
+    receiptRoot.dataset.identityPrivacy = "1";
+    sanitizeReceiptIdentity(receiptRoot);
+    const observer = new MutationObserver(() => sanitizeReceiptIdentity(receiptRoot));
+    observer.observe(receiptRoot, { childList: true, subtree: true, characterData: true });
+  }
+}
+
+function schedulePdvPolicy() {
+  if (typeof document === "undefined") return;
+  const run = () => setTimeout(applySangriaPolicy, 0);
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run, { once: true });
+  else run();
+}
+
 applyStoreBranding();
+schedulePdvPolicy();
 
 let activeUserId = null;
 let cachedProfile = null;
@@ -160,16 +221,47 @@ export async function getRegisterState() {
 export async function resolveOperator(code) {
   const client = await getSupabase(); const { data, error } = await client.rpc("resolve_pdv_operator", { p_operator_code: String(code || "").trim() }); fail(error); return data;
 }
-export async function closeOperatorCash({ actorCode, targetCode, cash, pix, credit, debit, fiscalDocument, notes }) {
+
+async function verifyCurrentPassword(password) {
+  const cleanPassword = String(password || "");
+  if (!cleanPassword) throw new Error("Informe sua senha para confirmar a sangria.");
+  const client = await getSupabase();
+  const { data: userData, error: userError } = await client.auth.getUser();
+  fail(userError);
+  const currentUser = userData?.user;
+  if (!currentUser?.email || !currentUser?.id) throw new Error("Sessão inválida. Entre novamente no PDV.");
+
+  const { createClient } = await import(SUPABASE_MODULE);
+  const verifier = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+  const { data, error } = await verifier.auth.signInWithPassword({ email: currentUser.email, password: cleanPassword });
+  if (error) {
+    if (String(error.message || "").toLowerCase().includes("invalid login credentials")) throw new Error("Senha incorreta.");
+    throw error;
+  }
+  try {
+    if (data?.user?.id !== currentUser.id) throw new Error("A senha não pertence à conta que está logada.");
+  } finally {
+    try { await verifier.auth.signOut(); } catch (_) { /* sessão temporária, sem persistência */ }
+  }
+}
+
+export async function closeOperatorCash({ targetCode, cash, pix, credit, debit, notes }) {
+  const password = typeof document !== "undefined" ? document.getElementById("cashPassword")?.value : "";
+  await verifyCurrentPassword(password);
+  const profile = await getOperationalProfile();
+  const verifiedActorCode = String(profile?.operator_code || "").trim();
+  if (!verifiedActorCode) throw new Error("Sua conta não possui código operacional válido.");
   const client = await getSupabase();
   const { data, error } = await client.rpc("close_operator_cash", {
-    p_actor_code: String(actorCode || "").trim(),
-    p_target_code: String(targetCode || actorCode || "").trim(),
+    p_actor_code: verifiedActorCode,
+    p_target_code: String(targetCode || verifiedActorCode).trim(),
     p_declared_cash: Number(cash) || 0,
     p_declared_pix: Number(pix) || 0,
     p_declared_card_credit: Number(credit) || 0,
     p_declared_card_debit: Number(debit) || 0,
-    p_fiscal_document_number: String(fiscalDocument || "").trim(),
+    p_fiscal_document_number: null,
     p_notes: String(notes || "").trim() || null,
   });
   fail(error); return data;
