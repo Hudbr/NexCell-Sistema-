@@ -1,0 +1,31 @@
+name: Verificar NexCell
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar projeto
+        uses: actions/checkout@v4
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validar JavaScript
+        run: npm run check
+      - name: Validar rotas estáticas
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/nexcell-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          curl --retry 3 --retry-connrefused --retry-delay 0 --fail http://127.0.0.1:4173/
+          curl --fail 'http://127.0.0.1:4173/produto/?id=teste'
+          curl --fail http://127.0.0.1:4173/pdv/
+          curl --fail http://127.0.0.1:4173/control/
