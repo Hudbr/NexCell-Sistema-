@@ -123,6 +123,21 @@ export async function listCatalog() {
 export async function createSale(payload) {
   const client = await getSupabase(); const { data, error } = await client.rpc("create_pdv_sale", { payload }); fail(error); return data;
 }
+export async function listSales(onlyPendingSettlement = false, limit = 300) {
+  const client = await getSupabase();
+  const { data, error } = await client.rpc("list_pdv_sales", { p_only_pending_settlement: Boolean(onlyPendingSettlement), p_limit: Number(limit) || 300 });
+  fail(error); return Array.isArray(data) ? data : [];
+}
+export async function cancelSale(saleId, reason) {
+  const client = await getSupabase();
+  const { data, error } = await client.rpc("cancel_pdv_sale", { p_sale_id: saleId, p_reason: String(reason || "").trim() });
+  fail(error); return data;
+}
+export async function getDashboard(from = null, to = null) {
+  const client = await getSupabase();
+  const { data, error } = await client.rpc("get_pdv_dashboard", { p_from: from, p_to: to });
+  fail(error); return data || {};
+}
 export async function createQuote(payload) {
   const client = await getSupabase(); const { data, error } = await client.rpc("create_pdv_quote", { payload }); fail(error); return data;
 }
@@ -134,9 +149,9 @@ export async function cancelQuote(quoteId) {
   const client = await getSupabase(); const { data, error } = await client.rpc("cancel_pdv_quote", { p_quote_id: quoteId }); fail(error); return data;
 }
 
-export async function openRegister(openingFloat = 0) {
+export async function openRegister() {
   const client = await getSupabase();
-  const { data, error } = await client.rpc("open_pdv_register", { p_opening_float: Number(openingFloat) || 0 });
+  const { data, error } = await client.rpc("open_pdv_register", { p_opening_float: 0 });
   fail(error); return data;
 }
 export async function getRegisterState() {
