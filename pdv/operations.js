@@ -1,5 +1,6 @@
 import { escapeHtml, formatDate, formatMoney, setBusy, toast } from "../assets/js/utils.js";
 import { cancelSale, getDashboard, getOperationalProfile, listSales } from "./supabase.js";
+import { iconMarkup } from "./modules/icons.js";
 
 const $ = (id) => document.getElementById(id);
 let profile = null;
@@ -33,16 +34,16 @@ function mountNavigation() {
   const profileButton = sideNav?.querySelector('[data-view="profile"]');
   if (sideNav && profileButton && !sideNav.querySelector('[data-view="dashboard"]')) {
     profileButton.insertAdjacentHTML("beforebegin", `
-      <button class="side-link" type="button" data-view="dashboard"><span>📈</span>Resumo do PDV</button>
-      <button class="side-link" type="button" data-view="history"><span>🧾</span>Histórico de vendas</button>`);
+      <button class="side-link" type="button" data-view="dashboard"><span>${iconMarkup('chart')}</span>Resumo do PDV</button>
+      <button class="side-link" type="button" data-view="history"><span>${iconMarkup('receipt-text')}</span>Histórico de vendas</button>`);
   }
 
   const mobileNav = document.querySelector(".mobile-nav");
   const mobileProfile = mobileNav?.querySelector('[data-view="profile"]');
   if (mobileNav && mobileProfile && !mobileNav.querySelector('[data-view="dashboard"]')) {
     mobileProfile.insertAdjacentHTML("beforebegin", `
-      <button class="mobile-link" type="button" data-view="dashboard"><span>📈</span><span>Resumo</span></button>
-      <button class="mobile-link" type="button" data-view="history"><span>🧾</span><span>Vendas</span></button>`);
+      <button class="mobile-link" type="button" data-view="dashboard"><span>${iconMarkup('chart')}</span><span>Resumo</span></button>
+      <button class="mobile-link" type="button" data-view="history"><span>${iconMarkup('receipt-text')}</span><span>Vendas</span></button>`);
   }
 }
 
@@ -62,7 +63,7 @@ function mountViews() {
   document.body.insertAdjacentHTML("beforeend", `
     <div class="modal" id="cancelSaleModal">
       <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="cancelSaleTitle">
-        <div class="modal-header"><h2 id="cancelSaleTitle">Cancelar venda</h2><button class="icon-btn" type="button" data-ops-close="cancelSaleModal">×</button></div>
+        <div class="modal-header"><h2 id="cancelSaleTitle">Cancelar venda</h2><button class="icon-btn" type="button" data-ops-close="cancelSaleModal" aria-label="Fechar">${iconMarkup('x')}</button></div>
         <form id="cancelSaleForm">
           <input id="cancelSaleId" type="hidden">
           <div class="modal-body">
