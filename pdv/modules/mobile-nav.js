@@ -1,12 +1,14 @@
+import{iconMarkup}from'./icons.js';
+
 const $=id=>document.getElementById(id);
 const PRIMARY=['sale','orders','cash'];
 const MORE=[
-  ['saved','📋','Orçamentos'],
-  ['stock','📊','Estoque'],
-  ['customers','👥','Clientes'],
-  ['history','🧾','Histórico'],
-  ['dashboard','📈','Resumo'],
-  ['profile','👤','Meu acesso'],
+  ['saved','clipboard-list','Orçamentos'],
+  ['stock','boxes','Estoque'],
+  ['customers','users','Clientes'],
+  ['history','receipt-text','Histórico'],
+  ['dashboard','chart','Resumo'],
+  ['profile','user','Meu acesso'],
 ];
 
 function ensureStyles(){
@@ -22,11 +24,11 @@ function mount(){
   [...nav.querySelectorAll('[data-view]')].forEach(button=>{if(!PRIMARY.includes(button.dataset.view))button.remove()});
   if(!nav.querySelector('[data-view="orders"]')){
     const sale=nav.querySelector('[data-view="sale"]');
-    sale?.insertAdjacentHTML('afterend','<button class="mobile-link" type="button" data-view="orders"><span>📦</span><span>Pedidos</span></button>');
+    sale?.insertAdjacentHTML('afterend',`<button class="mobile-link" type="button" data-view="orders"><span>${iconMarkup('package')}</span><span>Pedidos</span></button>`);
   }
-  if(!nav.querySelector('[data-view="cash"]'))nav.insertAdjacentHTML('beforeend','<button class="mobile-link" type="button" data-view="cash"><span>💵</span><span>Caixa</span></button>');
-  nav.insertAdjacentHTML('beforeend','<button class="mobile-link" id="mobileMoreButton" type="button" aria-expanded="false"><span>•••</span><span>Mais</span></button>');
-  if(!$('mobileMoreSheet'))document.body.insertAdjacentHTML('beforeend',`<div class="pdv-more-backdrop" id="mobileMoreSheet" hidden><section class="pdv-more-sheet" role="dialog" aria-modal="true" aria-label="Mais opções"><header><div><strong>Mais opções</strong><span>Acesse funções menos usadas sem lotar a barra.</span></div><button type="button" data-more-close aria-label="Fechar">×</button></header><div>${MORE.map(([view,icon,label])=>`<button type="button" data-more-view="${view}" data-view="${view}"><span>${icon}</span><strong>${label}</strong></button>`).join('')}</div></section></div>`);
+  if(!nav.querySelector('[data-view="cash"]'))nav.insertAdjacentHTML('beforeend',`<button class="mobile-link" type="button" data-view="cash"><span>${iconMarkup('banknote')}</span><span>Caixa</span></button>`);
+  nav.insertAdjacentHTML('beforeend',`<button class="mobile-link" id="mobileMoreButton" type="button" aria-expanded="false"><span>${iconMarkup('ellipsis')}</span><span>Mais</span></button>`);
+  if(!$('mobileMoreSheet'))document.body.insertAdjacentHTML('beforeend',`<div class="pdv-more-backdrop" id="mobileMoreSheet" hidden><section class="pdv-more-sheet" role="dialog" aria-modal="true" aria-label="Mais opções"><header><div><strong>Mais opções</strong><span>Acesse funções menos usadas sem lotar a barra.</span></div><button type="button" data-more-close aria-label="Fechar">${iconMarkup('x')}</button></header><div>${MORE.map(([view,icon,label])=>`<button type="button" data-more-view="${view}" data-view="${view}"><span>${iconMarkup(icon)}</span><strong>${label}</strong></button>`).join('')}</div></section></div>`);
   wire();
 }
 
