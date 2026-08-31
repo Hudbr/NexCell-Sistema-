@@ -40,6 +40,14 @@ function announce(){if(typeof window==='undefined')return;getOfflineQueueSummary
 function localDay(value=new Date()){
  try{return new Intl.DateTimeFormat('en-CA',{timeZone:FORTALEZA_TZ,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(value))}catch(_){return new Date(value).toISOString().slice(0,10)}
 }
+function canonicalPaymentMethod(value){
+ const raw=String(value||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+ if(raw==='cash'||raw==='dinheiro')return'cash'
+ if(raw==='pix')return'pix'
+ if(raw.includes('credito')||raw==='credit')return'credit'
+ if(raw.includes('debito')||raw==='debit')return'debit'
+ return'other'
+}
 
 export async function putOfflineCache(key,value){await transaction(CACHE,'readwrite',store=>store.put({key,value,updated_at:new Date().toISOString()}));return value}
 export async function getOfflineCache(key){const db=await openDb();const tx=db.transaction(CACHE,'readonly');return (await requestValue(tx.objectStore(CACHE).get(key)))?.value??null}
@@ -95,7 +103,9 @@ export async function prepareOfflineSale(payload){
  let subtotal=0;for(const[id,qty]of grouped){const variant=index.get(id);if(!variant)throw new Error('Um item do carrinho não está disponível no catálogo offline.');const localAvailable=variant.available-(pending.get(id)||0);if(localAvailable<qty)throw new Error(`Estoque offline insuficiente para ${variant.productName}. Disponível neste aparelho: ${Math.max(0,localAvailable)}.`);subtotal+=variant.price*qty}
  const discount=Math.max(0,Number(payload.discount)||0);if(discount>subtotal)throw new Error('Desconto maior que o subtotal.');
  const total=Number((subtotal-discount+Math.max(0,Number(payload.payment_fee)||0)).toFixed(2));
- const payments=Array.isArray(payload.payments)&&payload.payments.length?payload.payments:[{method:payload.payment_method||'PIX',amount:total,meta:payload.payment_meta||{}}];const paymentTotal=payments.reduce((sum,payment)=>sum+Math.max(0,Number(payment.amount)||0),0);if(Math.abs(paymentTotal-total)>0.01)throw new Error('A soma dos pagamentos não corresponde ao total da venda.');
+ const payments=Array.isArray(payload.payments)&&payload.payments.length?payload.payments:[{method:payload.payment_method||'PIX',amount:total,meta:payload.payment_meta||{}}];
+ if(payments.some(payment=>canonicalPaymentMethod(payment.method)!=='cash'))throw new Error('Sem internet, o PDV aceita somente pagamento em Dinheiro. PIX e cartões exigem conexão para evitar registrar pagamento não confirmado.');
+ const paymentTotal=payments.reduce((sum,payment)=>sum+Math.max(0,Number(payment.amount)||0),0);if(Math.abs(paymentTotal-total)>0.01)throw new Error('A soma dos pagamentos não corresponde ao total da venda.');
  const queuedPayload={...payload,test_mode_expected:false,expected_register_id:registerState.register.id,expected_register_code:registerState.register.code,offline_created_at:new Date().toISOString()};
  const result={id:`offline:${requestId}`,code:`OFF-${requestId.replace(/[^a-z0-9]/gi,'').slice(0,6).toUpperCase()||Date.now().toString().slice(-6)}`,status:'queued',offline_queued:true,saved:true,test_mode:false,operator_code:String(payload.operator_code),operator_name:operator.name||'Operador',register_code:registerState.register.code,settlement_status:'offline_pending',subtotal,discount,total,payments,customer_id:payload.customer_id||null,customer_name:payload.customer_name||'Cliente Balcão'};
  await queueOfflineSale({id:requestId,payload:queuedPayload,offline_result:result,register_id:registerState.register.id,register_code:registerState.register.code});return result;
