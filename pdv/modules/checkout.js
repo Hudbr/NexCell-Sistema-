@@ -19,6 +19,12 @@ export function createCheckoutController({getTotal,onSummaryChange}={}){
  function total(){return Math.max(0,Number(getTotal?.()||0))}
  function splitInputs(){return [...document.querySelectorAll('[data-split-method]')]}
  function splitRows(){return splitInputs().map(input=>({method:input.dataset.splitMethod,amount:Math.max(0,Number(input.value)||0)})).filter(row=>row.amount>0)}
+ function restoreLegacyPaymentFields(){
+  const method=$('paymentMethod')?.value||'PIX';
+  if($('paymentMethod')?.closest('.field'))$('paymentMethod').closest('.field').style.display='';
+  if($('cashFields'))$('cashFields').hidden=method!=='Dinheiro';
+  if($('installmentField'))$('installmentField').hidden=method!=='Cartão de Crédito';
+ }
  function updateCustomerUi(customer=getSelectedCustomer()){
   if($('saleCustomerSearch'))$('saleCustomerSearch').value=customer?.full_name||'';
   if($('clearSaleCustomer'))$('clearSaleCustomer').hidden=!customer;
@@ -32,13 +38,29 @@ export function createCheckoutController({getTotal,onSummaryChange}={}){
 
  $('saleCustomerSearch')?.addEventListener('input',event=>{const selected=getSelectedCustomer();if(selected&&event.target.value!==selected.full_name)clearSelectedCustomer();clearTimeout(timer);timer=setTimeout(()=>runSearch(event.target.value.trim()),180)});
  $('clearSaleCustomer')?.addEventListener('click',clearSelectedCustomer);
- $('splitPaymentToggle')?.addEventListener('change',event=>{const enabled=event.target.checked;$('splitPaymentPanel').hidden=!enabled;$('paymentMethod').closest('.field').style.display=enabled?'none':'';$('cashFields').hidden=true;$('installmentField').hidden=true;if(enabled)seedSplit();onSummaryChange?.()});
+ $('splitPaymentToggle')?.addEventListener('change',event=>{
+  const enabled=event.target.checked;
+  if($('splitPaymentPanel'))$('splitPaymentPanel').hidden=!enabled;
+  if(enabled){
+   if($('paymentMethod')?.closest('.field'))$('paymentMethod').closest('.field').style.display='none';
+   if($('cashFields'))$('cashFields').hidden=true;
+   if($('installmentField'))$('installmentField').hidden=true;
+   seedSplit();
+  }else restoreLegacyPaymentFields();
+  onSummaryChange?.();
+ });
  splitInputs().forEach(input=>input.addEventListener('input',updateSplitStatus));
  document.addEventListener('click',event=>{const button=event.target.closest('[data-checkout-customer]');if(button)setSelectedCustomer({id:button.dataset.checkoutCustomer,full_name:button.dataset.name,phone:button.dataset.phone,email:button.dataset.email})});
  onSelectedCustomerChange(updateCustomerUi);
 
  return {
-  reset({clearCustomer=false}={}){if(clearCustomer)clearSelectedCustomer();else updateCustomerUi();const toggle=$('splitPaymentToggle');if(toggle){toggle.checked=false;$('splitPaymentPanel').hidden=true;$('paymentMethod').closest('.field').style.display='';}splitInputs().forEach(input=>{input.value='0.00'});if($('splitPaymentStatus'))$('splitPaymentStatus').textContent='';},
+  reset({clearCustomer=false}={}){
+   if(clearCustomer)clearSelectedCustomer();else updateCustomerUi();
+   const toggle=$('splitPaymentToggle');if(toggle){toggle.checked=false;if($('splitPaymentPanel'))$('splitPaymentPanel').hidden=true;}
+   splitInputs().forEach(input=>{input.value='0.00'});
+   if($('splitPaymentStatus'))$('splitPaymentStatus').textContent='';
+   restoreLegacyPaymentFields();
+  },
   customer(){return getSelectedCustomer()},
   isSplit(){return Boolean($('splitPaymentToggle')?.checked)},
   refresh(){if(this.isSplit())updateSplitStatus()},
