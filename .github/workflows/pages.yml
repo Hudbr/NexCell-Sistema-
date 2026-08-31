@@ -23,6 +23,10 @@ jobs:
     steps:
       - name: Baixar projeto
         uses: actions/checkout@v4
+      - name: Identificar versão publicada do PDV
+        run: |
+          printf "export const BUILD_VERSION='%s'\n" "$GITHUB_SHA" > pdv/build-version.js
+          printf '{"version":"%s"}\n' "$GITHUB_SHA" > pdv/version.json
       - name: Preparar GitHub Pages
         uses: actions/configure-pages@v5
       - name: Empacotar site
