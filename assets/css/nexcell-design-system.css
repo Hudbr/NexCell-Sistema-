@@ -1,0 +1,96 @@
+:root{
+  --nex-ink:#18202a;
+  --nex-ink-soft:#465361;
+  --nex-canvas:#f6f5f2;
+  --nex-surface:#fffdf9;
+  --nex-surface-soft:#efede8;
+  --nex-line:#d8d5cf;
+  --nex-accent:#b3956b;
+  --nex-accent-strong:#765b38;
+  --nex-accent-soft:#eee5d8;
+  --nex-dark:#0b1118;
+  --nex-dark-2:#111923;
+  --nex-dark-3:#17212d;
+  --nex-dark-line:#283544;
+  --nex-dark-text:#f2f5f8;
+  --nex-dark-muted:#a2aeba;
+  --nex-success:#3f8f61;
+  --nex-success-soft:#e8f3ec;
+  --nex-warning:#a96e27;
+  --nex-warning-soft:#f8eddc;
+  --nex-danger:#ae4f59;
+  --nex-danger-soft:#f7e7e8;
+  --nex-info:#4e7fab;
+  --nex-focus:#d0b385;
+  --nex-shadow:0 18px 52px rgba(11,17,24,.12);
+}
+
+/* Contrato visual do PDV: claro, rápido e confortável para uso prolongado. */
+.workspace-body{
+  --ink:var(--nex-ink);
+  --muted:#66717c;
+  --line:var(--nex-line);
+  --surface:var(--nex-surface);
+  --canvas:var(--nex-canvas);
+  --brand:var(--nex-accent);
+  --brand-dark:var(--nex-accent-strong);
+  --brand-soft:var(--nex-accent-soft);
+  --success:var(--nex-success);
+  --warning:var(--nex-warning);
+  --danger:var(--nex-danger);
+  background:var(--nex-canvas)!important;
+  color:var(--nex-ink)!important;
+}
+
+:where(button,a,input,select,textarea):focus-visible{
+  outline:2px solid var(--nex-focus)!important;
+  outline-offset:2px!important;
+}
+
+.sidebar{background:var(--nex-dark)!important;color:var(--nex-dark-text)!important}
+.sidebar-user{background:rgba(255,255,255,.055)!important;border-color:rgba(255,255,255,.10)!important}
+.sidebar-user span,.sidebar-brand-copy span{color:var(--nex-dark-muted)!important}
+.side-link{color:#aab4bf!important}
+.side-link:hover,.side-link.active{background:var(--nex-dark-3)!important;color:var(--nex-dark-text)!important}
+.side-link.active{box-shadow:inset 3px 0 var(--nex-accent)!important}
+.user-avatar{background:var(--nex-accent)!important;color:var(--nex-dark)!important}
+
+.auth-screen{background:radial-gradient(circle at 20% 8%,rgba(200,173,132,.20),transparent 28rem),linear-gradient(145deg,#0b1118,#111923 62%,#202a35)!important}
+.auth-card{background:rgba(255,253,249,.98)!important;border-color:rgba(255,255,255,.16)!important}
+.auth-message{background:#f1efea!important;color:#4f5963!important}
+
+.brand-mark{background:transparent!important;box-shadow:none!important;color:var(--nex-dark)!important;border:1px solid var(--nex-line)!important}
+.sidebar .brand-mark{border-color:rgba(255,255,255,.14)!important;color:var(--nex-dark-text)!important}
+
+.btn-primary{background:var(--nex-accent)!important;border-color:var(--nex-accent)!important;color:var(--nex-dark)!important;box-shadow:0 8px 18px rgba(118,91,56,.14)!important}
+.btn-primary:hover{background:#c3a578!important;border-color:#c3a578!important}
+.btn-secondary,.icon-btn{background:var(--nex-surface)!important;border-color:var(--nex-line)!important;color:var(--nex-ink)!important}
+.btn-danger{background:var(--nex-danger-soft)!important;color:#913f48!important}
+.text-button{color:var(--nex-accent-strong)!important}
+
+.input,.select,.field input,.field select,.field textarea{background:var(--nex-surface)!important;border-color:#cecac3!important;color:var(--nex-ink)!important}
+.input::placeholder,.field input::placeholder,.field textarea::placeholder{color:#81878d!important;opacity:1}
+
+.card,.modal-card{background:var(--nex-surface)!important;border-color:var(--nex-line)!important;box-shadow:none}
+.workspace-topbar{background:rgba(246,245,242,.94)!important;border-color:var(--nex-line)!important;backdrop-filter:blur(14px)}
+.filter-chip.active{background:var(--nex-dark)!important;border-color:var(--nex-dark)!important;color:var(--nex-dark-text)!important}
+
+.badge-success{background:var(--nex-success-soft)!important;color:#347650!important;border-color:#bddcc8!important}
+.badge-warning{background:var(--nex-warning-soft)!important;color:#87561e!important;border-color:#e7cda5!important}
+.badge-danger{background:var(--nex-danger-soft)!important;color:#913f48!important;border-color:#e5b9bd!important}
+.status-dot.online{background:var(--nex-success)!important}
+
+/* Ícones locais: tamanho e traço únicos em toda a operação. */
+.nex-icon{width:18px;height:18px;display:inline-block;flex:0 0 auto;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.side-link .nex-icon{width:17px;height:17px}
+.mobile-link .nex-icon{width:19px;height:19px}
+.icon-btn .nex-icon{width:18px;height:18px}
+
+/* Oculta emojis legados que ainda existam no HTML; o módulo de ícones os troca por SVG. */
+[data-nex-iconized="true"]>.legacy-icon{display:none!important}
+
+@media(prefers-contrast:more){
+  .workspace-body{--muted:#525d67;--line:#b8b5af}
+  .side-link{color:#c7cfd7!important}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
