@@ -2,48 +2,19 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
     <title>Produto • NexCell Store</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    >
-    <link rel="stylesheet" href="../assets/css/base.css">
-    <link rel="stylesheet" href="../assets/css/store.css">
+    <script>
+      const current = new URL(window.location.href);
+      const id = current.searchParams.get('id');
+      const path = id ? `/produto/${encodeURIComponent(id)}` : '/';
+      const target = new URL(path, 'https://nexcellstore.vercel.app');
+      target.hash = current.hash;
+      window.location.replace(target.href);
+    </script>
   </head>
-  <body class="store-body">
-    <header class="store-header">
-      <div class="container store-header-inner" style="grid-template-columns:auto auto;">
-        <a class="store-logo" href="../store/" aria-label="Voltar para a NexCell Store">
-          <span class="brand-mark" aria-hidden="true">NC</span>
-          <span class="brand-copy"><strong>NexCell Store</strong><span>Acessórios & tecnologia</span></span>
-        </a>
-        <div class="header-actions">
-          <a class="btn btn-secondary" href="../store/">← Voltar à loja</a>
-          <button class="cart-trigger" id="productCartButton" type="button">
-            <span aria-hidden="true">🛒</span>
-            <span class="cart-count" id="productCartCount">0</span>
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <main class="container product-page">
-      <nav class="breadcrumb" aria-label="Navegação estrutural">
-        <a href="../store/">Início</a><span>/</span><span id="breadcrumbName">Produto</span>
-      </nav>
-      <div id="productDetail">
-        <div class="product-detail">
-          <div class="skeleton" style="min-height:470px;"></div>
-          <div class="skeleton" style="min-height:470px;"></div>
-        </div>
-      </div>
-    </main>
-
-    <div id="toastHost" class="toast-host" aria-live="polite"></div>
-    <script type="module" src="../assets/js/product.js"></script>
+  <body>
+    <p>Abrindo a página de produto atual da NexCell Store…</p>
   </body>
 </html>
