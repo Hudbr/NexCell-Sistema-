@@ -55,8 +55,14 @@ async function checkVersion(){
  }catch(_){/* a operação continua mesmo sem a checagem de versão */}
 }
 
+function registerOfflineShell(){
+ if(!('serviceWorker'in navigator))return
+ navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(error=>console.warn('Continuidade offline indisponível',error))
+}
+
 function start(){
  normalizeNavigation()
+ registerOfflineShell()
  checkVersion()
  timer&&clearInterval(timer)
  timer=setInterval(()=>{if(!document.hidden){normalizeNavigation();if(pendingVersion)applyUpdate();else checkVersion()}},CHECK_INTERVAL)
