@@ -1,4 +1,4 @@
-import{observeLegacyIcons,replaceLegacyIcons}from'./icons.js';
+import{replaceLegacyIcons}from'./icons.js';
 
 function ensureStyles(){
  if(document.querySelector('link[data-nexcell-design-system]'))return;
@@ -10,6 +10,7 @@ function ensureStyles(){
 }
 
 ensureStyles();
-replaceLegacyIcons(document);
-const observer=observeLegacyIcons();
-window.addEventListener('pagehide',()=>observer.disconnect(),{once:true});
+/* Executa depois que as dependências do app terminam a montagem síncrona. */
+queueMicrotask(()=>replaceLegacyIcons(document));
+
+export function refreshDesignSystemIcons(root=document){replaceLegacyIcons(root)}
