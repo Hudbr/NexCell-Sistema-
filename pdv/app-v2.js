@@ -109,4 +109,5 @@ window.addEventListener('load',()=>{
  import('./modules/offline-status.js').catch(error=>console.warn('Status offline',error));
  import('./modules/terminal-lock.js').then(module=>module.initTerminalLock()).catch(error=>console.warn('Trava do terminal',error));
  import('./modules/catalog-realtime.js').then(module=>module.initCatalogRealtime()).catch(error=>console.warn('Catálogo em tempo real',error));
+ import('./modules/operations-realtime.js').then(module=>module.initOperationsRealtime()).catch(error=>console.warn('Operação em tempo real',error));
 },{once:true});
