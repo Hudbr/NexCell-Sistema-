@@ -1,5 +1,6 @@
 import { getCustomerHistory, saveCustomer, searchCustomers } from './customer-api.js';
 import { clearSelectedCustomer, getSelectedCustomer, setSelectedCustomer } from './customer-state.js';
+import { iconMarkup } from './icons.js';
 
 const $=id=>document.getElementById(id);
 const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -11,18 +12,18 @@ function renderSelected(customer=getSelectedCustomer()){
   const badge=$('selectedSaleCustomer');
   if(!badge)return;
   badge.innerHTML=customer
-    ?`<span>Cliente</span><strong>${esc(customer.full_name)}</strong><button type="button" data-clear-sale-customer aria-label="Remover cliente">×</button>`
+    ?`<span>Cliente</span><strong>${esc(customer.full_name)}</strong><button type="button" data-clear-sale-customer aria-label="Remover cliente">${iconMarkup('x')}</button>`
     :'<span>Cliente</span><strong>Balcão</strong>';
 }
 
 function mount(){
   const side=document.querySelector('.side-nav');
   const profile=side?.querySelector('[data-view="profile"]');
-  if(side&&profile&&!side.querySelector('[data-view="customers"]'))profile.insertAdjacentHTML('beforebegin','<button class="side-link" type="button" data-view="customers"><span>👥</span>Clientes</button>');
+  if(side&&profile&&!side.querySelector('[data-view="customers"]'))profile.insertAdjacentHTML('beforebegin',`<button class="side-link" type="button" data-view="customers">${iconMarkup('users')}<span>Clientes</span></button>`);
 
   const mobile=document.querySelector('.mobile-nav');
   const mobileProfile=mobile?.querySelector('[data-view="profile"]');
-  if(mobile&&mobileProfile&&!mobile.querySelector('[data-view="customers"]'))mobileProfile.insertAdjacentHTML('beforebegin','<button class="mobile-link" type="button" data-view="customers"><span>👥</span><span>Clientes</span></button>');
+  if(mobile&&mobileProfile&&!mobile.querySelector('[data-view="customers"]'))mobileProfile.insertAdjacentHTML('beforebegin',`<button class="mobile-link" type="button" data-view="customers">${iconMarkup('users')}<span>Clientes</span></button>`);
 
   const content=document.querySelector('.workspace-content');
   if(content&&!$('view-customers'))content.insertAdjacentHTML('beforeend',`<section class="workspace-view" id="view-customers">
@@ -34,7 +35,7 @@ function mount(){
   </section>`);
 
   if(!$('customerModal'))document.body.insertAdjacentHTML('beforeend',`<div class="modal" id="customerModal"><div class="modal-card" role="dialog" aria-modal="true">
-    <div class="modal-header"><h2 id="customerModalTitle">Novo cliente</h2><button class="icon-btn" type="button" data-customer-close>×</button></div>
+    <div class="modal-header"><h2 id="customerModalTitle">Novo cliente</h2><button class="icon-btn" type="button" data-customer-close aria-label="Fechar">${iconMarkup('x')}</button></div>
     <form id="customerForm"><input type="hidden" id="customerId"><div class="modal-body">
       <div class="field"><label for="customerName">Nome</label><input class="input" id="customerName" required maxlength="120"></div>
       <div class="field-row"><div class="field"><label for="customerPhone">Telefone</label><input class="input" id="customerPhone" inputmode="tel"></div><div class="field"><label for="customerEmail">E-mail</label><input class="input" id="customerEmail" type="email"></div></div>
