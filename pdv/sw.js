@@ -2,7 +2,7 @@ const CACHE='nexcell-pdv-shell-v1';
 const SHELL=[
  './','./index.html','./app-v2.js','./app.js','./supabase.js','./runtime.js','./test-mode.js','./operations.js','./operations.css','./favicon.svg',
  './modules/checkout.js','./modules/checkout.css','./modules/customer-api.js','./modules/customer-state.js','./modules/customers.js','./modules/customers.css',
- './modules/mobile-nav.js','./modules/mobile-nav.css','./modules/ui-policies.js','./modules/offline-store.js','./modules/offline-status.js',
+ './modules/mobile-nav.js','./modules/mobile-nav.css','./modules/ui-policies.js','./modules/offline-store.js','./modules/offline-status.js','./modules/terminal-lock.js',
  '../assets/css/base.css','../assets/css/workspace.css','../assets/js/utils.js'
 ];
 
