@@ -59,7 +59,8 @@ export async function getOperationalProfile(){
    return data;
   }catch(error){
    if(!isNetworkError(error))throw error;
-   const local=await getCachedProfile().catch(()=>null);if(!local)throw error;
+   const local=await getCachedProfile().catch(()=>null);
+   if(!local||!userIdAtStart||String(local.user_id||'')!==String(userIdAtStart))throw error;
    cachedProfile={...local,offline_cached:true};cachedProfileUserId=userIdAtStart;return cachedProfile;
   }
  })();
@@ -152,7 +153,7 @@ export async function getStorefrontSettings(){const client=await getSupabase();c
 export async function getOfflineStatus(){return getOfflineQueueSummary()}
 export async function syncOfflineNow(){
  if(syncPromise)return syncPromise;
- if(typeof navigator!=='undefined'&&navigator.onLine===false)return{synced:0,pending:(await getOfflineQueueSummary()).total,conflicts:0,offline:true};
+ if(typeof navigator==='undefined'||navigator.onLine===false)return{synced:0,pending:(await getOfflineQueueSummary()).total,conflicts:0,offline:true};
  syncPromise=(async()=>{
   try{
    if(!(await offlineStorageReady()))return{synced:0,pending:0,conflicts:0,storage:false};
