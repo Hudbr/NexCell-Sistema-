@@ -28,5 +28,8 @@ jobs:
           curl --retry 3 --retry-connrefused --retry-delay 0 --fail http://127.0.0.1:4173/
           curl --fail http://127.0.0.1:4173/store/
           curl --fail 'http://127.0.0.1:4173/produto/?id=teste'
-          curl --fail http://127.0.0.1:4173/pdv/
+          curl --fail http://127.0.0.1:4173/pdv/ | grep -q 'app-v2.js'
+          curl --fail http://127.0.0.1:4173/pdv/sw.js | grep -q 'nexcell-pdv-shell'
+          curl --fail http://127.0.0.1:4173/pdv/modules/offline-store.js | grep -q 'expected_register_id'
+          curl --fail http://127.0.0.1:4173/pdv/modules/terminal-lock.js | grep -q 'nexcell-pdv-terminal'
           curl --fail http://127.0.0.1:4173/control/
