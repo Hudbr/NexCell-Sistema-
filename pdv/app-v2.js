@@ -106,4 +106,5 @@ window.addEventListener('nexcell:pdv-sale-complete',()=>{checkout.reset({clearCu
 window.addEventListener('load',()=>{
  import('./modules/mobile-nav.js').catch(error=>console.warn('Menu mobile',error));
  import('./modules/offline-status.js').catch(error=>console.warn('Status offline',error));
+ import('./modules/terminal-lock.js').then(module=>module.initTerminalLock()).catch(error=>console.warn('Trava do terminal',error));
 },{once:true});
