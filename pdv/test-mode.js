@@ -1,3 +1,4 @@
+import'./runtime.js'
 import{getSession,getSupabase}from'./supabase.js'
 
 let enabled=null
