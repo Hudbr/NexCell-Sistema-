@@ -1,3 +1,4 @@
+import './modules/design-system.js';
 import './app.js';
 import { createCheckoutController } from './modules/checkout.js';
 import { initPdvUiPolicies } from './modules/ui-policies.js';
