@@ -1,5 +1,6 @@
 import './app.js';
 import { createCheckoutController } from './modules/checkout.js';
+import { initPdvUiPolicies } from './modules/ui-policies.js';
 import { createSale } from './supabase.js';
 import { escapeHtml, formatMoney, setBusy, toast } from '../assets/js/utils.js';
 
@@ -13,6 +14,7 @@ const discount=()=>Math.min(subtotal(),Math.max(0,Number($('saleDiscount')?.valu
 const total=()=>Math.max(0,subtotal()-discount());
 const newRequestId=()=>globalThis.crypto?.randomUUID?.()||`sale-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
+initPdvUiPolicies();
 const checkout=createCheckoutController({getTotal:total,onSummaryChange:()=>renderExtendedSummary()});
 let activeQuoteId=sessionStorage.getItem('nexcell.pdv.activeQuote')||null;
 let paymentAttemptId=null;
@@ -101,4 +103,7 @@ window.addEventListener('nexcell:pdv-test-mode-change',event=>{
  toast('O Modo Teste mudou enquanto o recebimento estava aberto. Abra Receber novamente para evitar uma venda no modo errado.','error');
 });
 window.addEventListener('nexcell:pdv-sale-complete',()=>{checkout.reset({clearCustomer:true})});
-window.addEventListener('load',()=>import('./modules/mobile-nav.js').catch(error=>console.warn('Menu mobile',error)),{once:true});
+window.addEventListener('load',()=>{
+ import('./modules/mobile-nav.js').catch(error=>console.warn('Menu mobile',error));
+ import('./modules/offline-status.js').catch(error=>console.warn('Status offline',error));
+},{once:true});
