@@ -1,4 +1,3 @@
-@import url("../assets/css/nexcell-design-system.css");
 .pdv-dashboard-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 .pdv-metric-list{display:grid;gap:0}
 .pdv-metric-list>div:not(.empty-state){display:flex;align-items:center;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px solid var(--border,var(--line))}
