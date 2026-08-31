@@ -29,7 +29,6 @@ function clearLegacyCart(){[...document.querySelectorAll('#saleCart .remove-item
 function setModal(id,open){const node=$(id);if(!node)return;node.classList.toggle('open',open);node.setAttribute('aria-hidden',open?'false':'true')}
 function paymentLabel(payments){return payments.map(row=>`${row.method} ${formatMoney(row.amount)}`).join(' + ')}
 function renderExtendedSummary(){
- checkout.refresh?.();
  const root=$('paymentSummary');if(!root)return;
  const customer=checkout.customer();
  const extra=customer?`<div><span>Cliente</span><strong>${escapeHtml(customer.full_name)}</strong></div>`:'';
@@ -42,7 +41,6 @@ function renderReceipt(result,items,paymentData){
  root.innerHTML=`<div style="text-align:center;"><strong>Nexcell</strong><p>Venda #${escapeHtml(result.code||'TESTE')}</p>${result.test_mode?'<small>MODO TESTE · nada foi gravado</small>':''}</div><hr><div>${items.map(item=>`<div style="display:flex;justify-content:space-between;gap:12px;margin:6px 0;"><span>${item.qty}× ${escapeHtml(item.name)}<small style="display:block;">${escapeHtml(item.detail)}</small></span><strong>${escapeHtml(item.total)}</strong></div>`).join('')}</div><hr><div style="display:grid;gap:5px;"><div style="display:flex;justify-content:space-between;"><span>Total</span><strong>${formatMoney(result.total)}</strong></div><div style="display:flex;justify-content:space-between;gap:12px;"><span>Pagamento</span><strong style="text-align:right;">${escapeHtml(paymentLabel(paymentData.payments))}</strong></div>${paymentData.customer_id?`<div style="display:flex;justify-content:space-between;"><span>Cliente</span><strong>${escapeHtml(paymentData.customer_name)}</strong></div>`:''}<div style="display:flex;justify-content:space-between;"><span>Operador</span><strong>#${escapeHtml(result.operator_code||'—')}</strong></div></div>`;
 }
 
-// Guarda o orçamento ativo antes do manipulador legado consumi-lo.
 document.addEventListener('click',event=>{
  const resume=event.target.closest('[data-resume-quote]');
  if(resume){activeQuoteId=resume.dataset.resumeQuote;sessionStorage.setItem('nexcell.pdv.activeQuote',activeQuoteId)}
@@ -55,7 +53,7 @@ $('saleDiscount')?.addEventListener('input',()=>checkout.refresh());
 
 $('paymentForm')?.addEventListener('submit',async event=>{
  const hasCustomer=Boolean(checkout.customer()?.id);const split=checkout.isSplit();
- if(!hasCustomer&&!split)return; // venda simples continua no fluxo legado enquanto a migração é gradual.
+ if(!hasCustomer&&!split)return;
  event.preventDefault();event.stopImmediatePropagation();
  const items=cartItems();if(!items.length)return toast('Carrinho vazio.','error');
  const operatorCode=$('saleOperatorCode')?.value.trim();if(!operatorCode)return toast('Informe o código de quem está vendendo.','error');
@@ -71,7 +69,4 @@ $('paymentForm')?.addEventListener('submit',async event=>{
  finally{setBusy(button,false)}
 },true);
 
-window.addEventListener('nexcell:pdv-sale-complete',()=>{
- // O legado atualiza catálogo/caixa em até 20 s. Mantemos esse refresh enquanto os módulos são extraídos do app antigo.
- checkout.reset();
-});
+window.addEventListener('nexcell:pdv-sale-complete',()=>{checkout.reset()});
