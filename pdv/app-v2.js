@@ -69,4 +69,4 @@ $('paymentForm')?.addEventListener('submit',async event=>{
  finally{setBusy(button,false)}
 },true);
 
-window.addEventListener('nexcell:pdv-sale-complete',()=>{checkout.reset()});
+window.addEventListener('nexcell:pdv-sale-complete',()=>{checkout.reset({clearCustomer:true})});
