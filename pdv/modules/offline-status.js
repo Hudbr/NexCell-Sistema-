@@ -1,0 +1,36 @@
+import { getOfflineStatus, syncOfflineNow } from '../supabase.js';
+
+const $=id=>document.getElementById(id);
+let syncing=false;
+
+function mount(){
+ const actions=document.querySelector('.topbar-actions');
+ if(actions&&!$('pdvConnectivity')){
+  actions.insertAdjacentHTML('afterbegin','<button id="pdvConnectivity" type="button" class="clock-pill" style="cursor:pointer;border:1px solid var(--border);background:#fff;"><span class="status-dot"></span><span id="pdvConnectivityText">Conectando…</span></button>');
+ }
+ if(!$('offlineQueueModal'))document.body.insertAdjacentHTML('beforeend',`<div class="modal" id="offlineQueueModal"><div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="offlineQueueTitle"><div class="modal-header"><h2 id="offlineQueueTitle">Continuidade do PDV</h2><button class="icon-btn" type="button" data-offline-close>×</button></div><div class="modal-body"><div id="offlineQueueBody"></div></div><div class="modal-footer"><button class="btn btn-secondary" type="button" data-offline-close>Fechar</button><button class="btn btn-primary" id="syncOfflineNow" type="button">Sincronizar agora</button></div></div></div>`);
+ $('pdvConnectivity')?.addEventListener('click',()=>openModal());
+ $('syncOfflineNow')?.addEventListener('click',async()=>{if(syncing)return;syncing=true;$('syncOfflineNow').disabled=true;$('syncOfflineNow').textContent='Sincronizando…';try{await syncOfflineNow()}finally{syncing=false;$('syncOfflineNow').disabled=false;$('syncOfflineNow').textContent='Sincronizar agora';await render()}});
+ document.addEventListener('click',event=>{if(event.target.closest('[data-offline-close]'))closeModal()});
+ window.addEventListener('online',render);window.addEventListener('offline',render);window.addEventListener('nexcell:offline-queue-change',render);
+ render();
+}
+
+function openModal(){const modal=$('offlineQueueModal');modal?.classList.add('open');modal?.setAttribute('aria-hidden','false');render()}
+function closeModal(){const modal=$('offlineQueueModal');modal?.classList.remove('open');modal?.setAttribute('aria-hidden','true')}
+function esc(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
+
+async function render(){
+ let status={total:0,pending:0,conflicts:0,rows:[]};try{status=await getOfflineStatus()}catch(_){/* IndexedDB ainda inicializando */}
+ const online=navigator.onLine!==false;const button=$('pdvConnectivity');const dot=button?.querySelector('.status-dot');const text=$('pdvConnectivityText');
+ if(dot){dot.classList.toggle('online',online&&status.conflicts===0);dot.style.background=!online?'#dc2626':status.conflicts?'#d97706':''}
+ if(text)text.textContent=!online?`Offline${status.total?` · ${status.total} pendente(s)`:''}`:status.conflicts?`${status.conflicts} conflito(s)`:status.total?`${status.total} aguardando sync`:'Online';
+ if(button){button.title=!online?'As vendas permitidas offline ficam salvas neste aparelho.':status.total?'Existem vendas locais aguardando sincronização.':'Conectado ao servidor.'}
+ document.body.toggleAttribute('data-pdv-offline',!online);
+ const root=$('offlineQueueBody');if(!root)return;
+ const rows=Array.isArray(status.rows)?status.rows:[];
+ root.innerHTML=`<div class="auth-message show" style="margin-bottom:14px;"><strong>${online?'Servidor acessível pela rede do aparelho':'Sem conexão detectada'}</strong><br>${!online?'Venda presencial pode continuar com os dados já sincronizados. Sangria, fechamento, pedidos online e ajustes de estoque ficam bloqueados.':'Vendas guardadas offline são enviadas automaticamente quando possível.'}</div><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px;"><div class="card"><div class="card-body"><span class="stat-label">Na fila</span><strong style="display:block;font-size:20px;margin-top:4px;">${Number(status.total||0)}</strong></div></div><div class="card"><div class="card-body"><span class="stat-label">Aguardando</span><strong style="display:block;font-size:20px;margin-top:4px;">${Number(status.pending||0)}</strong></div></div><div class="card"><div class="card-body"><span class="stat-label">Conflitos</span><strong style="display:block;font-size:20px;margin-top:4px;">${Number(status.conflicts||0)}</strong></div></div></div>${rows.length?`<div style="display:grid;gap:8px;">${rows.map(row=>`<article style="padding:10px 12px;border:1px solid var(--border);border-radius:10px;"><div style="display:flex;justify-content:space-between;gap:10px;"><strong>${esc(row.offline_result?.code||'Venda offline')}</strong><span class="badge ${row.status==='conflict'?'badge-danger':'badge-warning'}">${row.status==='conflict'?'Revisar':'Aguardando'}</span></div><small style="display:block;margin-top:5px;">Operador #${esc(row.payload?.operator_code||'—')} · ${new Date(row.created_at).toLocaleString('pt-BR')}</small>${row.last_error?`<small style="display:block;margin-top:5px;color:var(--danger);">${esc(row.last_error)}</small>`:''}</article>`).join('')}</div>`:'<div class="empty-state"><strong>Nenhuma venda pendente</strong><span>A fila local está sincronizada.</span></div>'}`;
+ $('syncOfflineNow').disabled=!online||syncing||!status.total;
+}
+
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
