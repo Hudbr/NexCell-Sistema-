@@ -70,3 +70,4 @@ $('paymentForm')?.addEventListener('submit',async event=>{
 },true);
 
 window.addEventListener('nexcell:pdv-sale-complete',()=>{checkout.reset({clearCustomer:true})});
+window.addEventListener('load',()=>import('./modules/mobile-nav.js').catch(error=>console.warn('Menu mobile',error)),{once:true});
