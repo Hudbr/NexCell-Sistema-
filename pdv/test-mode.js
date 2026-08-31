@@ -4,8 +4,16 @@ import{getSession,getSupabase}from'./supabase.js'
 let enabled=null
 let timer=null
 
+function publish(active){
+ const next=!!active
+ const changed=enabled!==null&&enabled!==next
+ enabled=next
+ window.__NEXCELL_PDV_TEST_MODE__=next
+ if(changed)window.dispatchEvent(new CustomEvent('nexcell:pdv-test-mode-change',{detail:{enabled:next}}))
+}
+
 function render(active){
- enabled=!!active
+ publish(active)
  let banner=document.getElementById('pdvTestModeBanner')
  const main=document.querySelector('.workspace-main')
  if(!active){
