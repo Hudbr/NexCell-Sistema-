@@ -3,6 +3,8 @@ const DB_VERSION=1;
 const CACHE='cache';
 const QUEUE='sales_queue';
 const ARCHIVE='sales_archive';
+const FORTALEZA_TZ='America/Fortaleza';
+const MAX_REGISTER_CACHE_AGE=24*60*60*1000;
 let dbPromise=null;
 
 function openDb(){
@@ -35,6 +37,9 @@ async function transaction(storeName,mode,runner){
 
 function requestValue(request){return new Promise((resolve,reject)=>{request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error)})}
 function announce(){if(typeof window==='undefined')return;getOfflineQueueSummary().then(detail=>window.dispatchEvent(new CustomEvent('nexcell:offline-queue-change',{detail}))).catch(()=>{})}
+function localDay(value=new Date()){
+ try{return new Intl.DateTimeFormat('en-CA',{timeZone:FORTALEZA_TZ,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(value))}catch(_){return new Date(value).toISOString().slice(0,10)}
+}
 
 export async function putOfflineCache(key,value){await transaction(CACHE,'readwrite',store=>store.put({key,value,updated_at:new Date().toISOString()}));return value}
 export async function getOfflineCache(key){const db=await openDb();const tx=db.transaction(CACHE,'readonly');return (await requestValue(tx.objectStore(CACHE).get(key)))?.value??null}
@@ -42,7 +47,7 @@ export const cacheCatalog=rows=>putOfflineCache('catalog',Array.isArray(rows)?ro
 export const getCachedCatalog=()=>getOfflineCache('catalog');
 export const cacheProfile=profile=>putOfflineCache('profile',profile||null);
 export const getCachedProfile=()=>getOfflineCache('profile');
-export const cacheRegisterState=state=>putOfflineCache('register_state',state||null);
+export const cacheRegisterState=state=>putOfflineCache('register_state',state?{...state,_offline_cached_at:new Date().toISOString()}:null);
 export const getCachedRegisterState=()=>getOfflineCache('register_state');
 
 export async function queueOfflineSale(record){
@@ -80,7 +85,10 @@ export async function prepareOfflineSale(payload){
  const [catalog,registerState,alreadyQueued]=await Promise.all([getCachedCatalog(),getCachedRegisterState(),getQueuedSale(requestId)]);
  if(alreadyQueued)return alreadyQueued.offline_result;
  if(!Array.isArray(catalog)||!catalog.length)throw new Error('O catálogo ainda não foi sincronizado neste aparelho. Conecte à internet antes de usar o modo offline.');
- if(!registerState?.open||!registerState?.register?.code)throw new Error('Não existe um caixa aberto sincronizado neste aparelho. Não é seguro vender offline.');
+ if(!registerState?.open||!registerState?.register?.id||!registerState?.register?.code)throw new Error('Não existe um caixa aberto sincronizado neste aparelho. Não é seguro vender offline.');
+ const cachedAt=Date.parse(registerState._offline_cached_at||'');
+ if(!Number.isFinite(cachedAt)||Date.now()-cachedAt>MAX_REGISTER_CACHE_AGE)throw new Error('O estado do caixa neste aparelho está antigo. Reconecte à internet antes de continuar vendendo offline.');
+ if(localDay(registerState.register.opened_at)!==localDay())throw new Error('O caixa sincronizado pertence a outro dia. Reconecte à internet para confirmar o caixa de hoje.');
  const operator=(registerState.operators||[]).find(item=>String(item.code)===String(payload.operator_code));if(!operator)throw new Error('O operador informado não está no último quadro sincronizado. Conecte à internet para atualizar os operadores.');
  const index=variantIndex(catalog);const pending=await queuedQuantities();const grouped=new Map();
  for(const item of payload.items||[]){const id=String(item.variant_id||'');if(!id)throw new Error('Item sem variação.');grouped.set(id,(grouped.get(id)||0)+Math.max(1,Number(item.quantity)||1))}if(!grouped.size)throw new Error('Carrinho vazio.');
@@ -88,8 +96,9 @@ export async function prepareOfflineSale(payload){
  const discount=Math.max(0,Number(payload.discount)||0);if(discount>subtotal)throw new Error('Desconto maior que o subtotal.');
  const total=Number((subtotal-discount+Math.max(0,Number(payload.payment_fee)||0)).toFixed(2));
  const payments=Array.isArray(payload.payments)&&payload.payments.length?payload.payments:[{method:payload.payment_method||'PIX',amount:total,meta:payload.payment_meta||{}}];const paymentTotal=payments.reduce((sum,payment)=>sum+Math.max(0,Number(payment.amount)||0),0);if(Math.abs(paymentTotal-total)>0.01)throw new Error('A soma dos pagamentos não corresponde ao total da venda.');
+ const queuedPayload={...payload,test_mode_expected:false,expected_register_id:registerState.register.id,expected_register_code:registerState.register.code,offline_created_at:new Date().toISOString()};
  const result={id:`offline:${requestId}`,code:`OFF-${requestId.replace(/[^a-z0-9]/gi,'').slice(0,6).toUpperCase()||Date.now().toString().slice(-6)}`,status:'queued',offline_queued:true,saved:true,test_mode:false,operator_code:String(payload.operator_code),operator_name:operator.name||'Operador',register_code:registerState.register.code,settlement_status:'offline_pending',subtotal,discount,total,payments,customer_id:payload.customer_id||null,customer_name:payload.customer_name||'Cliente Balcão'};
- await queueOfflineSale({id:requestId,payload:{...payload,test_mode_expected:false},offline_result:result,register_code:registerState.register.code});return result;
+ await queueOfflineSale({id:requestId,payload:queuedPayload,offline_result:result,register_id:registerState.register.id,register_code:registerState.register.code});return result;
 }
 
 export async function syncOfflineSales(sender,{isNetworkError}={}){
