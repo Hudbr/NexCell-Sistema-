@@ -19,7 +19,8 @@ function sanitizeReceipt(root=$('receiptContent')){
  if(!root)return;
  root.querySelectorAll('span').forEach(label=>{
   if(label.textContent.trim()!=='Operador')return;
-  const strong=label.parentElement?.querySelector('strong');const match=strong?.textContent?.match(/#\s*([A-Za-z0-9_-]+)/);if(match)strong.textContent=`#${match[1]}`;
+  const strong=label.parentElement?.querySelector('strong');const match=strong?.textContent?.match(/#\s*([A-Za-z0-9_-]+)/);if(!match)return;
+  const safe=`#${match[1]}`;if(strong.textContent!==safe)strong.textContent=safe;
  });
  root.querySelectorAll('p').forEach(paragraph=>{const current=paragraph.textContent||'';const match=current.match(/^(.*?Operador\s*#\s*[A-Za-z0-9_-]+)/);if(match&&current!==match[1])paragraph.textContent=match[1]});
 }
