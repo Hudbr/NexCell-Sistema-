@@ -1,3 +1,4 @@
+import './modules/password-reset-request.js'
 import'./runtime.js'
 import{getSession,getSupabase}from'./supabase.js'
 
