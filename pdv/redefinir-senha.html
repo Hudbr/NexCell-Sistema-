@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#111827">
+    <title>Redefinir senha | NexCell PDV</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/workspace.css">
+  </head>
+  <body class="workspace-body">
+    <section class="auth-screen" style="display:grid">
+      <div class="auth-card">
+        <div class="auth-brand">
+          <span class="brand-mark">NC</span>
+          <span class="brand-copy"><strong>NexCell PDV</strong><span>Recuperação de acesso</span></span>
+        </div>
+
+        <form class="auth-view" id="newPasswordForm" hidden>
+          <div>
+            <h1>Criar nova senha</h1>
+            <p>Digite uma nova senha para a sua conta NexCell.</p>
+          </div>
+          <div class="field">
+            <label for="newPassword">Nova senha</label>
+            <input class="input" id="newPassword" type="password" minlength="8" required autocomplete="new-password">
+          </div>
+          <div class="field">
+            <label for="confirmPassword">Confirmar nova senha</label>
+            <input class="input" id="confirmPassword" type="password" minlength="8" required autocomplete="new-password">
+          </div>
+          <button class="btn btn-primary btn-block" id="savePassword" type="submit">Salvar nova senha</button>
+          <div class="auth-message" id="recoveryMessage"></div>
+        </form>
+
+        <div class="auth-view" id="loadingView">
+          <div>
+            <h1>Validando link</h1>
+            <p>Estamos verificando sua solicitação de recuperação.</p>
+          </div>
+          <div class="auth-message show">Aguarde a validação do link seguro.</div>
+        </div>
+
+        <div class="auth-view" id="invalidView" hidden>
+          <div>
+            <h1>Link inválido ou expirado</h1>
+            <p>Solicite um novo link de recuperação pelo PDV.</p>
+          </div>
+          <a class="btn btn-primary btn-block" href="./">Voltar ao PDV</a>
+        </div>
+
+        <div class="auth-view" id="successView" hidden>
+          <div>
+            <h1>Senha alterada</h1>
+            <p>Sua nova senha já pode ser usada para entrar novamente.</p>
+          </div>
+          <div class="auth-message show">A alteração vale para a mesma conta NexCell usada nos módulos integrados.</div>
+          <a class="btn btn-primary btn-block" href="./">Voltar ao login do PDV</a>
+        </div>
+      </div>
+    </section>
+
+    <script type="module">
+      import { getSupabase } from './supabase.js'
+
+      const $ = (id) => document.getElementById(id)
+      const form = $('newPasswordForm')
+      const loading = $('loadingView')
+      const invalid = $('invalidView')
+      const success = $('successView')
+      const message = $('recoveryMessage')
+      const button = $('savePassword')
+      let recoveryReady = false
+
+      function showOnly(target) {
+        ;[form, loading, invalid, success].forEach((node) => {
+          if (node) node.hidden = node !== target
+        })
+      }
+
+      function showMessage(text, error = false) {
+        if (!message) return
+        message.textContent = text
+        message.style.color = error ? 'var(--danger)' : '#475467'
+        message.classList.toggle('show', Boolean(text))
+      }
+
+      function recoveryRequested() {
+        const query = new URLSearchParams(location.search)
+        const hash = new URLSearchParams(location.hash.replace(/^#/, ''))
+        return query.get('recovery') === '1' || hash.get('type') === 'recovery'
+      }
+
+      function hasCallbackError() {
+        const query = new URLSearchParams(location.search)
+        const hash = new URLSearchParams(location.hash.replace(/^#/, ''))
+        return Boolean(query.get('error') || hash.get('error') || query.get('error_code') || hash.get('error_code'))
+      }
+
+      async function init() {
+        if (!recoveryRequested() || hasCallbackError()) {
+          showOnly(invalid)
+          return
+        }
+
+        try {
+          const client = await getSupabase()
+          client.auth.onAuthStateChange((event, session) => {
+            if (event === 'PASSWORD_RECOVERY' && session?.user) {
+              recoveryReady = true
+              showOnly(form)
+            }
+          })
+
+          const { data, error } = await client.auth.getSession()
+          if (error) throw error
+          if (data?.session?.user) {
+            recoveryReady = true
+            showOnly(form)
+            return
+          }
+
+          setTimeout(() => {
+            if (!recoveryReady) showOnly(invalid)
+          }, 2500)
+        } catch (error) {
+          console.error('Falha ao validar recuperação de senha', error)
+          showOnly(invalid)
+        }
+      }
+
+      form?.addEventListener('submit', async (event) => {
+        event.preventDefault()
+        const password = $('newPassword')?.value || ''
+        const confirmation = $('confirmPassword')?.value || ''
+
+        if (!recoveryReady) {
+          showMessage('O link de recuperação não está mais válido. Solicite outro link.', true)
+          return
+        }
+        if (password.length < 8) {
+          showMessage('A nova senha deve ter pelo menos 8 caracteres.', true)
+          return
+        }
+        if (password !== confirmation) {
+          showMessage('As senhas digitadas não coincidem.', true)
+          return
+        }
+
+        button.disabled = true
+        button.textContent = 'Salvando…'
+        showMessage('')
+
+        try {
+          const client = await getSupabase()
+          const { error } = await client.auth.updateUser({ password })
+          if (error) throw error
+          await client.auth.signOut()
+          history.replaceState({}, document.title, './redefinir-senha.html')
+          showOnly(success)
+        } catch (error) {
+          console.error('Falha ao atualizar senha', error)
+          const raw = String(error?.message || '').toLowerCase()
+          if (raw.includes('same password')) showMessage('Escolha uma senha diferente da atual.', true)
+          else if (raw.includes('weak') || raw.includes('password')) showMessage('A senha não atende aos requisitos de segurança. Tente uma senha mais forte.', true)
+          else showMessage('Não foi possível alterar a senha. Solicite um novo link e tente novamente.', true)
+        } finally {
+          button.disabled = false
+          button.textContent = 'Salvar nova senha'
+        }
+      })
+
+      init()
+    </script>
+  </body>
+</html>
