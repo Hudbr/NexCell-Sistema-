@@ -1,5 +1,6 @@
 import './modules/password-reset-request.js'
 import'./runtime.js'
+import'./modules/cash-withdrawals.js'
 import{getSession,getSupabase}from'./supabase.js'
 
 let enabled=null
