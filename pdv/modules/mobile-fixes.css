@@ -1,0 +1,243 @@
+/* Correções específicas do PDV em telas pequenas.
+   Mantidas separadas para não alterar o layout desktop. */
+
+@media (max-width: 760px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .workspace-main,
+  .workspace-content,
+  .workspace-view,
+  .card,
+  .card-body {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .workspace-topbar {
+    padding-top: max(8px, env(safe-area-inset-top));
+  }
+
+  .topbar-title {
+    min-width: 0;
+  }
+
+  .topbar-title h1,
+  .topbar-title p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .workspace-content {
+    padding-bottom: calc(98px + env(safe-area-inset-bottom));
+  }
+
+  /* Evita o zoom automático do Safari/iOS ao focar campos menores que 16px. */
+  .input,
+  .select,
+  .textarea,
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  .view-head {
+    width: 100%;
+  }
+
+  .view-head > .btn {
+    width: 100%;
+  }
+
+  /* Barra inferior respeitando a área do indicador Home do iPhone. */
+  .mobile-nav {
+    height: auto !important;
+    min-height: calc(66px + env(safe-area-inset-bottom));
+    padding-bottom: calc(5px + env(safe-area-inset-bottom));
+  }
+
+  .mobile-cart-bar {
+    bottom: calc(76px + env(safe-area-inset-bottom));
+  }
+
+  /* Carrinho em tela cheia sem esconder ações sob notch/home indicator. */
+  .checkout-panel .card-head {
+    padding-top: calc(12px + env(safe-area-inset-top));
+  }
+
+  .checkout-panel .checkout-summary {
+    padding-bottom: calc(13px + env(safe-area-inset-bottom));
+  }
+
+  /* Modais em formato bottom-sheet com rodapé realmente clicável no iPhone. */
+  .modal-footer {
+    padding-bottom: calc(18px + env(safe-area-inset-bottom));
+  }
+
+  /* ABA ESTOQUE: remove o grid desktop largo/horizontal e transforma cada item em card responsivo. */
+  #stockManageList > div > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    overflow: visible !important;
+    padding: 10px !important;
+  }
+
+  #stockManageList > div > div > div {
+    min-width: 0;
+  }
+
+  #stockManageList > div > div > div:first-child {
+    grid-column: 1 / -1;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border, var(--line));
+  }
+
+  #stockManageList > div > div > div:not(:first-child) {
+    display: grid;
+    gap: 3px;
+    padding: 8px;
+    border-radius: 9px;
+    background: var(--surface-soft, #f6f5f2);
+  }
+
+  #stockManageList > div > div > button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  /* ABA CAIXA: os totais por operador deixam de exigir rolagem horizontal. */
+  #cashSellerList .card-body {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    overflow: visible !important;
+  }
+
+  #cashSellerList .card-body > div {
+    min-width: 0;
+  }
+
+  #cashSellerList .card-body > div:first-child {
+    grid-column: 1 / -1;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border, var(--line));
+  }
+
+  #cashSellerList .card-body > div:not(:first-child) {
+    display: grid;
+    gap: 3px;
+    padding: 8px;
+    border-radius: 9px;
+    background: var(--surface-soft, #f6f5f2);
+  }
+
+  #cashSellerList .card-body strong,
+  #stockManageList strong {
+    overflow-wrap: anywhere;
+  }
+
+  /* ABA ORÇAMENTOS: botões não comprimem o nome/valor nem vazam da tela. */
+  #savedBudgets > article {
+    grid-template-columns: 1fr !important;
+  }
+
+  #savedBudgets > article > div:last-child {
+    width: 100%;
+  }
+
+  #savedBudgets > article > div:last-child .btn {
+    flex: 1 1 120px;
+  }
+
+  /* ABA PEDIDOS: cabeçalho do pedido quebra linha de forma previsível. */
+  #onlineOrdersList .card-body > div:first-child {
+    flex-wrap: wrap;
+  }
+
+  #onlineOrdersList .card-body > div:first-child > div {
+    min-width: 0;
+    flex: 1 1 210px;
+  }
+
+  #onlineOrdersList .card-body > div:first-child > strong {
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
+  #onlineOrdersList .card-body .btn {
+    flex: 1 1 150px;
+  }
+
+  /* ABA HISTÓRICO: valores e descrição dos itens não estouram o card. */
+  .pdv-sale-head {
+    flex-wrap: wrap;
+  }
+
+  .pdv-sale-head > div {
+    min-width: 0;
+    flex: 1 1 210px;
+  }
+
+  .pdv-sale-total {
+    margin-left: auto;
+  }
+
+  .pdv-sale-items > div > div,
+  .pdv-sale-items > div > div > span {
+    min-width: 0;
+  }
+
+  .pdv-sale-items > div > div > span {
+    overflow-wrap: anywhere;
+  }
+
+  /* ABA CLIENTES/PERFIL: textos longos nunca criam largura maior que a viewport. */
+  .pdv-customer-grid,
+  .pdv-customer-row,
+  .pdv-customer-summary,
+  #profileSummary {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .pdv-customer-row span,
+  .pdv-customer-summary strong,
+  #profileSummary strong {
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 480px) {
+  .workspace-content {
+    padding-inline: 10px;
+  }
+
+  .mobile-cart-bar {
+    right: 8px;
+    left: 8px;
+  }
+
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding-inline: 14px;
+  }
+
+  .modal-footer {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+  }
+
+  #cashSellerList .card-body,
+  #stockManageList > div > div {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
