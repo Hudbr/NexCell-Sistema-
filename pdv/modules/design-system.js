@@ -1,12 +1,18 @@
 import{replaceLegacyIcons}from'./icons.js';
 
 function ensureStyles(){
- if(document.querySelector('link[data-nexcell-design-system]'))return;
- const link=document.createElement('link');
- link.rel='stylesheet';
- link.href='./modules/nexcell-design-system.css';
- link.dataset.nexcellDesignSystem='1';
- document.head.appendChild(link);
+ const styles=[
+  ['nexcell-design-system','./modules/nexcell-design-system.css'],
+  ['pdv-mobile-fixes','./modules/mobile-fixes.css'],
+ ];
+ styles.forEach(([key,href])=>{
+  if(document.querySelector(`link[data-pdv-style="${key}"]`))return;
+  const link=document.createElement('link');
+  link.rel='stylesheet';
+  link.href=href;
+  link.dataset.pdvStyle=key;
+  document.head.appendChild(link);
+ });
 }
 
 ensureStyles();
